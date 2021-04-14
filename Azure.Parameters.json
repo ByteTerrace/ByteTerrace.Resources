@@ -29,9 +29,6 @@
                     ],
                     "public": [
                         {
-                            "name": "bytrc.com"
-                        },
-                        {
                             "name": "byteterrace.app"
                         },
                         {
@@ -54,114 +51,12 @@
                         },
                         {
                             "name": "byteterrace.xyz"
+                        },
+                        {
+                            "name": "bytrc.com"
                         }
                     ]
                 },
-                "eventGrid": {
-                    "domains": [
-                        {
-                            "auditLogAnalyticsWorkspaceName": "byteterrace",
-                            "name": "byteterrace"
-                        }
-                    ],
-                    "eventSubscriptions": [
-                        {
-                            "destination": {
-                                "endpointType": "StorageQueue",
-                                "queueName": "default",
-                                "resourcePath": "byteterrace",
-                                "resourceType": "Microsoft.Storage/storageAccounts"
-                            },
-                            "name": "byteterrace-default-storage",
-                            "topicName": "byteterrace-default"
-                        }
-                    ],
-                    "topics": [
-                        {
-                            "auditLogAnalyticsWorkspaceName": "byteterrace",
-                            "name": "byteterrace-default"
-                        }
-                    ]
-                },
-                "frontDoors": [
-                    {
-                        "auditLogAnalyticsWorkspaceName": "byteterrace",
-                        "backendPools": [
-                            {
-                                "healthProbeSettingsName": "https",
-                                "httpAddress": "www.linkedin.com",
-                                "loadBalancingSettingsName": "default",
-                                "name": "LinkedIn"
-                            }
-                        ],
-                        "frontendEndpoints": [
-                            {
-                                "hostName": "kittoes.com"
-                            },
-                            {
-                                "hostName": "kittoes.info"
-                            },
-                            {
-                                "hostName": "iamtheborg.com"
-                            },
-                            {
-                                "hostName": "www.kittoes.com"
-                            },
-                            {
-                                "hostName": "www.kittoes.info"
-                            },
-                            {
-                                "hostName": "www.iamtheborg.com"
-                            }
-                        ],
-                        "healthProbeSettings": [
-                            {
-                                "intervalInSeconds": 255,
-                                "method": "Head",
-                                "name": "https",
-                                "path": "/",
-                                "protocol": "Https"
-                            }
-                        ],
-                        "name": "byteterrace",
-                        "routingRules": [
-                            {
-                                "acceptedProtocols": [
-                                    "Http",
-                                    "Https"
-                                ],
-                                "customHost": "www.linkedin.com",
-                                "customPath": "/in/kittoes0124",
-                                "frontendEndpoints": [
-                                    {
-                                        "name": "kittoes-com"
-                                    },
-                                    {
-                                        "name": "kittoes-info"
-                                    },
-                                    {
-                                        "name": "iamtheborg-com"
-                                    },
-                                    {
-                                        "name": "www-kittoes-com"
-                                    },
-                                    {
-                                        "name": "www-kittoes-info"
-                                    },
-                                    {
-                                        "name": "www-iamtheborg-com"
-                                    }
-                                ],
-                                "name": "LinkedIn-Kittoes0124",
-                                "patternsToMatch": [
-                                    "/*"
-                                ],
-                                "redirectProtocol": "HttpsOnly",
-                                "redirectType": "Found"
-                            }
-                        ]
-                    }
-                ],
                 "keyVaults": [
                     {
                         "auditLogAnalyticsWorkspaceName": "byteterrace",
@@ -174,14 +69,6 @@
                         ]
                     }
                 ],
-                "logic": {
-                    "applications": [
-                        {
-                            "auditLogAnalyticsWorkspaceName": "byteterrace",
-                            "name": "byteterrace"
-                        }
-                    ]
-                },
                 "monitor": {
                     "applicationInsightsComponents": [
                         {

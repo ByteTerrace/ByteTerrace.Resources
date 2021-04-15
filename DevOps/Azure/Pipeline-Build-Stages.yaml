@@ -1,0 +1,10 @@
+stages:
+- stage: 'Build'
+  displayName: 'Build'
+  pool:
+    vmImage: 'windows-latest'
+  jobs:
+  - job: 'Build'
+    displayName: 'Build'
+    steps:
+    - template: './Pipeline-Build-Steps.yaml'

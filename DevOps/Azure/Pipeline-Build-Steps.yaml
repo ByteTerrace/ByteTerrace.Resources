@@ -1,0 +1,15 @@
+steps:
+- task: CopyFiles@2
+  displayName: 'copy infrastructure definition(s)'
+  enabled: true
+  inputs:
+    cleanTargetFolder: true
+    contents: '*.json'
+    sourceFolder: ${{ format('{0}', '$(Build.SourcesDirectory)') }}
+    targetFolder: ${{ format('{0}/DevOps', '$(Build.ArtifactStagingDirectory)') }}
+- task: PublishPipelineArtifact@1
+  displayName: 'publish infrastructure definition(s)'
+  enabled: true
+  inputs:
+    artifactName: 'Infrastructure Definition(s)'
+    targetPath: ${{ format('{0}/DevOps', '$(Build.ArtifactStagingDirectory)') }}

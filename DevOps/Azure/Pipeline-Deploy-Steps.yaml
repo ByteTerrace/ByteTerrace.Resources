@@ -1,0 +1,41 @@
+steps:
+- task: AzureCLI@2
+  displayName: 'deploy resource group - byteterrace'
+  enabled: true
+  inputs:
+    arguments:
+      -deploymentName '$(Build.BuildNumber)' `
+      -parametersFilePath '${{ format('{0}/Infrastructure Definition(s)/Azure.Parameters.json', '$(Pipeline.Workspace)') }}' `
+      -resourceGroupName 'byteterrace' `
+      -templateSpecVersion '1.0.0'
+    azurePowerShellVersion: 'LatestVersion'
+    azureSubscription: 'Azure - ByteTerrace'
+    failOnStandardError: false
+    inlineScript: |
+      param(
+          [Parameter(Mandatory=$true)]
+          [string]$deploymentName,
+          [Parameter(Mandatory=$true)]
+          [string]$parametersFilePath,
+          [Parameter(Mandatory=$true)]
+          [string]$resourceGroupName,
+          [Parameter(Mandatory=$true)]
+          [string]$templateSpecVersion
+      );
+
+      $templateSpecId = (az ts show `
+          --name 'ResourceGroupDeployment' `
+          --query 'id' `
+          --resource-group 'byteterrace' `
+          --subscription 'byteterrace' `
+          --version $templateSpecVersion);
+
+      az deployment group create `
+          --mode 'Incremental' `
+          --name $deploymentName `
+          --parameters ('@{0}' -f $parametersFilePath) `
+          --resource-group $resourceGroupName `
+          --template-spec $templateSpecId;
+    powerShellErrorActionPreference: 'Stop'
+    scriptLocation: 'InlineScript'
+    scriptType: 'pscore'

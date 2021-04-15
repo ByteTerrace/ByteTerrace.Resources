@@ -1,0 +1,14 @@
+stages:
+- stage: 'Deploy'
+  displayName: 'Deploy'
+  jobs:
+  - deployment: 'Deploy'
+    displayName: 'Deploy'
+    environment: 'Production'
+    pool:
+      vmImage: 'windows-latest'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - template: './Pipeline-Deploy-Steps.yaml'

@@ -9,12 +9,12 @@ trigger:
 resources:
   repositories:
   - repository: 'AzureDevOpsTemplates'
-    name: 'Azure/DevOps.Templates'
+    name: 'Azure/DevOps'
     ref: 'refs/heads/main'
     type: 'git'
 
 extends:
-  template: ${{ format('{0}/Pipelines/Generic.yaml@AzureDevOpsTemplates', variables['Pipeline.Workspace']) }}
+  template: ${{ format('{0}/Pipelines/Restricted.yaml@AzureDevOpsTemplates', variables['Pipeline.Workspace']) }}
   parameters:
     stages:
     - template: './Pipeline-Build-Stages.yaml'

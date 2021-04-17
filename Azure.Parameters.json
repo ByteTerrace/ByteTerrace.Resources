@@ -4,6 +4,23 @@
     "parameters": {
         "resourceDefinitions": {
             "value": {
+                "bastionHosts": [
+                    {
+                        "ipConfigurations": [
+                            {
+                                "name": "default",
+                                "publicIpAddress": {
+                                    "name": "AzureBastionPublicIpAddress"
+                                },
+                                "virtualNetwork": {
+                                    "name": "byteterrace.net",
+                                    "subnetName": "AzureBastionSubnet"
+                                }
+                            }
+                        ],
+                        "name": "byteterrace"
+                    }
+                ],
                 "cdnProfiles": [
                     {
                         "auditLogAnalyticsWorkspaceName": "byteterrace",
@@ -221,10 +238,10 @@
                 },
                 "natGateways": [
                     {
-                        "name": "byteterrace.net",
+                        "name": "AzureContainerGroupsNatGateway",
                         "publicIpAddresses": [
                             {
-                                "name": "byteterrace"
+                                "name": "AzureContainerGroupsPublicIpAddress"
                             }
                         ]
                     }
@@ -461,8 +478,19 @@
                             "2",
                             "3"
                         ],
-                        "dnsPrefix": "byteterrace",
-                        "name": "byteterrace",
+                        "name": "AzureBastionPublicIpAddress",
+                        "skuName": "Standard",
+                        "skuTier": "Regional",
+                        "version": "IPv4"
+                    },
+                    {
+                        "auditLogAnalyticsWorkspaceName": "byteterrace",
+                        "availabilityZones": [
+                            "1",
+                            "2",
+                            "3"
+                        ],
+                        "name": "AzureContainerGroupsPublicIpAddress",
                         "skuName": "Standard",
                         "skuTier": "Regional",
                         "version": "IPv4"
@@ -522,6 +550,9 @@
                                     }
                                 ],
                                 "name": "AzureContainerGroupsSubnet",
+                                "natGateway": {
+                                    "name": "AzureContainerGroupsNatGateway"
+                                },
                                 "networkSecurityGroup": {
                                     "name": "AzureContainerGroupsNetworkSecurityGroup"
                                 }
@@ -538,9 +569,6 @@
                                 "addressPrefix": "10.255.255.192/26",
                                 "isPrivateEndpointSupportEnabled": true,
                                 "name": "byteterrace",
-                                "natGateway": {
-                                    "name": "byteterrace.net"
-                                },
                                 "networkSecurityGroup": {
                                     "name": "byteterrace.net"
                                 },

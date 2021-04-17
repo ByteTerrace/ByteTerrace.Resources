@@ -451,6 +451,9 @@
                                 "name": "privatelink.agentsvc.azure-automation.net"
                             },
                             {
+                                "name": "privatelink.blob.core.windows.net"
+                            },
+                            {
                                 "name": "privatelink.monitor.azure.com"
                             },
                             {

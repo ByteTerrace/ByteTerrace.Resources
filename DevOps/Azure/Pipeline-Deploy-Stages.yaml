@@ -12,3 +12,5 @@ stages:
         deploy:
           steps:
           - template: './Pipeline-Deploy-Steps.yaml'
+  variables:
+  - group: 'Azure - ByteTerrace'

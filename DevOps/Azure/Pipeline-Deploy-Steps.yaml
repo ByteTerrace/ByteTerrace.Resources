@@ -1,4 +1,11 @@
 steps:
+- task: FileTransform@1
+  displayName: 'transform infrastructure definition(s)'
+  enabled: true
+  inputs:
+    fileType: 'json'
+    folderPath: ${{ format('{0}/Infrastructure Definition(s)', '$(Pipeline.Workspace)') }}
+    targetFiles: 'Azure.Parameters.json'
 - task: AzureCLI@2
   displayName: 'deploy resource group - byteterrace'
   enabled: true

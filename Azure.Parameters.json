@@ -51,22 +51,53 @@
                 "dnsZones": {
                     "private": [
                         {
-                            "name": "byteterrace.net"
+                            "name": "byteterrace.net",
+                            "virtualNetworkLinks": [
+                                {
+                                    "isAutomaticVmRegistrationEnabled": true,
+                                    "name": "byteterrace.net"
+                                }
+                            ]
                         },
                         {
-                            "name": "privatelink.agentsvc.azure-automation.net"
+                            "name": "privatelink.agentsvc.azure-automation.net",
+                            "virtualNetworkLinks": [
+                                {
+                                    "name": "byteterrace.net"
+                                }
+                            ]
                         },
                         {
-                            "name": "privatelink.blob.core.windows.net"
+                            "name": "privatelink.blob.core.windows.net",
+                            "virtualNetworkLinks": [
+                                {
+                                    "name": "byteterrace.net"
+                                }
+                            ]
                         },
                         {
-                            "name": "privatelink.monitor.azure.com"
+                            "name": "privatelink.monitor.azure.com",
+                            "virtualNetworkLinks": [
+                                {
+                                    "name": "byteterrace.net"
+                                }
+                            ]
                         },
                         {
-                            "name": "privatelink.ods.opinsights.azure.com"
+                            "name": "privatelink.ods.opinsights.azure.com",
+                            "virtualNetworkLinks": [
+                                {
+                                    "name": "byteterrace.net"
+                                }
+                            ]
                         },
                         {
-                            "name": "privatelink.oms.opinsights.azure.com"
+                            "name": "privatelink.oms.opinsights.azure.com",
+                            "virtualNetworkLinks": [
+                                {
+                                    "name": "byteterrace.net"
+                                }
+                            ]
                         }
                     ],
                     "public": [

@@ -636,7 +636,7 @@
                         "version": "IPv4"
                     }
                 ],
-                "_sqlServers": [
+                "sqlServers": [
                     {
                         "auditLogAnalyticsWorkspaceName": "byteterrace",
                         "databases": [

@@ -62,19 +62,20 @@
                         "name": "byteterrace"
                     }
                 ],
-                "_containerInstances": [
+                "containerRegistries": [
                     {
-                        "containers": [
-                            {
-                                "name": "byteterrace"
-                            }
-                        ],
+                        "isAdministratorAccountEnabled": false,
+                        "isPublicNetworkAccessEnabled": false,
                         "name": "byteterrace",
-                        "operatingSystemName": "Linux",
-                        "restartPolicy": "Always",
-                        "skuName": "Standard",
-                        "subnetName": "AzureContainerGroupsSubnet",
-                        "virtualNetworkName": "byteterrace.net"
+                        "skuName": "Premium",
+                        "virtualNetworkRules": [
+                            {
+                                "subnet": {
+                                    "name": "byteterrace",
+                                    "virtualNetworkName": "byteterrace.net"
+                                }
+                            }
+                        ]
                     }
                 ],
                 "diskEncryptionSets": [
@@ -113,7 +114,23 @@
                             ]
                         },
                         {
+                            "name": "privatelink.azurecr.io",
+                            "virtualNetworkLinks": [
+                                {
+                                    "name": "byteterrace.net"
+                                }
+                            ]
+                        },
+                        {
                             "name": "privatelink.blob.core.windows.net",
+                            "virtualNetworkLinks": [
+                                {
+                                    "name": "byteterrace.net"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "privatelink.database.windows.net",
                             "virtualNetworkLinks": [
                                 {
                                     "name": "byteterrace.net"
@@ -138,6 +155,22 @@
                         },
                         {
                             "name": "privatelink.oms.opinsights.azure.com",
+                            "virtualNetworkLinks": [
+                                {
+                                    "name": "byteterrace.net"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "privatelink.queue.core.windows.net",
+                            "virtualNetworkLinks": [
+                                {
+                                    "name": "byteterrace.net"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "privatelink.scus.backup.windowsazure.com",
                             "virtualNetworkLinks": [
                                 {
                                     "name": "byteterrace.net"
@@ -580,6 +613,21 @@
                     {
                         "dnsZones": [
                             {
+                                "name": "privatelink.azurecr.io"
+                            }
+                        ],
+                        "groupIds": [
+                            "registry"
+                        ],
+                        "linkedResourcePath": "registries/byteterrace",
+                        "linkedResourceProviderName": "Microsoft.ContainerRegistry",
+                        "name": "byteterrace-containerregistry-privateendpoint",
+                        "subnetName": "byteterrace",
+                        "virtualNetworkName": "byteterrace.net"
+                    },
+                    {
+                        "dnsZones": [
+                            {
                                 "name": "privatelink.agentsvc.azure-automation.net"
                             },
                             {
@@ -601,6 +649,21 @@
                         "linkedResourcePath": "privateLinkScopes/byteterrace",
                         "linkedResourceProviderName": "Microsoft.Insights",
                         "name": "byteterrace-monitor-privateendpoint",
+                        "subnetName": "byteterrace",
+                        "virtualNetworkName": "byteterrace.net"
+                    },
+                    {
+                        "dnsZones": [
+                            {
+                                "name": "privatelink.database.windows.net"
+                            }
+                        ],
+                        "groupIds": [
+                            "sqlServer"
+                        ],
+                        "linkedResourcePath": "servers/byteterrace",
+                        "linkedResourceProviderName": "Microsoft.Sql",
+                        "name": "byteterrace-sqlserver-privateendpoint",
                         "subnetName": "byteterrace",
                         "virtualNetworkName": "byteterrace.net"
                     }
@@ -636,15 +699,42 @@
                         "version": "IPv4"
                     }
                 ],
+                "recoveryServicesVault": [
+                    {
+                        "auditLogAnalyticsWorkspaceName": "byteterrace",
+                        "keyName": "byteterrace-virtualmachine-diskencryption",
+                        "keyVaultName": "byteterrace",
+                        "keyVersion": "256e239939b74658a495edd9f5023420",
+                        "name": "byteterrace"
+                    }
+                ],
+                "sharedImageGalleries": [
+                    {
+                        "name": "byteterrace"
+                    }
+                ],
                 "sqlServers": [
                     {
+                        "activeDirectoryAdministratorObjectId": "fa945052-f57e-4710-8368-a3190f2b6cff",
+                        "activeDirectoryAdministratorUserName": "BYTETERRACE-SQLSERVER-ADMINISTRATORS",
                         "auditLogAnalyticsWorkspaceName": "byteterrace",
                         "databases": [
                             {
-                                "name": "byteterrace"
+                                "name": "byteterrace",
+                                "skuName": "Basic"
                             }
                         ],
-                        "name": "byteterrace"
+                        "isPublicNetworkAccessEnabled": false,
+                        "name": "byteterrace",
+                        "virtualNetworkRules": [
+                            {
+                                "name": "byteterrace",
+                                "subnet": {
+                                    "name": "byteterrace",
+                                    "virtualNetworkName": "byteterrace.net"
+                                }
+                            }
+                        ]
                     }
                 ],
                 "storageAccounts": [
@@ -665,6 +755,12 @@
                 "virtualMachines": [
                     {
                         "availabilitySetName": "byteterrace",
+                        "dataDisks": [
+                            {
+                                "cachingMode": "ReadOnly",
+                                "diskSizeInGigabytes": 256
+                            }
+                        ],
                         "diskEncryptionSetName": "byteterrace",
                         "imageReference": {
                             "offer": "Windows-10",
@@ -756,6 +852,12 @@
                                             "*"
                                         ],
                                         "service": "Microsoft.AzureCosmosDB"
+                                    },
+                                    {
+                                        "locations": [
+                                            "*"
+                                        ],
+                                        "service": "Microsoft.ContainerRegistry"
                                     },
                                     {
                                         "locations": [

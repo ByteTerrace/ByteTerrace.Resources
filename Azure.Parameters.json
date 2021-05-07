@@ -4,10 +4,24 @@
     "parameters": {
         "resourceDefinitions": {
             "value": {
-                "applicationConfigurationStores": [
+                "_applicationConfigurationStores": [
                     {
-                        "isPublicNetworkAccessEnabled": true,
+                        "isPublicNetworkAccessEnabled": false,
                         "name": "byteterrace",
+                        "privateEndpoints": [
+                            {
+                                "dnsZones": [
+                                    {
+                                        "name": "privatelink.azconfig.io"
+                                    }
+                                ],
+                                "name": "byteterrace-azconfig-privateendpoint",
+                                "subnet": {
+                                    "name":"byteterrace",
+                                    "virtualNetworkName": "byteterrace.net"
+                                }
+                            }
+                        ],
                         "settings": {
                             "array": [
                                 {
@@ -32,7 +46,7 @@
                         "proximityPlacementGroupName": "byteterrace"
                     }
                 ],
-                "bastionHosts": [
+                "_bastionHosts": [
                     {
                         "auditLogAnalyticsWorkspaceName": "byteterrace",
                         "ipConfigurations": [
@@ -50,23 +64,38 @@
                         "name": "byteterrace"
                     }
                 ],
-                "cdnProfiles": [
+                "_cdnProfiles": [
                     {
                         "auditLogAnalyticsWorkspaceName": "byteterrace",
-                        "name": "byteterrace-net"
+                        "name": "byteterrace",
+                        "skuName": "Premium_AzureFrontDoor"
                     }
                 ],
-                "communicationServices": [
+                "_communicationServices": [
                     {
                         "auditLogAnalyticsWorkspaceName": "byteterrace",
                         "name": "byteterrace"
                     }
                 ],
-                "containerRegistries": [
+                "_containerRegistries": [
                     {
                         "isAdministratorAccountEnabled": false,
                         "isPublicNetworkAccessEnabled": false,
                         "name": "byteterrace",
+                        "privateEndpoints": [
+                            {
+                                "dnsZones": [
+                                    {
+                                        "name": "privatelink.azurecr.io"
+                                    }
+                                ],
+                                "name": "byteterrace-containerregistry-privateendpoint",
+                                "subnet": {
+                                    "name":"byteterrace",
+                                    "virtualNetworkName": "byteterrace.net"
+                                }
+                            }
+                        ],
                         "skuName": "Premium",
                         "virtualNetworkRules": [
                             {
@@ -138,6 +167,22 @@
                             ]
                         },
                         {
+                            "name": "privatelink.dfs.core.windows.net",
+                            "virtualNetworkLinks": [
+                                {
+                                    "name": "byteterrace.net"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "privatelink.file.core.windows.net",
+                            "virtualNetworkLinks": [
+                                {
+                                    "name": "byteterrace.net"
+                                }
+                            ]
+                        },
+                        {
                             "name": "privatelink.monitor.azure.com",
                             "virtualNetworkLinks": [
                                 {
@@ -171,6 +216,30 @@
                         },
                         {
                             "name": "privatelink.scus.backup.windowsazure.com",
+                            "virtualNetworkLinks": [
+                                {
+                                    "name": "byteterrace.net"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "privatelink.table.core.windows.net",
+                            "virtualNetworkLinks": [
+                                {
+                                    "name": "byteterrace.net"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "privatelink.vaultcore.azure.net",
+                            "virtualNetworkLinks": [
+                                {
+                                    "name": "byteterrace.net"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "privatelink.web.core.windows.net",
                             "virtualNetworkLinks": [
                                 {
                                     "name": "byteterrace.net"
@@ -300,61 +369,30 @@
                     {
                         "auditLogAnalyticsWorkspaceName": "byteterrace",
                         "isAllowTrustedMicrosoftServicesEnabled": true,
+                        "isPublicNetworkAccessEnabled": false,
                         "name": "byteterrace",
-                        "secrets": {
+                        "privateEndpoints": [
+                            {
+                                "dnsZones": [
+                                    {
+                                        "name": "privatelink.vaultcore.azure.net"
+                                    }
+                                ],
+                                "name": "byteterrace-keyvault-privateendpoint",
+                                "subnet": {
+                                    "name":"byteterrace",
+                                    "virtualNetworkName": "byteterrace.net"
+                                }
+                            }
+                        ],
+                        "_secrets": {
                             "array": [
                                 {
                                     "name": "Namecheap-ApiKey",
                                     "value": null
                                 }
                             ]
-                        },
-                        "virtualNetworkRules": [
-                            {
-                                "subnetName": "byteterrace",
-                                "virtualNetworkName": "byteterrace.net"
-                            }
-                        ]
-                    }
-                ],
-                "loadBalancers": [
-                    {
-                        "backendAddressPools": [
-                            {
-                                "name": "default"
-                            }
-                        ],
-                        "frontendIpConfigurations": [
-                            {
-                                "name": "default",
-                                "privateIpAddress": {
-                                    "allocationMethod": "Dynamic",
-                                    "virtualNetwork": {
-                                        "name": "byteterrace.net",
-                                        "subnetName": "byteterrace"
-                                    }
-                                }
-                            }
-                        ],
-                        "healthProbes": [
-                            {
-                                "name": "https",
-                                "port": 443,
-                                "protocol": "HTTPS",
-                                "requestPath": "/healthcheck"
-                            }
-                        ],
-                        "loadBalancingRules": [
-                            {
-                                "backendAddressPoolName": "default",
-                                "frontendIpConfigurationName": "default",
-                                "healthProbeName": "HTTPS",
-                                "name": "https",
-                                "port": 443,
-                                "protocol": "TCP"
-                            }
-                        ],
-                        "name": "byteterrace"
+                        }
                     }
                 ],
                 "monitor": {
@@ -373,6 +411,32 @@
                     "privateLinkScopes": [
                         {
                             "name": "byteterrace",
+                            "privateEndpoints": [
+                                {
+                                    "dnsZones": [
+                                        {
+                                            "name": "privatelink.agentsvc.azure-automation.net"
+                                        },
+                                        {
+                                            "name": "privatelink.blob.core.windows.net"
+                                        },
+                                        {
+                                            "name": "privatelink.monitor.azure.com"
+                                        },
+                                        {
+                                            "name": "privatelink.ods.opinsights.azure.com"
+                                        },
+                                        {
+                                            "name": "privatelink.oms.opinsights.azure.com"
+                                        }
+                                    ],
+                                    "name": "byteterrace-monitor-privateendpoint",
+                                    "subnet": {
+                                        "name":"byteterrace",
+                                        "virtualNetworkName": "byteterrace.net"
+                                    }
+                                }
+                            ],
                             "scopedResources": [
                                 {
                                     "path": "components/byteterrace",
@@ -386,16 +450,6 @@
                         }
                     ]
                 },
-                "natGateways": [
-                    {
-                        "name": "AzureContainerGroupsNatGateway",
-                        "publicIpAddresses": [
-                            {
-                                "name": "AzureContainerGroupsPublicIpAddress"
-                            }
-                        ]
-                    }
-                ],
                 "networkSecurityGroups": [
                     {
                         "auditLogAnalyticsWorkspaceName": "byteterrace",
@@ -594,80 +648,6 @@
                         ]
                     }
                 ],
-                "privateEndpoints": [
-                    {
-                        "dnsZones": [
-                            {
-                                "name": "privatelink.azconfig.io"
-                            }
-                        ],
-                        "groupIds": [
-                            "configurationStores"
-                        ],
-                        "linkedResourcePath": "configurationStores/byteterrace",
-                        "linkedResourceProviderName": "Microsoft.AppConfiguration",
-                        "name": "byteterrace-appconfig-privateendpoint",
-                        "subnetName": "byteterrace",
-                        "virtualNetworkName": "byteterrace.net"
-                    },
-                    {
-                        "dnsZones": [
-                            {
-                                "name": "privatelink.azurecr.io"
-                            }
-                        ],
-                        "groupIds": [
-                            "registry"
-                        ],
-                        "linkedResourcePath": "registries/byteterrace",
-                        "linkedResourceProviderName": "Microsoft.ContainerRegistry",
-                        "name": "byteterrace-containerregistry-privateendpoint",
-                        "subnetName": "byteterrace",
-                        "virtualNetworkName": "byteterrace.net"
-                    },
-                    {
-                        "dnsZones": [
-                            {
-                                "name": "privatelink.agentsvc.azure-automation.net"
-                            },
-                            {
-                                "name": "privatelink.blob.core.windows.net"
-                            },
-                            {
-                                "name": "privatelink.monitor.azure.com"
-                            },
-                            {
-                                "name": "privatelink.ods.opinsights.azure.com"
-                            },
-                            {
-                                "name": "privatelink.oms.opinsights.azure.com"
-                            }
-                        ],
-                        "groupIds": [
-                            "azuremonitor"
-                        ],
-                        "linkedResourcePath": "privateLinkScopes/byteterrace",
-                        "linkedResourceProviderName": "Microsoft.Insights",
-                        "name": "byteterrace-monitor-privateendpoint",
-                        "subnetName": "byteterrace",
-                        "virtualNetworkName": "byteterrace.net"
-                    },
-                    {
-                        "dnsZones": [
-                            {
-                                "name": "privatelink.database.windows.net"
-                            }
-                        ],
-                        "groupIds": [
-                            "sqlServer"
-                        ],
-                        "linkedResourcePath": "servers/byteterrace",
-                        "linkedResourceProviderName": "Microsoft.Sql",
-                        "name": "byteterrace-sqlserver-privateendpoint",
-                        "subnetName": "byteterrace",
-                        "virtualNetworkName": "byteterrace.net"
-                    }
-                ],
                 "proximityPlacementGroups": [
                     {
                         "name": "byteterrace"
@@ -685,21 +665,9 @@
                         "skuName": "Standard",
                         "skuTier": "Regional",
                         "version": "IPv4"
-                    },
-                    {
-                        "auditLogAnalyticsWorkspaceName": "byteterrace",
-                        "availabilityZones": [
-                            "1",
-                            "2",
-                            "3"
-                        ],
-                        "name": "AzureContainerGroupsPublicIpAddress",
-                        "skuName": "Standard",
-                        "skuTier": "Regional",
-                        "version": "IPv4"
                     }
                 ],
-                "recoveryServicesVault": [
+                "_recoveryServicesVault": [
                     {
                         "auditLogAnalyticsWorkspaceName": "byteterrace",
                         "keyName": "byteterrace-virtualmachine-diskencryption",
@@ -718,6 +686,13 @@
                         "activeDirectoryAdministratorObjectId": "fa945052-f57e-4710-8368-a3190f2b6cff",
                         "activeDirectoryAdministratorUserName": "BYTETERRACE-SQLSERVER-ADMINISTRATORS",
                         "auditLogAnalyticsWorkspaceName": "byteterrace",
+                        "customerManagedEncryption": {
+                            "keyName": "byteterrace-sql-tde",
+                            "keyVault": {
+                                "name": "byteterrace"
+                            },
+                            "keyVersion": "b17509ade67a465f91d698e39e950390"
+                        },
                         "databases": [
                             {
                                 "name": "byteterrace",
@@ -726,11 +701,16 @@
                         ],
                         "isPublicNetworkAccessEnabled": false,
                         "name": "byteterrace",
-                        "virtualNetworkRules": [
+                        "privateEndpoints": [
                             {
-                                "name": "byteterrace",
+                                "dnsZones": [
+                                    {
+                                        "name": "privatelink.database.windows.net"
+                                    }
+                                ],
+                                "name": "byteterrace-sqlserver-privateendpoint",
                                 "subnet": {
-                                    "name": "byteterrace",
+                                    "name":"byteterrace",
                                     "virtualNetworkName": "byteterrace.net"
                                 }
                             }
@@ -739,20 +719,68 @@
                 ],
                 "storageAccounts": [
                     {
-                        "isAllowTrustedMicrosoftServicesEnabled": true,
-                        "name": "byteterrace",
-                        "queueNames": [
-                            "default"
-                        ],
-                        "virtualNetworkRules": [
-                            {
-                                "subnetName": "byteterrace",
-                                "virtualNetworkName": "byteterrace.net"
+                        "auditLogAnalyticsWorkspaceName": "byteterrace",
+                        "blobServices": {
+                            "privateEndpoints": [
+                                {
+                                    "dnsZones": [
+                                        {
+                                            "name": "privatelink.blob.core.windows.net"
+                                        }
+                                    ],
+                                    "name": "byteterrace-blobservices-privateendpoint",
+                                    "subnet": {
+                                        "name":"byteterrace",
+                                        "virtualNetworkName": "byteterrace.net"
+                                    }
+                                }
+                            ]
+                        },
+                        "customerManagedEncryption": {
+                            "keyName": "byteterrace-storage-tde",
+                            "keyVault": {
+                                "name": "byteterrace"
                             }
-                        ]
+                        },
+                        "isAllowTrustedMicrosoftServicesEnabled": true,
+                        "isPublicNetworkAccessEnabled": false,
+                        "name": "byteterrace",
+                        "queueServices": {
+                            "privateEndpoints": [
+                                {
+                                    "dnsZones": [
+                                        {
+                                            "name": "privatelink.queue.core.windows.net"
+                                        }
+                                    ],
+                                    "name": "byteterrace-queueservices-privateendpoint",
+                                    "subnet": {
+                                        "name":"byteterrace",
+                                        "virtualNetworkName": "byteterrace.net"
+                                    }
+                                }
+                            ]
+                        },
+                        "staticWebsite": {
+                            "isEnabled": true,
+                            "privateEndpoints": [
+                                {
+                                    "dnsZones": [
+                                        {
+                                            "name": "privatelink.web.core.windows.net"
+                                        }
+                                    ],
+                                    "name": "byteterrace-staticwebsite-privateendpoint",
+                                    "subnet": {
+                                        "name":"byteterrace",
+                                        "virtualNetworkName": "byteterrace.net"
+                                    }
+                                }
+                            ]
+                        }
                     }
                 ],
-                "virtualMachines": [
+                "_virtualMachines": [
                     {
                         "availabilitySetName": "byteterrace",
                         "dataDisks": [
@@ -779,10 +807,6 @@
                                         "applicationSecurityGroup": {
                                             "name": "byteterrace"
                                         },
-                                        "loadBalancer": {
-                                            "backendAddressPoolName": "default",
-                                            "name": "byteterrace"
-                                        },
                                         "name": "default",
                                         "subnet": {
                                             "name": "byteterrace",
@@ -799,19 +823,19 @@
                 "virtualNetworks": [
                     {
                         "addressPrefixes": [
-                            "10.0.0.0/8"
+                            "10.255.0.0/16"
                         ],
                         "name": "byteterrace.net",
                         "subnets": [
                             {
-                                "addressPrefix": "10.255.255.128/26",
+                                "addressPrefix": "10.255.255.96/27",
                                 "name": "AzureBastionSubnet",
                                 "networkSecurityGroup": {
                                     "name": "AzureBastionNetworkSecurityGroup"
                                 }
                             },
                             {
-                                "addressPrefix": "10.255.255.0/25",
+                                "addressPrefix": "10.255.254.0/24",
                                 "delegations": [
                                     {
                                         "name": "ACIDelegationService",
@@ -824,62 +848,25 @@
                                     }
                                 ],
                                 "name": "AzureContainerGroupsSubnet",
-                                "natGateway": {
-                                    "name": "AzureContainerGroupsNatGateway"
-                                },
                                 "networkSecurityGroup": {
                                     "name": "AzureContainerGroupsNetworkSecurityGroup"
                                 }
                             },
                             {
-                                "addressPrefix": "10.255.254.128/26",
+                                "addressPrefix": "10.255.255.128/26",
                                 "name": "AzureFirewallManagementSubnet"
                             },
                             {
-                                "addressPrefix": "10.255.254.192/26",
+                                "addressPrefix": "10.255.255.192/26",
                                 "name": "AzureFirewallSubnet"
                             },
                             {
-                                "addressPrefix": "10.255.255.192/26",
+                                "addressPrefix": "10.255.0.0/25",
                                 "isPrivateEndpointSupportEnabled": true,
                                 "name": "byteterrace",
                                 "networkSecurityGroup": {
                                     "name": "byteterrace.net"
-                                },
-                                "serviceEndpoints": [
-                                    {
-                                        "locations": [
-                                            "*"
-                                        ],
-                                        "service": "Microsoft.AzureCosmosDB"
-                                    },
-                                    {
-                                        "locations": [
-                                            "*"
-                                        ],
-                                        "service": "Microsoft.ContainerRegistry"
-                                    },
-                                    {
-                                        "locations": [
-                                            "*"
-                                        ],
-                                        "service": "Microsoft.KeyVault"
-                                    },
-                                    {
-                                        "locations": [
-                                            "southcentralus"
-                                        ],
-                                        "service": "Microsoft.Sql"
-                                    },
-                                    {
-                                        "locations": [
-                                            "brazilsouth",
-                                            "northcentralus",
-                                            "southcentralus"
-                                        ],
-                                        "service": "Microsoft.Storage"
-                                    }
-                                ]
+                                }
                             }
                         ]
                     }

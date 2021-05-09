@@ -33,12 +33,12 @@
                         }
                     }
                 ],
-                "applicationSecurityGroups": [
+                "_applicationSecurityGroups": [
                     {
                         "name": "byteterrace"
                     }
                 ],
-                "availabilitySets": [
+                "_availabilitySets": [
                     {
                         "name": "byteterrace",
                         "numberOfFaultDomains": 3,
@@ -96,18 +96,10 @@
                                 }
                             }
                         ],
-                        "skuName": "Premium",
-                        "virtualNetworkRules": [
-                            {
-                                "subnet": {
-                                    "name": "byteterrace",
-                                    "virtualNetworkName": "byteterrace.net"
-                                }
-                            }
-                        ]
+                        "skuName": "Premium"
                     }
                 ],
-                "diskEncryptionSets": [
+                "_diskEncryptionSets": [
                     {
                         "keyName": "byteterrace-virtualmachine-diskencryption",
                         "keyVaultName": "byteterrace",
@@ -115,7 +107,7 @@
                         "name": "byteterrace"
                     }
                 ],
-                "dnsZones": {
+                "_dnsZones": {
                     "private": [
                         {
                             "name": "byteterrace.net",
@@ -365,7 +357,7 @@
                         }
                     ]
                 },
-                "keyVaults": [
+                "_keyVaults": [
                     {
                         "auditLogAnalyticsWorkspaceName": "byteterrace",
                         "isAllowTrustedMicrosoftServicesEnabled": true,
@@ -395,7 +387,7 @@
                         }
                     }
                 ],
-                "monitor": {
+                "_monitor": {
                     "applicationInsightsComponents": [
                         {
                             "logAnalyticsWorkspaceName": "byteterrace",
@@ -450,9 +442,10 @@
                         }
                     ]
                 },
-                "networkSecurityGroups": [
+                "_networkSecurityGroups": [
                     {
                         "auditLogAnalyticsWorkspaceName": "byteterrace",
+                        "flowLogStorageAccountName": "byteterrace",
                         "name": "AzureBastionNetworkSecurityGroup",
                         "securityRules": [
                             {
@@ -548,11 +541,13 @@
                     },
                     {
                         "auditLogAnalyticsWorkspaceName": "byteterrace",
+                        "flowLogStorageAccountName": "byteterrace",
                         "name": "AzureContainerGroupsNetworkSecurityGroup",
                         "securityRules": []
                     },
                     {
                         "auditLogAnalyticsWorkspaceName": "byteterrace",
+                        "flowLogStorageAccountName": "byteterrace",
                         "name": "byteterrace.net",
                         "securityRules": [
                             {
@@ -648,12 +643,12 @@
                         ]
                     }
                 ],
-                "proximityPlacementGroups": [
+                "_proximityPlacementGroups": [
                     {
                         "name": "byteterrace"
                     }
                 ],
-                "publicIpAddresses": [
+                "_publicIpAddresses": [
                     {
                         "auditLogAnalyticsWorkspaceName": "byteterrace",
                         "availabilityZones": [
@@ -667,21 +662,46 @@
                         "version": "IPv4"
                     }
                 ],
-                "_recoveryServicesVault": [
+                "_recoveryServicesVaults": [
                     {
                         "auditLogAnalyticsWorkspaceName": "byteterrace",
-                        "keyName": "byteterrace-virtualmachine-diskencryption",
-                        "keyVaultName": "byteterrace",
-                        "keyVersion": "256e239939b74658a495edd9f5023420",
+                        "backup": {
+                            "privateEndpoints": [
+                                {
+                                    "dnsZones": [
+                                        {
+                                            "name": "privatelink.blob.core.windows.net"
+                                        },
+                                        {
+                                            "name": "privatelink.queue.core.windows.net"
+                                        },
+                                        {
+                                            "name": "privatelink.scus.backup.windowsazure.com"
+                                        }
+                                    ],
+                                    "name": "byteterrace-rcvrysrvcsvltbckp-privateendpoint",
+                                    "subnet": {
+                                        "name":"byteterrace",
+                                        "virtualNetworkName": "byteterrace.net"
+                                    }
+                                }
+                            ]
+                        },
+                        "customerManagedEncryption": {
+                            "keyName": "byteterrace-backup-diskencryption",
+                            "keyVault": {
+                                "name": "byteterrace"
+                            }
+                        },
                         "name": "byteterrace"
                     }
                 ],
-                "sharedImageGalleries": [
+                "_sharedImageGalleries": [
                     {
                         "name": "byteterrace"
                     }
                 ],
-                "sqlServers": [
+                "_sqlServers": [
                     {
                         "activeDirectoryAdministratorObjectId": "fa945052-f57e-4710-8368-a3190f2b6cff",
                         "activeDirectoryAdministratorUserName": "BYTETERRACE-SQLSERVER-ADMINISTRATORS",
@@ -717,7 +737,7 @@
                         ]
                     }
                 ],
-                "storageAccounts": [
+                "_storageAccounts": [
                     {
                         "auditLogAnalyticsWorkspaceName": "byteterrace",
                         "blobServices": {
@@ -744,6 +764,7 @@
                         },
                         "isAllowTrustedMicrosoftServicesEnabled": true,
                         "isPublicNetworkAccessEnabled": false,
+                        "isSharedKeyAccessEnabled": false,
                         "name": "byteterrace",
                         "queueServices": {
                             "privateEndpoints": [
@@ -780,15 +801,16 @@
                         }
                     }
                 ],
-                "_virtualMachines": [
+                "virtualMachines": [
                     {
+                        "auditLogAnalyticsWorkspaceName": "byteterrace",
                         "availabilitySetName": "byteterrace",
-                        "dataDisks": [
-                            {
-                                "cachingMode": "ReadOnly",
-                                "diskSizeInGigabytes": 256
+                        "backup": {
+                            "policyName": "DefaultPolicy",
+                            "recoveryServicesVault": {
+                                "name": "byteterrace"
                             }
-                        ],
+                        },
                         "diskEncryptionSetName": "byteterrace",
                         "imageReference": {
                             "offer": "Windows-10",
@@ -820,7 +842,7 @@
                         "size": "Standard_D4s_v4"
                     }
                 ],
-                "virtualNetworks": [
+                "_virtualNetworks": [
                     {
                         "addressPrefixes": [
                             "10.255.0.0/16"

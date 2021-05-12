@@ -2,11 +2,20 @@
     "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
+        "diagnosticServicesTrustedStorageAccessObjectId": {
+            "value": "dbc2e23f-cd5b-4d87-b528-852e3ca02f5a"
+        },
         "resourceDefinitions": {
             "value": {
                 "_applicationConfigurationStores": [
                     {
-                        "isPublicNetworkAccessEnabled": false,
+                        "customerManagedEncryption": {
+                            "keyName": "byteterrace-appconfig-tde",
+                            "keyVault": {
+                                "name": "byteterrace"
+                            }
+                        },
+                        "isPublicNetworkAccessEnabled": true,
                         "name": "byteterrace",
                         "privateEndpoints": [
                             {
@@ -23,7 +32,7 @@
                             }
                         ],
                         "settings": {
-                            "array": [
+                            "container": [
                                 {
                                     "contentType": "application/vnd.microsoft.appconfig.keyvaultref+json;charset=utf-8",
                                     "name": "Namecheap:ApiKey",
@@ -48,7 +57,11 @@
                 ],
                 "_bastionHosts": [
                     {
-                        "auditLogAnalyticsWorkspaceName": "byteterrace",
+                        "audit": {
+                            "logAnalyticsWorkspace": {
+                                "name": "byteterrace"
+                            }
+                        },
                         "ipConfigurations": [
                             {
                                 "name": "default",
@@ -66,19 +79,33 @@
                 ],
                 "_cdnProfiles": [
                     {
-                        "auditLogAnalyticsWorkspaceName": "byteterrace",
+                        "audit": {
+                            "logAnalyticsWorkspace": {
+                                "name": "byteterrace"
+                            }
+                        },
                         "name": "byteterrace",
                         "skuName": "Premium_AzureFrontDoor"
                     }
                 ],
                 "_communicationServices": [
                     {
-                        "auditLogAnalyticsWorkspaceName": "byteterrace",
+                        "audit": {
+                            "logAnalyticsWorkspace": {
+                                "name": "byteterrace"
+                            }
+                        },
                         "name": "byteterrace"
                     }
                 ],
                 "_containerRegistries": [
                     {
+                        "customerManagedEncryption": {
+                            "keyName": "byteterrace-container-tde",
+                            "keyVault": {
+                                "name": "byteterrace"
+                            }
+                        },
                         "isAdministratorAccountEnabled": false,
                         "isPublicNetworkAccessEnabled": false,
                         "name": "byteterrace",
@@ -359,7 +386,11 @@
                 },
                 "_keyVaults": [
                     {
-                        "auditLogAnalyticsWorkspaceName": "byteterrace",
+                        "audit": {
+                            "logAnalyticsWorkspace": {
+                                "name": "byteterrace"
+                            }
+                        },
                         "isAllowTrustedMicrosoftServicesEnabled": true,
                         "isPublicNetworkAccessEnabled": false,
                         "name": "byteterrace",
@@ -378,7 +409,7 @@
                             }
                         ],
                         "_secrets": {
-                            "array": [
+                            "container": [
                                 {
                                     "name": "Namecheap-ApiKey",
                                     "value": null
@@ -444,8 +475,14 @@
                 },
                 "_networkSecurityGroups": [
                     {
-                        "auditLogAnalyticsWorkspaceName": "byteterrace",
-                        "flowLogStorageAccountName": "byteterrace",
+                        "audit": {
+                            "flowLogStorageAccount": {
+                                "name": "byteterrace"
+                            },
+                            "logAnalyticsWorkspace": {
+                                "name": "byteterrace"
+                            }
+                        },
                         "name": "AzureBastionNetworkSecurityGroup",
                         "securityRules": [
                             {
@@ -540,14 +577,26 @@
                         ]
                     },
                     {
-                        "auditLogAnalyticsWorkspaceName": "byteterrace",
-                        "flowLogStorageAccountName": "byteterrace",
+                        "audit": {
+                            "flowLogStorageAccount": {
+                                "name": "byteterrace"
+                            },
+                            "logAnalyticsWorkspace": {
+                                "name": "byteterrace"
+                            }
+                        },
                         "name": "AzureContainerGroupsNetworkSecurityGroup",
                         "securityRules": []
                     },
                     {
-                        "auditLogAnalyticsWorkspaceName": "byteterrace",
-                        "flowLogStorageAccountName": "byteterrace",
+                        "audit": {
+                            "flowLogStorageAccount": {
+                                "name": "byteterrace"
+                            },
+                            "logAnalyticsWorkspace": {
+                                "name": "byteterrace"
+                            }
+                        },
                         "name": "byteterrace.net",
                         "securityRules": [
                             {
@@ -569,36 +618,6 @@
                                 "priority": 4093,
                                 "protocol": "TCP",
                                 "sourceAddressPrefixes": [ "AzureFrontDoor.Frontend" ]
-                            },
-                            {
-                                "access": "Allow",
-                                "destinationAddressPrefixes": [ "VirtualNetwork" ],
-                                "destinationPortRanges": [ "443" ],
-                                "direction": "Inbound",
-                                "name": "Allow-HdInsight.EastUs-Inbound",
-                                "priority": 4094,
-                                "protocol": "TCP",
-                                "sourceAddressPrefixes": [ "HDInsight.EastUS" ]
-                            },
-                            {
-                                "access": "Allow",
-                                "destinationAddressPrefixes": [ "VirtualNetwork" ],
-                                "destinationPortRanges": [ "443" ],
-                                "direction": "Inbound",
-                                "name": "Allow-HdInsight.SouthCentralUs-Inbound",
-                                "priority": 4095,
-                                "protocol": "TCP",
-                                "sourceAddressPrefixes": [ "HDInsight.SouthCentralUS" ]
-                            },
-                            {
-                                "access": "Allow",
-                                "destinationAddressPrefixes": [ "VirtualNetwork" ],
-                                "destinationPortRanges": [ "443" ],
-                                "direction": "Inbound",
-                                "name": "Allow-HdInsight.WestUs-Inbound",
-                                "priority": 4096,
-                                "protocol": "TCP",
-                                "sourceAddressPrefixes": [ "HDInsight.WestUS" ]
                             },
                             {
                                 "access": "Allow",
@@ -650,7 +669,11 @@
                 ],
                 "_publicIpAddresses": [
                     {
-                        "auditLogAnalyticsWorkspaceName": "byteterrace",
+                        "audit": {
+                            "logAnalyticsWorkspace": {
+                                "name": "byteterrace"
+                            }
+                        },
                         "availabilityZones": [
                             "1",
                             "2",
@@ -664,7 +687,11 @@
                 ],
                 "_recoveryServicesVaults": [
                     {
-                        "auditLogAnalyticsWorkspaceName": "byteterrace",
+                        "audit": {
+                            "logAnalyticsWorkspace": {
+                                "name": "byteterrace"
+                            }
+                        },
                         "backup": {
                             "privateEndpoints": [
                                 {
@@ -705,7 +732,11 @@
                     {
                         "activeDirectoryAdministratorObjectId": "fa945052-f57e-4710-8368-a3190f2b6cff",
                         "activeDirectoryAdministratorUserName": "BYTETERRACE-SQLSERVER-ADMINISTRATORS",
-                        "auditLogAnalyticsWorkspaceName": "byteterrace",
+                        "audit": {
+                            "logAnalyticsWorkspace": {
+                                "name": "byteterrace"
+                            }
+                        },
                         "customerManagedEncryption": {
                             "keyName": "byteterrace-sql-tde",
                             "keyVault": {
@@ -734,12 +765,21 @@
                                     "virtualNetworkName": "byteterrace.net"
                                 }
                             }
-                        ]
+                        ],
+                        "vulnerabilityAssessment": {
+                            "storageAccount": {
+                                "name": "byteterrace"
+                            }
+                        }
                     }
                 ],
                 "_storageAccounts": [
                     {
-                        "auditLogAnalyticsWorkspaceName": "byteterrace",
+                        "audit": {
+                            "logAnalyticsWorkspace": {
+                                "name": "byteterrace"
+                            }
+                        },
                         "blobServices": {
                             "privateEndpoints": [
                                 {
@@ -801,9 +841,13 @@
                         }
                     }
                 ],
-                "virtualMachines": [
+                "_virtualMachines": [
                     {
-                        "auditLogAnalyticsWorkspaceName": "byteterrace",
+                        "audit": {
+                            "logAnalyticsWorkspace": {
+                                "name": "byteterrace"
+                            }
+                        },
                         "availabilitySetName": "byteterrace",
                         "backup": {
                             "policyName": "DefaultPolicy",

@@ -28,6 +28,40 @@
                         "virtualIpType": "Internal"
                     }
                 ],
+                "availabilitySets": [
+                    {
+                        "name": "byteterrace",
+                        "numberOfFaultDomains": 3,
+                        "numberOfUpdateDomains": 5,
+                        "proximityPlacementGroupName": "byteterrace"
+                    }
+                ],
+                "bastionHosts": [
+                    {
+                        "auditLogAnalyticsWorkspaceName": "byteterrace",
+                        "ipConfigurations": [
+                            {
+                                "name": "default",
+                                "publicIpAddress": {
+                                    "name": "AzureBastionPublicIpAddress"
+                                },
+                                "virtualNetwork": {
+                                    "name": "byteterrace.net",
+                                    "subnetName": "AzureBastionSubnet"
+                                }
+                            }
+                        ],
+                        "name": "byteterrace"
+                    }
+                ],
+                "diskEncryptionSets": [
+                    {
+                        "keyName": "byteterrace-virtualmachine-diskencryption",
+                        "keyVaultName": "byteterrace",
+                        "keyVersion": "256e239939b74658a495edd9f5023420",
+                        "name": "byteterrace"
+                    }
+                ],
                 "dnsZones": {
                     "private": [
                         {
@@ -737,6 +771,29 @@
                         ]
                     }
                 ],
+                "proximityPlacementGroups": [
+                    {
+                        "name": "byteterrace"
+                    }
+                ],
+                "publicIpAddresses": [
+                    {
+                        "audit": {
+                            "logAnalyticsWorkspace": {
+                                "name": "byteterrace"
+                            }
+                        },
+                        "availabilityZones": [
+                            "1",
+                            "2",
+                            "3"
+                        ],
+                        "name": "AzureBastionPublicIpAddress",
+                        "skuName": "Standard",
+                        "skuTier": "Regional",
+                        "version": "IPv4"
+                    }
+                ],
                 "storageAccounts": [
                     {
                         "audit": {
@@ -786,6 +843,46 @@
                                 }
                             ]
                         }
+                    }
+                ],
+                "virtualMachines": [
+                    {
+                        "availabilitySetName": "byteterrace",
+                        "dataDisks": [
+                            {
+                                "cachingMode": "ReadOnly",
+                                "diskSizeInGigabytes": 256
+                            }
+                        ],
+                        "diskEncryptionSetName": "byteterrace",
+                        "imageReference": {
+                            "offer": "Windows-10",
+                            "publisher": "MicrosoftWindowsDesktop",
+                            "sku": "20h2-pro-g2",
+                            "version": "latest"
+                        },
+                        "licenseType": "Windows_Client",
+                        "name": "byteterrace",
+                        "networkInterfaceCards": [
+                            {
+                                "ipConfigurations": [
+                                    {
+                                        "addressVersion": "IPv4",
+                                        "allocationMethod": "Dynamic",
+                                        "applicationSecurityGroup": {
+                                            "name": "byteterrace"
+                                        },
+                                        "name": "default",
+                                        "subnet": {
+                                            "name": "ByteTerraceSubnet",
+                                            "virtualNetworkName": "byteterrace.net"
+                                        }
+                                    }
+                                ]
+                            }
+                        ],
+                        "priority": "Regular",
+                        "size": "Standard_D4s_v4"
                     }
                 ],
                 "virtualNetworks": [

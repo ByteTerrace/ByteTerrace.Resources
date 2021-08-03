@@ -7,6 +7,11 @@
         },
         "resourceDefinitions": {
             "value": {
+                "applicationSecurityGroups": [
+                    {
+                        "name": "byteterrace"
+                    }
+                ],
                 "applicationServiceEnvironments": [
                     {
                         "audit": {
@@ -38,7 +43,11 @@
                 ],
                 "bastionHosts": [
                     {
-                        "auditLogAnalyticsWorkspaceName": "byteterrace",
+                        "audit": {
+                            "logAnalyticsWorkspace": {
+                                "name": "byteterrace"
+                            }
+                        },
                         "ipConfigurations": [
                             {
                                 "name": "default",
@@ -847,13 +856,13 @@
                 ],
                 "virtualMachines": [
                     {
-                        "availabilitySetName": "byteterrace",
-                        "dataDisks": [
-                            {
-                                "cachingMode": "ReadOnly",
-                                "diskSizeInGigabytes": 256
+                        "audit": {
+                            "logAnalyticsWorkspace": {
+                                "name": "byteterrace"
                             }
-                        ],
+                        },
+                        "availabilitySetName": "byteterrace",
+                        "dataDisks": [],
                         "diskEncryptionSetName": "byteterrace",
                         "imageReference": {
                             "offer": "Windows-10",

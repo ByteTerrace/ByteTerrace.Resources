@@ -20,7 +20,7 @@
                             }
                         },
                         "isDedicatedHostGroup": false,
-                        "isZoneRedundant": true,
+                        "isZoneRedundant": false,
                         "kind": "ASEV3",
                         "name": "byteterrace",
                         "privateDnsZone": {

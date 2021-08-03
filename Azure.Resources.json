@@ -7,135 +7,37 @@
         },
         "resourceDefinitions": {
             "value": {
-                "_applicationConfigurationStores": [
+                "applicationServiceEnvironments": [
                     {
-                        "customerManagedEncryption": {
-                            "keyName": "byteterrace-appconfig-tde",
-                            "keyVault": {
+                        "audit": {
+                            "logAnalyticsWorkspace": {
                                 "name": "byteterrace"
                             }
                         },
-                        "isPublicNetworkAccessEnabled": true,
+                        "isDedicatedHostGroup": false,
+                        "isZoneRedundant": true,
+                        "kind": "ASEV3",
                         "name": "byteterrace",
-                        "privateEndpoints": [
-                            {
-                                "dnsZones": [
-                                    {
-                                        "name": "privatelink.azconfig.io"
-                                    }
-                                ],
-                                "name": "byteterrace-azconfig-privateendpoint",
-                                "subnet": {
-                                    "name":"byteterrace",
-                                    "virtualNetworkName": "byteterrace.net"
-                                }
-                            }
-                        ],
-                        "settings": {
-                            "container": [
+                        "privateDnsZone": {
+                            "name": "byteterrace.appserviceenvironment.net"
+                        },
+                        "subnet": {
+                            "name": "AzureAppServiceEnvironmentSubnet",
+                            "virtualNetworkName": "byteterrace.net"
+                        },
+                        "virtualIpType": "Internal"
+                    }
+                ],
+                "dnsZones": {
+                    "private": [
+                        {
+                            "name": "byteterrace.appserviceenvironment.net",
+                            "virtualNetworkLinks": [
                                 {
-                                    "contentType": "application/vnd.microsoft.appconfig.keyvaultref+json;charset=utf-8",
-                                    "name": "Namecheap:ApiKey",
-                                    "value": "{\"uri\":\"https://byteterrace.vault.azure.net/secrets/Namecheap-ApiKey\"}"
+                                    "name": "byteterrace.net"
                                 }
                             ]
-                        }
-                    }
-                ],
-                "_applicationSecurityGroups": [
-                    {
-                        "name": "byteterrace"
-                    }
-                ],
-                "_availabilitySets": [
-                    {
-                        "name": "byteterrace",
-                        "numberOfFaultDomains": 3,
-                        "numberOfUpdateDomains": 5,
-                        "proximityPlacementGroupName": "byteterrace"
-                    }
-                ],
-                "_bastionHosts": [
-                    {
-                        "audit": {
-                            "logAnalyticsWorkspace": {
-                                "name": "byteterrace"
-                            }
                         },
-                        "ipConfigurations": [
-                            {
-                                "name": "default",
-                                "publicIpAddress": {
-                                    "name": "AzureBastionPublicIpAddress"
-                                },
-                                "virtualNetwork": {
-                                    "name": "byteterrace.net",
-                                    "subnetName": "AzureBastionSubnet"
-                                }
-                            }
-                        ],
-                        "name": "byteterrace"
-                    }
-                ],
-                "_cdnProfiles": [
-                    {
-                        "audit": {
-                            "logAnalyticsWorkspace": {
-                                "name": "byteterrace"
-                            }
-                        },
-                        "name": "byteterrace",
-                        "skuName": "Premium_AzureFrontDoor"
-                    }
-                ],
-                "_communicationServices": [
-                    {
-                        "audit": {
-                            "logAnalyticsWorkspace": {
-                                "name": "byteterrace"
-                            }
-                        },
-                        "name": "byteterrace"
-                    }
-                ],
-                "_containerRegistries": [
-                    {
-                        "customerManagedEncryption": {
-                            "keyName": "byteterrace-container-tde",
-                            "keyVault": {
-                                "name": "byteterrace"
-                            }
-                        },
-                        "isAdministratorAccountEnabled": false,
-                        "isPublicNetworkAccessEnabled": false,
-                        "name": "byteterrace",
-                        "privateEndpoints": [
-                            {
-                                "dnsZones": [
-                                    {
-                                        "name": "privatelink.azurecr.io"
-                                    }
-                                ],
-                                "name": "byteterrace-containerregistry-privateendpoint",
-                                "subnet": {
-                                    "name":"byteterrace",
-                                    "virtualNetworkName": "byteterrace.net"
-                                }
-                            }
-                        ],
-                        "skuName": "Premium"
-                    }
-                ],
-                "_diskEncryptionSets": [
-                    {
-                        "keyName": "byteterrace-virtualmachine-diskencryption",
-                        "keyVaultName": "byteterrace",
-                        "keyVersion": "256e239939b74658a495edd9f5023420",
-                        "name": "byteterrace"
-                    }
-                ],
-                "_dnsZones": {
-                    "private": [
                         {
                             "name": "byteterrace.net",
                             "virtualNetworkLinks": [
@@ -384,7 +286,7 @@
                         }
                     ]
                 },
-                "_keyVaults": [
+                "keyVaults": [
                     {
                         "audit": {
                             "logAnalyticsWorkspace": {
@@ -403,7 +305,7 @@
                                 ],
                                 "name": "byteterrace-keyvault-privateendpoint",
                                 "subnet": {
-                                    "name":"byteterrace",
+                                    "name":"ByteTerraceSubnet",
                                     "virtualNetworkName": "byteterrace.net"
                                 }
                             }
@@ -418,7 +320,7 @@
                         }
                     }
                 ],
-                "_monitor": {
+                "monitor": {
                     "applicationInsightsComponents": [
                         {
                             "logAnalyticsWorkspaceName": "byteterrace",
@@ -455,7 +357,7 @@
                                     ],
                                     "name": "byteterrace-monitor-privateendpoint",
                                     "subnet": {
-                                        "name":"byteterrace",
+                                        "name":"ByteTerraceSubnet",
                                         "virtualNetworkName": "byteterrace.net"
                                     }
                                 }
@@ -473,7 +375,180 @@
                         }
                     ]
                 },
-                "_networkSecurityGroups": [
+                "networkSecurityGroups": [
+                    {
+                        "audit": {
+                            "flowLogStorageAccount": {
+                                "name": "byteterrace"
+                            },
+                            "logAnalyticsWorkspace": {
+                                "name": "byteterrace"
+                            }
+                        },
+                        "name": "AzureAppServiceEnvironmentNetworkSecurityGroup",
+                        "securityRules": [
+                            {
+                                "access": "Allow",
+                                "destinationAddressPrefixes": [ "*" ],
+                                "destinationPortRanges": [ "*" ],
+                                "direction": "Inbound",
+                                "name": "Allow-Ase-Inbound",
+                                "priority": 4088,
+                                "protocol": "*",
+                                "sourceAddressPrefixes": [ "10.255.253.0/24" ]
+                            },
+                            {
+                                "access": "Allow",
+                                "destinationAddressPrefixes": [ "*" ],
+                                "destinationPortRanges": [ "21" ],
+                                "direction": "Inbound",
+                                "name": "Allow-Ftp-Inbound",
+                                "priority": 4089,
+                                "protocol": "TCP",
+                                "sourceAddressPrefixes": [ "*" ]
+                            },
+                            {
+                                "access": "Allow",
+                                "destinationAddressPrefixes": [ "*" ],
+                                "destinationPortRanges": [ "10001-10020" ],
+                                "direction": "Inbound",
+                                "name": "Allow-FtpData-Inbound",
+                                "priority": 4090,
+                                "protocol": "TCP",
+                                "sourceAddressPrefixes": [ "*" ]
+                            },
+                            {
+                                "access": "Allow",
+                                "destinationAddressPrefixes": [ "*" ],
+                                "destinationPortRanges": [ "990" ],
+                                "direction": "Inbound",
+                                "name": "Allow-Ftps-Inbound",
+                                "priority": 4091,
+                                "protocol": "TCP",
+                                "sourceAddressPrefixes": [ "*" ]
+                            },
+                            {
+                                "access": "Allow",
+                                "destinationAddressPrefixes": [ "*" ],
+                                "destinationPortRanges": [ "80" ],
+                                "direction": "Inbound",
+                                "name": "Allow-Http-Inbound",
+                                "priority": 4092,
+                                "protocol": "TCP",
+                                "sourceAddressPrefixes": [ "*" ]
+                            },
+                            {
+                                "access": "Allow",
+                                "destinationAddressPrefixes": [ "*" ],
+                                "destinationPortRanges": [ "443" ],
+                                "direction": "Inbound",
+                                "name": "Allow-Https-Inbound",
+                                "priority": 4093,
+                                "protocol": "TCP",
+                                "sourceAddressPrefixes": [ "*" ]
+                            },
+                            {
+                                "access": "Allow",
+                                "destinationAddressPrefixes": [ "*" ],
+                                "destinationPortRanges": [ "4016-4022" ],
+                                "direction": "Inbound",
+                                "name": "Allow-RemoteDebug-Inbound",
+                                "priority": 4094,
+                                "protocol": "TCP",
+                                "sourceAddressPrefixes": [ "*" ]
+                            },
+                            {
+                                "access": "Allow",
+                                "destinationAddressPrefixes": [ "*" ],
+                                "destinationPortRanges": [ "16001" ],
+                                "direction": "Inbound",
+                                "name": "Allow-AzureLoadBalancer-Inbound",
+                                "priority": 4095,
+                                "protocol": "TCP",
+                                "sourceAddressPrefixes": [ "AzureLoadBalancer" ]
+                            },
+                            {
+                                "access": "Allow",
+                                "destinationAddressPrefixes": [ "*" ],
+                                "destinationPortRanges": [ "454-455" ],
+                                "direction": "Inbound",
+                                "name": "Allow-AppServiceManagement-Inbound",
+                                "priority": 4096,
+                                "protocol": "TCP",
+                                "sourceAddressPrefixes": [ "AppServiceManagement" ]
+                            },
+                            {
+                                "access": "Allow",
+                                "destinationAddressPrefixes": [ "10.255.253.0/24" ],
+                                "destinationPortRanges": [ "*" ],
+                                "direction": "Outbound",
+                                "name": "Allow-Ase-Outbound",
+                                "priority": 4090,
+                                "protocol": "*",
+                                "sourceAddressPrefixes": [ "*" ]
+                            },
+                            {
+                                "access": "Allow",
+                                "destinationAddressPrefixes": [ "*" ],
+                                "destinationPortRanges": [ "53" ],
+                                "direction": "Outbound",
+                                "name": "Allow-Dns-Outbound",
+                                "priority": 4091,
+                                "protocol": "UDP",
+                                "sourceAddressPrefixes": [ "*" ]
+                            },
+                            {
+                                "access": "Allow",
+                                "destinationAddressPrefixes": [ "*" ],
+                                "destinationPortRanges": [ "80" ],
+                                "direction": "Outbound",
+                                "name": "Allow-Http-Outbound",
+                                "priority": 4092,
+                                "protocol": "TCP",
+                                "sourceAddressPrefixes": [ "*" ]
+                            },
+                            {
+                                "access": "Allow",
+                                "destinationAddressPrefixes": [ "*" ],
+                                "destinationPortRanges": [ "443" ],
+                                "direction": "Outbound",
+                                "name": "Allow-Https-Outbound",
+                                "priority": 4093,
+                                "protocol": "TCP",
+                                "sourceAddressPrefixes": [ "*" ]
+                            },
+                            {
+                                "access": "Allow",
+                                "destinationAddressPrefixes": [ "*" ],
+                                "destinationPortRanges": [ "12000" ],
+                                "direction": "Outbound",
+                                "name": "Allow-Monitor-Outbound",
+                                "priority": 4094,
+                                "protocol": "TCP",
+                                "sourceAddressPrefixes": [ "*" ]
+                            },
+                            {
+                                "access": "Allow",
+                                "destinationAddressPrefixes": [ "*" ],
+                                "destinationPortRanges": [ "123" ],
+                                "direction": "Outbound",
+                                "name": "Allow-Ntp-Outbound",
+                                "priority": 4095,
+                                "protocol": "UDP",
+                                "sourceAddressPrefixes": [ "*" ]
+                            },
+                            {
+                                "access": "Allow",
+                                "destinationAddressPrefixes": [ "Sql" ],
+                                "destinationPortRanges": [ "1433" ],
+                                "direction": "Outbound",
+                                "name": "Allow-Sql-Outbound",
+                                "priority": 4096,
+                                "protocol": "TCP",
+                                "sourceAddressPrefixes": [ "*" ]
+                            }
+                        ]
+                    },
                     {
                         "audit": {
                             "flowLogStorageAccount": {
@@ -597,7 +672,7 @@
                                 "name": "byteterrace"
                             }
                         },
-                        "name": "byteterrace.net",
+                        "name": "ByteTerraceNetworkSecurityGroup",
                         "securityRules": [
                             {
                                 "access": "Allow",
@@ -662,118 +737,7 @@
                         ]
                     }
                 ],
-                "_proximityPlacementGroups": [
-                    {
-                        "name": "byteterrace"
-                    }
-                ],
-                "_publicIpAddresses": [
-                    {
-                        "audit": {
-                            "logAnalyticsWorkspace": {
-                                "name": "byteterrace"
-                            }
-                        },
-                        "availabilityZones": [
-                            "1",
-                            "2",
-                            "3"
-                        ],
-                        "name": "AzureBastionPublicIpAddress",
-                        "skuName": "Standard",
-                        "skuTier": "Regional",
-                        "version": "IPv4"
-                    }
-                ],
-                "_recoveryServicesVaults": [
-                    {
-                        "audit": {
-                            "logAnalyticsWorkspace": {
-                                "name": "byteterrace"
-                            }
-                        },
-                        "backup": {
-                            "privateEndpoints": [
-                                {
-                                    "dnsZones": [
-                                        {
-                                            "name": "privatelink.blob.core.windows.net"
-                                        },
-                                        {
-                                            "name": "privatelink.queue.core.windows.net"
-                                        },
-                                        {
-                                            "name": "privatelink.scus.backup.windowsazure.com"
-                                        }
-                                    ],
-                                    "name": "byteterrace-rcvrysrvcsvltbckp-privateendpoint",
-                                    "subnet": {
-                                        "name":"byteterrace",
-                                        "virtualNetworkName": "byteterrace.net"
-                                    }
-                                }
-                            ]
-                        },
-                        "customerManagedEncryption": {
-                            "keyName": "byteterrace-backup-diskencryption",
-                            "keyVault": {
-                                "name": "byteterrace"
-                            }
-                        },
-                        "name": "byteterrace"
-                    }
-                ],
-                "_sharedImageGalleries": [
-                    {
-                        "name": "byteterrace"
-                    }
-                ],
-                "_sqlServers": [
-                    {
-                        "activeDirectoryAdministratorObjectId": "fa945052-f57e-4710-8368-a3190f2b6cff",
-                        "activeDirectoryAdministratorUserName": "BYTETERRACE-SQLSERVER-ADMINISTRATORS",
-                        "audit": {
-                            "logAnalyticsWorkspace": {
-                                "name": "byteterrace"
-                            }
-                        },
-                        "customerManagedEncryption": {
-                            "keyName": "byteterrace-sql-tde",
-                            "keyVault": {
-                                "name": "byteterrace"
-                            },
-                            "keyVersion": "b17509ade67a465f91d698e39e950390"
-                        },
-                        "databases": [
-                            {
-                                "name": "byteterrace",
-                                "skuName": "Basic"
-                            }
-                        ],
-                        "isPublicNetworkAccessEnabled": false,
-                        "name": "byteterrace",
-                        "privateEndpoints": [
-                            {
-                                "dnsZones": [
-                                    {
-                                        "name": "privatelink.database.windows.net"
-                                    }
-                                ],
-                                "name": "byteterrace-sqlserver-privateendpoint",
-                                "subnet": {
-                                    "name":"byteterrace",
-                                    "virtualNetworkName": "byteterrace.net"
-                                }
-                            }
-                        ],
-                        "vulnerabilityAssessment": {
-                            "storageAccount": {
-                                "name": "byteterrace"
-                            }
-                        }
-                    }
-                ],
-                "_storageAccounts": [
+                "storageAccounts": [
                     {
                         "audit": {
                             "logAnalyticsWorkspace": {
@@ -790,7 +754,7 @@
                                     ],
                                     "name": "byteterrace-blobservices-privateendpoint",
                                     "subnet": {
-                                        "name":"byteterrace",
+                                        "name":"ByteTerraceSubnet",
                                         "virtualNetworkName": "byteterrace.net"
                                     }
                                 }
@@ -816,24 +780,7 @@
                                     ],
                                     "name": "byteterrace-queueservices-privateendpoint",
                                     "subnet": {
-                                        "name":"byteterrace",
-                                        "virtualNetworkName": "byteterrace.net"
-                                    }
-                                }
-                            ]
-                        },
-                        "staticWebsite": {
-                            "isEnabled": true,
-                            "privateEndpoints": [
-                                {
-                                    "dnsZones": [
-                                        {
-                                            "name": "privatelink.web.core.windows.net"
-                                        }
-                                    ],
-                                    "name": "byteterrace-staticwebsite-privateendpoint",
-                                    "subnet": {
-                                        "name":"byteterrace",
+                                        "name":"ByteTerraceSubnet",
                                         "virtualNetworkName": "byteterrace.net"
                                     }
                                 }
@@ -841,58 +788,50 @@
                         }
                     }
                 ],
-                "_virtualMachines": [
-                    {
-                        "audit": {
-                            "logAnalyticsWorkspace": {
-                                "name": "byteterrace"
-                            }
-                        },
-                        "availabilitySetName": "byteterrace",
-                        "backup": {
-                            "policyName": "DefaultPolicy",
-                            "recoveryServicesVault": {
-                                "name": "byteterrace"
-                            }
-                        },
-                        "diskEncryptionSetName": "byteterrace",
-                        "imageReference": {
-                            "offer": "Windows-10",
-                            "publisher": "MicrosoftWindowsDesktop",
-                            "sku": "20h2-pro-g2",
-                            "version": "latest"
-                        },
-                        "licenseType": "Windows_Client",
-                        "name": "byteterrace",
-                        "networkInterfaceCards": [
-                            {
-                                "ipConfigurations": [
-                                    {
-                                        "addressVersion": "IPv4",
-                                        "allocationMethod": "Dynamic",
-                                        "applicationSecurityGroup": {
-                                            "name": "byteterrace"
-                                        },
-                                        "name": "default",
-                                        "subnet": {
-                                            "name": "byteterrace",
-                                            "virtualNetworkName": "byteterrace.net"
-                                        }
-                                    }
-                                ]
-                            }
-                        ],
-                        "priority": "Regular",
-                        "size": "Standard_D4s_v4"
-                    }
-                ],
-                "_virtualNetworks": [
+                "virtualNetworks": [
                     {
                         "addressPrefixes": [
                             "10.255.0.0/16"
                         ],
                         "name": "byteterrace.net",
                         "subnets": [
+                            {
+                                "addressPrefix": "10.255.253.0/24",
+                                "delegations": [
+                                    {
+                                        "name": "AseDelegationService",
+                                        "properties": {
+                                            "serviceName": "Microsoft.Web/hostingEnvironments"
+                                        }
+                                    }
+                                ],
+                                "name": "AzureAppServiceEnvironmentSubnet",
+                                "networkSecurityGroup": {
+                                    "name": "AzureAppServiceEnvironmentNetworkSecurityGroup"
+                                },
+                                "serviceEndpoints": [
+                                    {
+                                        "locations": [
+                                            "*"
+                                        ],
+                                        "service": "Microsoft.EventHub"
+                                    },
+                                    {
+                                        "locations": [
+                                            "southcentralus"
+                                        ],
+                                        "service": "Microsoft.Sql"
+                                    },
+                                    {
+                                        "locations": [
+                                            "brazilsouth",
+                                            "northcentralus",
+                                            "southcentralus"
+                                        ],
+                                        "service": "Microsoft.Storage"
+                                    }
+                                ]
+                            },
                             {
                                 "addressPrefix": "10.255.255.96/27",
                                 "name": "AzureBastionSubnet",
@@ -904,12 +843,9 @@
                                 "addressPrefix": "10.255.254.0/24",
                                 "delegations": [
                                     {
-                                        "name": "ACIDelegationService",
+                                        "name": "AciDelegationService",
                                         "properties": {
-                                            "serviceName": "Microsoft.ContainerInstance/containerGroups",
-                                            "actions": [
-                                                "Microsoft.Network/virtualNetworks/subnets/action"
-                                            ]
+                                            "serviceName": "Microsoft.ContainerInstance/containerGroups"
                                         }
                                     }
                                 ],
@@ -929,10 +865,78 @@
                             {
                                 "addressPrefix": "10.255.0.0/25",
                                 "isPrivateEndpointSupportEnabled": true,
-                                "name": "byteterrace",
+                                "name": "ByteTerraceSubnet",
                                 "networkSecurityGroup": {
-                                    "name": "byteterrace.net"
-                                }
+                                    "name": "ByteTerraceNetworkSecurityGroup"
+                                },
+                                "serviceEndpoints": [
+                                    {
+                                        "locations": [
+                                            "*"
+                                        ],
+                                        "service": "Microsoft.AzureActiveDirectory"
+                                    },
+                                    {
+                                        "locations": [
+                                            "*"
+                                        ],
+                                        "service": "Microsoft.AzureCosmosDB"
+                                    },
+                                    {
+                                        "locations": [
+                                            "*"
+                                        ],
+                                        "service": "Microsoft.CognitiveServices"
+                                    },
+                                    {
+                                        "locations": [
+                                            "*"
+                                        ],
+                                        "service": "Microsoft.ContainerRegistry"
+                                    },
+                                    {
+                                        "locations": [
+                                            "*"
+                                        ],
+                                        "service": "Microsoft.EventHub"
+                                    },
+                                    {
+                                        "locations": [
+                                            "*"
+                                        ],
+                                        "service": "Microsoft.KeyVault"
+                                    },
+                                    {
+                                        "locations": [
+                                            "*"
+                                        ],
+                                        "service": "Microsoft.ServiceBus"
+                                    },
+                                    {
+                                        "locations": [
+                                            "southcentralus"
+                                        ],
+                                        "service": "Microsoft.Sql"
+                                    },
+                                    {
+                                        "locations": [
+                                            "brazilsouth",
+                                            "northcentralus",
+                                            "southcentralus"
+                                        ],
+                                        "service": "Microsoft.Storage"
+                                    },
+                                    {
+                                        "locations": [
+                                            "*"
+                                        ],
+                                        "service": "Microsoft.Web"
+                                    }
+                                ]
+                            },
+                            {
+                                "addressPrefix": "10.255.255.64/27",
+                                "name": "GatewaySubnet"
                             }
                         ]
                     }

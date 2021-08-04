@@ -21,7 +21,7 @@ jobs:
       - name: 'deploy template to Azure Resource Group'
         run: |
           $deploymentMode = 'Incremental';
-          $deploymentName = ${{ format('''{0}''', hashFiles(format('{0}/project/Azure.Resources.json', github.workspace)), github.run_id) }};
+          $deploymentName = ${{ format('''{0}.{1}''', hashFiles(format('{0}/project/Azure.Resources.json', github.workspace)), github.run_id) }};
           $parametersFilePath = ${{ format('''{0}/project/Azure.Resources.json''', github.workspace) }};
           $resourceGroupName = 'byteterrace';
           $subscriptionIdOrName = 'byteterrace';
@@ -29,6 +29,8 @@ jobs:
           $templateSpecResourceGroupName = 'byteterrace';
           $templateSpecSubscriptionNameOrId = 'byteterrace';
           $templateSpecVersion = 'latest';
+
+          $deploymentName = $deploymentName.Substring($deploymentName.Length, ($deploymentName.Length - 48));
 
           if ([string]::IsNullOrEmpty($templateSpecVersion) -or ('latest' -eq $templateSpecVersion)) {
               $templateSpecId = (az ts list `

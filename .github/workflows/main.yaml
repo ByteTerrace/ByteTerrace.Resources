@@ -33,9 +33,9 @@ jobs:
           if ([string]::IsNullOrEmpty($templateSpecVersion) -or ('latest' -eq $templateSpecVersion)) {
               $templateSpecId = (az ts list `
                   --name $templateSpecName `
-                  --query ('reverse(sort_by([], &name))[0].id' | ConvertFrom-Json) `
+                  --query 'reverse(sort_by([], &name))[0].id' `
                   --resource-group $templateSpecResourceGroupName `
-                  --subscription $templateSpecSubscriptionNameOrId);
+                  --subscription $templateSpecSubscriptionNameOrId | ConvertFrom-Json);
           }
           else {
               $templateSpecId = (az ts show `

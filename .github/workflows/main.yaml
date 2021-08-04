@@ -1,0 +1,63 @@
+name: 'ByteTerrace Azure Resources'
+on: [push]
+jobs:
+  deploy:
+    runs-on: 'ubuntu-latest'
+    steps:
+      - name: 'checkout ByteTerrace Resources repository'
+        uses: 'actions/checkout@v2'
+        with:
+          clean: true
+          fetch-depth: 1
+          lfs: false
+          path: ${{ format('{0}/project', github.workspace) }}
+          submodules: false
+      - name: 'login to Azure'
+        uses: 'azure/login@v1'
+        with:
+          allow-no-subscriptions: true
+          creds: ${{ secrets.AZURE_APPLICATION_CREDENTIALS }}
+          environment: 'AzureCloud'
+      - name: 'deploy template to Azure Resource Group'
+        run: |
+          $deploymentMode = 'Incremental';
+          $deploymentName = ${{ format('''{0}''', '$(Build.BuildNumber)') }};
+          $parametersFilePath = ${{ format('''{0}/project/Azure.Resources.json''', github.workspace) }};
+          $resourceGroupName = 'byteterrace';
+          $subscriptionIdOrName = 'byteterrace';
+          $templateSpecName = 'ResourceGroupDeployment';
+          $templateSpecResourceGroupName = 'byteterrace';
+          $templateSpecSubscriptionNameOrId = 'byteterrace';
+          $templateSpecVersion = 'latest';
+
+          if ([string]::IsNullOrEmpty($templateSpecVersion) -or ('latest' -eq $templateSpecVersion)) {
+              $templateSpecId = (az ts list `
+                  --name $templateSpecName `
+                  --query 'reverse(sort_by([], &name))[0].id' | ConvertFrom-Json) `
+                  --resource-group $templateSpecResourceGroupName `
+                  --subscription $templateSpecSubscriptionNameOrId;
+          }
+          else {
+              $templateSpecId = (az ts show `
+                  --name $templateSpecName `
+                  --query 'id' `
+                  --resource-group $templateSpecResourceGroupName `
+                  --subscription $templateSpecSubscriptionNameOrId `
+                  --version $templateSpecVersion);
+          }
+
+          az deployment group create `
+              --mode $deploymentMode `
+              --name $deploymentName `
+              --parameters ('@{0}' -f $parametersFilePath) `
+              --resource-group $resourceGroupName `
+              --subscription $subscriptionIdOrName `
+              --template-spec $templateSpecId;
+        shell: 'pwsh'
+      - name: 'logout of Azure'
+        uses: 'azure/CLI@v1'
+        with:
+          inlineScript: |
+            az logout
+            az cache purge
+            az account clear

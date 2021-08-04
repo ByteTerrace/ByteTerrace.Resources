@@ -20,6 +20,7 @@
                             }
                         },
                         "isDedicatedHostGroup": false,
+                        "isMinimalSslCipherSuiteConfigurationEnabled": true,
                         "isZoneRedundant": false,
                         "kind": "ASEV3",
                         "name": "byteterrace",
@@ -41,7 +42,7 @@
                         "proximityPlacementGroupName": "byteterrace"
                     }
                 ],
-                "bastionHosts": [
+                "_bastionHosts": [
                     {
                         "audit": {
                             "logAnalyticsWorkspace": {
@@ -854,7 +855,7 @@
                         }
                     }
                 ],
-                "virtualMachines": [
+                "_virtualMachines": [
                     {
                         "audit": {
                             "logAnalyticsWorkspace": {

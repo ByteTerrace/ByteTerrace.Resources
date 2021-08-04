@@ -12,7 +12,7 @@
                         "name": "byteterrace"
                     }
                 ],
-                "applicationServiceEnvironments": [
+                "_applicationServiceEnvironments": [
                     {
                         "audit": {
                             "logAnalyticsWorkspace": {

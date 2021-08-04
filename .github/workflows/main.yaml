@@ -30,7 +30,7 @@ jobs:
           $templateSpecSubscriptionNameOrId = 'byteterrace';
           $templateSpecVersion = 'latest';
 
-          $deploymentName = $deploymentName.Substring($deploymentName.Length, ($deploymentName.Length - 48));
+          $deploymentName = $deploymentName.Substring($deploymentName.Length - 48);
 
           if ([string]::IsNullOrEmpty($templateSpecVersion) -or ('latest' -eq $templateSpecVersion)) {
               $templateSpecId = (az ts list `

@@ -21,7 +21,7 @@ jobs:
       - name: 'deploy template to Azure Resource Group'
         run: |
           $deploymentMode = 'Incremental';
-          $deploymentName = ${{ format('''{0}.{1}''', hashFiles(format('{0}/project/Azure.Resources.json', github.workspace)), github.run_id) }};
+          $deploymentName = ${{ format('''{0}.{1}''', hashFiles(format('{0}/project/Azure.Resources.json', github.workspace)), github.run_number) }};
           $parametersFilePath = ${{ format('''{0}/project/Azure.Resources.json''', github.workspace) }};
           $resourceGroupName = 'byteterrace';
           $subscriptionIdOrName = 'byteterrace';

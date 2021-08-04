@@ -35,7 +35,7 @@ jobs:
                   --name $templateSpecName `
                   --query ('reverse(sort_by([], &name))[0].id' | ConvertFrom-Json) `
                   --resource-group $templateSpecResourceGroupName `
-                  --subscription $templateSpecSubscriptionNameOrId;
+                  --subscription $templateSpecSubscriptionNameOrId);
           }
           else {
               $templateSpecId = (az ts show `

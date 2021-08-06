@@ -1209,7 +1209,12 @@
                                 }
                             },
                             {
-                                "name": "byteterrace.org"
+                                "name": "byteterrace.org",
+                                "ssl": {
+                                    "certificate": {
+                                        "name": "byteterrace-byteterrace-org"
+                                    }
+                                }
                             }
                         ],
                         "dnsZones": {

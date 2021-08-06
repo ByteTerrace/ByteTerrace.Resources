@@ -960,6 +960,12 @@
                                             "southcentralus"
                                         ],
                                         "service": "Microsoft.Storage"
+                                    },
+                                    {
+                                        "locations": [
+                                            "*"
+                                        ],
+                                        "service": "Microsoft.Web"
                                     }
                                 ]
                             },
@@ -995,6 +1001,14 @@
                             },
                             {
                                 "addressPrefix": "10.255.0.0/25",
+                                "delegations": [
+                                    {
+                                        "name": "AspDelegationService",
+                                        "properties": {
+                                            "serviceName": "Microsoft.Web/serverFarms"
+                                        }
+                                    }
+                                ],
                                 "isPrivateEndpointSupportEnabled": true,
                                 "name": "ByteTerraceSubnet",
                                 "networkSecurityGroup": {
@@ -1160,6 +1174,10 @@
                         "publicCertificates": [],
                         "servicePlan": {
                             "name": "byteterrace"
+                        },
+                        "subnet": {
+                            "name":"ByteTerraceSubnet",
+                            "virtualNetworkName": "byteterrace.net"
                         },
                         "timeZone": "UTC"
                     }

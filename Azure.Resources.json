@@ -970,6 +970,46 @@
                                 ]
                             },
                             {
+                                "addressPrefix": "10.255.252.0/24",
+                                "delegations": [
+                                    {
+                                        "name": "AspDelegationService",
+                                        "properties": {
+                                            "serviceName": "Microsoft.Web/serverFarms"
+                                        }
+                                    }
+                                ],
+                                "name": "AzureAppServicePlanSubnet",
+                                "serviceEndpoints": [
+                                    {
+                                        "locations": [
+                                            "*"
+                                        ],
+                                        "service": "Microsoft.EventHub"
+                                    },
+                                    {
+                                        "locations": [
+                                            "southcentralus"
+                                        ],
+                                        "service": "Microsoft.Sql"
+                                    },
+                                    {
+                                        "locations": [
+                                            "brazilsouth",
+                                            "northcentralus",
+                                            "southcentralus"
+                                        ],
+                                        "service": "Microsoft.Storage"
+                                    },
+                                    {
+                                        "locations": [
+                                            "*"
+                                        ],
+                                        "service": "Microsoft.Web"
+                                    }
+                                ]
+                            },
+                            {
                                 "addressPrefix": "10.255.255.96/27",
                                 "name": "AzureBastionSubnet",
                                 "networkSecurityGroup": {
@@ -1176,7 +1216,7 @@
                             "name": "byteterrace"
                         },
                         "subnet": {
-                            "name":"ByteTerraceSubnet",
+                            "name":"AzureAppServicePlanSubnet",
                             "virtualNetworkName": "byteterrace.net"
                         },
                         "timeZone": "UTC"

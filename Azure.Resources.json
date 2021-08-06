@@ -1201,13 +1201,35 @@
                                 }
                             },
                             {
+                                "name": "www.byteterrace.com",
+                                "ssl": {
+                                    "certificate": {
+                                        "name": "byteterrace-byteterrace-com"
+                                    }
+                                }
+                            },
+                            {
                                 "name": "byteterrace.net",
                                 "ssl": {
                                     "state": "Disabled"
                                 }
                             },
                             {
+                                "name": "www.byteterrace.net",
+                                "ssl": {
+                                    "state": "Disabled"
+                                }
+                            },
+                            {
                                 "name": "byteterrace.org",
+                                "ssl": {
+                                    "certificate": {
+                                        "name": "byteterrace-byteterrace-org"
+                                    }
+                                }
+                            },
+                            {
+                                "name": "www.byteterrace.org",
                                 "ssl": {
                                     "certificate": {
                                         "name": "byteterrace-byteterrace-org"
@@ -1239,6 +1261,11 @@
                             "public": [
                                 {
                                     "name": "byteterrace.com"
+                                },
+                                {
+                                    "isARecordEnabled": false,
+                                    "isCnameRecordEnabled": false,
+                                    "name": "byteterrace.net"
                                 },
                                 {
                                     "name": "byteterrace.org"

@@ -99,7 +99,25 @@
                             ]
                         },
                         {
+                            "name": "byteterrace.com",
+                            "virtualNetworkLinks": [
+                                {
+                                    "isAutomaticVmRegistrationEnabled": true,
+                                    "name": "byteterrace.net"
+                                }
+                            ]
+                        },
+                        {
                             "name": "byteterrace.net",
+                            "virtualNetworkLinks": [
+                                {
+                                    "isAutomaticVmRegistrationEnabled": true,
+                                    "name": "byteterrace.net"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "byteterrace.org",
                             "virtualNetworkLinks": [
                                 {
                                     "isAutomaticVmRegistrationEnabled": true,
@@ -1197,7 +1215,13 @@
                             ],
                             "private": [
                                 {
+                                    "name": "byteterrace.com"
+                                },
+                                {
                                     "name": "byteterrace.net"
+                                },
+                                {
+                                    "name": "byteterrace.org"
                                 }
                             ]
                         },

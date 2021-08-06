@@ -1221,7 +1221,19 @@
                                     "endpoint": {
                                         "name": "byteterrace-functionapp-privateendpoint"
                                     },
+                                    "name": "byteterrace.com"
+                                },
+                                { 
+                                    "endpoint": {
+                                        "name": "byteterrace-functionapp-privateendpoint"
+                                    },
                                     "name": "byteterrace.net"
+                                },
+                                { 
+                                    "endpoint": {
+                                        "name": "byteterrace-functionapp-privateendpoint"
+                                    },
+                                    "name": "byteterrace.org"
                                 }
                             ],
                             "public": [

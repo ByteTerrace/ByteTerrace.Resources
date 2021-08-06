@@ -857,6 +857,22 @@
                                 "name": "byteterrace"
                             }
                         },
+                        "fileServices": {
+                            "privateEndpoints": [
+                                {
+                                    "dnsZones": [
+                                        {
+                                            "name": "privatelink.file.core.windows.net"
+                                        }
+                                    ],
+                                    "name": "byteterrace-fileservices-privateendpoint",
+                                    "subnet": {
+                                        "name":"ByteTerraceSubnet",
+                                        "virtualNetworkName": "byteterrace.net"
+                                    }
+                                }
+                            ]
+                        },
                         "isAllowTrustedMicrosoftServicesEnabled": true,
                         "isPublicNetworkAccessEnabled": false,
                         "isSharedKeyAccessEnabled": true,
@@ -870,6 +886,22 @@
                                         }
                                     ],
                                     "name": "byteterrace-queueservices-privateendpoint",
+                                    "subnet": {
+                                        "name":"ByteTerraceSubnet",
+                                        "virtualNetworkName": "byteterrace.net"
+                                    }
+                                }
+                            ]
+                        },
+                        "tableServices": {
+                            "privateEndpoints": [
+                                {
+                                    "dnsZones": [
+                                        {
+                                            "name": "privatelink.table.core.windows.net"
+                                        }
+                                    ],
+                                    "name": "byteterrace-tableservices-privateendpoint",
                                     "subnet": {
                                         "name":"ByteTerraceSubnet",
                                         "virtualNetworkName": "byteterrace.net"
@@ -986,6 +1018,12 @@
                                             "*"
                                         ],
                                         "service": "Microsoft.EventHub"
+                                    },
+                                    {
+                                        "locations": [
+                                            "*"
+                                        ],
+                                        "service": "Microsoft.KeyVault"
                                     },
                                     {
                                         "locations": [

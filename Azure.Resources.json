@@ -102,7 +102,6 @@
                             "name": "byteterrace.com",
                             "virtualNetworkLinks": [
                                 {
-                                    "isAutomaticVmRegistrationEnabled": true,
                                     "name": "byteterrace.net"
                                 }
                             ]
@@ -120,7 +119,6 @@
                             "name": "byteterrace.org",
                             "virtualNetworkLinks": [
                                 {
-                                    "isAutomaticVmRegistrationEnabled": true,
                                     "name": "byteterrace.net"
                                 }
                             ]

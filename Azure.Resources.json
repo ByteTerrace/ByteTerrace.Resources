@@ -1077,6 +1077,9 @@
                                 "name": "byteterrace"
                             }
                         },
+                        "autoHeal": {
+                            "isProactiveModeEnabled": false
+                        },
                         "connectionStrings": {
                             "collection": []
                         },
@@ -1123,14 +1126,17 @@
                         ],
                         "isAlwaysOnEnabled": true,
                         "isClientAffinityEnabled": false,
+                        "isHttpsOnlyModeEnabled": true,
                         "isHttp20SupportEnabled": true,
                         "isWebSocketSupportEnabled": false,
                         "is32BitModeEnabled": false,
                         "minimumSupportedTlsVersion": "1.2",
                         "name": "byteterrace",
+                        "publicCertificates": [],
                         "servicePlan": {
                             "name": "byteterrace"
-                        }
+                        },
+                        "timeZone": "UTC"
                     }
                 ]
             }

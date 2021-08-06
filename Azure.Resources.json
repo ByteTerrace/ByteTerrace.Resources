@@ -1195,7 +1195,12 @@
                         },
                         "customDomains": [
                             {
-                                "name": "byteterrace.com"
+                                "name": "byteterrace.com",
+                                "ssl": {
+                                    "certificate": {
+                                        "name": "byteterrace-byteterrace-com"
+                                    }
+                                }
                             },
                             {
                                 "name": "byteterrace.net"
@@ -1208,6 +1213,11 @@
                             "public": [
                                 {
                                     "name": "byteterrace.com"
+                                },
+                                {
+                                    "isARecordEnabled": false,
+                                    "isCnameRecordEnabled": false,
+                                    "name": "byteterrace.net"
                                 },
                                 {
                                     "name": "byteterrace.org"
@@ -1251,6 +1261,14 @@
                         "is32BitModeEnabled": true,
                         "minimumSupportedTlsVersion": "1.2",
                         "name": "byteterrace",
+                        "privateCertificates": [
+                            {
+                                "keyVault": {
+                                    "name": "byteterrace",
+                                    "secretName": "byteterrace-com"
+                                }
+                            }
+                        ],
                         "privateEndpoints": [
                             {
                                 "dnsZones": [

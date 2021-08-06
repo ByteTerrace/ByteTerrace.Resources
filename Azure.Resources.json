@@ -47,9 +47,6 @@
                         "isPerSiteScalingEnabled": false,
                         "name": "byteterrace",
                         "operatingSystemName": "Windows",
-                        "serviceEnvironment": {
-                            "name": "byteterrace"
-                        },
                         "skuName": "EP1"
                     }
                 ],

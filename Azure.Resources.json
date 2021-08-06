@@ -1183,7 +1183,7 @@
                             }
                         },
                         "autoHeal": {
-                            "isProactiveModeEnabled": false
+                            "isProactiveModeEnabled": true
                         },
                         "connectionStrings": {
                             "collection": []
@@ -1216,25 +1216,17 @@
                             }
                         ],
                         "dnsZones": {
+                            "private": [
+                                { 
+                                    "endpoint": {
+                                        "name": "byteterrace-functionapp-privateendpoint"
+                                    },
+                                    "name": "byteterrace.net"
+                                }
+                            ],
                             "public": [
                                 {
                                     "name": "byteterrace.com"
-                                },
-                                {
-                                    "isARecordEnabled": false,
-                                    "isCnameRecordEnabled": false,
-                                    "name": "byteterrace.net"
-                                },
-                                {
-                                    "name": "byteterrace.org"
-                                }
-                            ],
-                            "private": [
-                                {
-                                    "name": "byteterrace.com"
-                                },
-                                {
-                                    "name": "byteterrace.net"
                                 },
                                 {
                                     "name": "byteterrace.org"

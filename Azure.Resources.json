@@ -34,7 +34,7 @@
                         "virtualIpType": "Internal"
                     }
                 ],
-                "_applicationServicePlans": [
+                "applicationServicePlans": [
                     {
                         "audit": {
                             "logAnalyticsWorkspace": {
@@ -42,15 +42,15 @@
                             }
                         },
                         "autoscale": {
-                            "isEnabled": true
+                            "isEnabled": false
                         },
                         "isPerSiteScalingEnabled": false,
                         "name": "byteterrace",
-                        "operatingSystemName": "Linux",
+                        "operatingSystemName": "Windows",
                         "serviceEnvironment": {
                             "name": "byteterrace"
                         },
-                        "skuName": "I1v2"
+                        "skuName": "EP1"
                     }
                 ],
                 "availabilitySets": [
@@ -128,6 +128,14 @@
                         },
                         {
                             "name": "privatelink.azurecr.io",
+                            "virtualNetworkLinks": [
+                                {
+                                    "name": "byteterrace.net"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "privatelink.azurewebsites.net",
                             "virtualNetworkLinks": [
                                 {
                                     "name": "byteterrace.net"
@@ -1113,6 +1121,12 @@
                             ]
                         },
                         "frameworkVersion": "DOTNETCORE|3.1",
+                        "functionExtension": {
+                            "isEnabled": true,
+                            "storageAccount": {
+                                "name": "byteterrace"
+                            }
+                        },
                         "ipSecurityRestrictions": [
                             {
                                 "action": "Allow",
@@ -1124,14 +1138,28 @@
                                 }
                             }
                         ],
-                        "isAlwaysOnEnabled": true,
+                        "isAlwaysOnEnabled": false,
                         "isClientAffinityEnabled": false,
                         "isHttpsOnlyModeEnabled": true,
                         "isHttp20SupportEnabled": true,
                         "isWebSocketSupportEnabled": false,
-                        "is32BitModeEnabled": false,
+                        "is32BitModeEnabled": true,
                         "minimumSupportedTlsVersion": "1.2",
                         "name": "byteterrace",
+                        "privateEndpoints": [
+                            {
+                                "dnsZones": [
+                                    {
+                                        "name": "privatelink.azurewebsites.net"
+                                    }
+                                ],
+                                "name": "byteterrace-functionapp-privateendpoint",
+                                "subnet": {
+                                    "name":"ByteTerraceSubnet",
+                                    "virtualNetworkName": "byteterrace.net"
+                                }
+                            }
+                        ],
                         "publicCertificates": [],
                         "servicePlan": {
                             "name": "byteterrace"

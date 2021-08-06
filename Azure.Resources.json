@@ -58,7 +58,7 @@
                         "proximityPlacementGroupName": "byteterrace"
                     }
                 ],
-                "_bastionHosts": [
+                "bastionHosts": [
                     {
                         "audit": {
                             "logAnalyticsWorkspace": {
@@ -859,7 +859,7 @@
                         },
                         "isAllowTrustedMicrosoftServicesEnabled": true,
                         "isPublicNetworkAccessEnabled": false,
-                        "isSharedKeyAccessEnabled": false,
+                        "isSharedKeyAccessEnabled": true,
                         "name": "byteterrace",
                         "queueServices": {
                             "privateEndpoints": [

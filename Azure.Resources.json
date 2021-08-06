@@ -1203,7 +1203,10 @@
                                 }
                             },
                             {
-                                "name": "byteterrace.net"
+                                "name": "byteterrace.net",
+                                "ssl": {
+                                    "state": "Disabled"
+                                }
                             },
                             {
                                 "name": "byteterrace.org"

@@ -34,6 +34,25 @@
                         "virtualIpType": "Internal"
                     }
                 ],
+                "_applicationServicePlans": [
+                    {
+                        "audit": {
+                            "logAnalyticsWorkspace": {
+                                "name": "byteterrace"
+                            }
+                        },
+                        "autoscale": {
+                            "isEnabled": true
+                        },
+                        "isPerSiteScalingEnabled": false,
+                        "name": "byteterrace",
+                        "operatingSystemName": "Linux",
+                        "serviceEnvironment": {
+                            "name": "byteterrace"
+                        },
+                        "skuName": "I1v2"
+                    }
+                ],
                 "availabilitySets": [
                     {
                         "name": "byteterrace",
@@ -1046,6 +1065,72 @@
                                 "name": "GatewaySubnet"
                             }
                         ]
+                    }
+                ],
+                "_webApplications": [
+                    {
+                        "applicationSettings": {
+                            "collection": []
+                        },
+                        "audit": {
+                            "logAnalyticsWorkspace": {
+                                "name": "byteterrace"
+                            }
+                        },
+                        "connectionStrings": {
+                            "collection": []
+                        },
+                        "cors": {
+                            "allowedOrigins": []
+                        },
+                        "customDomains": [
+                            {
+                                "name": "byteterrace.com"
+                            },
+                            {
+                                "name": "byteterrace.net"
+                            },
+                            {
+                                "name": "byteterrace.org"
+                            }
+                        ],
+                        "dnsZones": {
+                            "public": [
+                                {
+                                    "name": "byteterrace.com"
+                                },
+                                {
+                                    "name": "byteterrace.org"
+                                }
+                            ],
+                            "private": [
+                                {
+                                    "name": "byteterrace.net"
+                                }
+                            ]
+                        },
+                        "frameworkVersion": "DOTNETCORE|3.1",
+                        "ipSecurityRestrictions": [
+                            {
+                                "action": "Allow",
+                                "name": "byteterrace.net",
+                                "priority": 0,
+                                "subnet":{
+                                    "name": "ByteTerraceSubnet",
+                                    "virtualNetworkName": "byteterrace.net"
+                                }
+                            }
+                        ],
+                        "isAlwaysOnEnabled": true,
+                        "isClientAffinityEnabled": false,
+                        "isHttp20SupportEnabled": true,
+                        "isWebSocketSupportEnabled": false,
+                        "is32BitModeEnabled": false,
+                        "minimumSupportedTlsVersion": "1.2",
+                        "name": "byteterrace",
+                        "servicePlan": {
+                            "name": "byteterrace"
+                        }
                     }
                 ]
             }

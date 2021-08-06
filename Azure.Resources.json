@@ -1270,6 +1270,12 @@
                                     "name": "byteterrace",
                                     "secretName": "byteterrace-com"
                                 }
+                            },
+                            {
+                                "keyVault": {
+                                    "name": "byteterrace",
+                                    "secretName": "byteterrace-org"
+                                }
                             }
                         ],
                         "privateEndpoints": [

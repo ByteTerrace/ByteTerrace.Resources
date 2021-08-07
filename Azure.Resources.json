@@ -188,6 +188,14 @@
                             ]
                         },
                         {
+                            "name": "privatelink.managedhsm.azure.net",
+                            "virtualNetworkLinks": [
+                                {
+                                    "name": "byteterrace.net"
+                                }
+                            ]
+                        },
+                        {
                             "name": "privatelink.monitor.azure.com",
                             "virtualNetworkLinks": [
                                 {
@@ -402,6 +410,32 @@
                                 }
                             ]
                         }
+                    }
+                ],
+                "_managedHsms": [
+                    {
+                        "audit": {
+                            "logAnalyticsWorkspace": {
+                                "name": "byteterrace"
+                            }
+                        },
+                        "name": "byteterrace",
+                        "isAllowTrustedMicrosoftServicesEnabled": true,
+                        "isPublicNetworkAccessEnabled": false,
+                        "privateEndpoints": [
+                            {
+                                "dnsZones": [
+                                    {
+                                        "name": "privatelink.managedhsm.azure.net"
+                                    }
+                                ],
+                                "name": "byteterrace-managedhsm-privateendpoint",
+                                "subnet": {
+                                    "name":"ByteTerraceSubnet",
+                                    "virtualNetworkName": "byteterrace.net"
+                                }
+                            }
+                        ]
                     }
                 ],
                 "monitor": {

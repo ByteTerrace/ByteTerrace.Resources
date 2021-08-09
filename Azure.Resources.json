@@ -148,6 +148,14 @@
                             ]
                         },
                         {
+                            "name": "privatelink.azurestaticapps.net",
+                            "virtualNetworkLinks": [
+                                {
+                                    "name": "byteterrace.net"
+                                }
+                            ]
+                        },
+                        {
                             "name": "privatelink.azurewebsites.net",
                             "virtualNetworkLinks": [
                                 {
@@ -876,6 +884,26 @@
                         "skuName": "Standard",
                         "skuTier": "Regional",
                         "version": "IPv4"
+                    }
+                ],
+                "staticWebApplications": [
+                    {
+                        "name": "byteterrace",
+                        "privateEndpoints": [
+                            {
+                                "dnsZones": [
+                                    {
+                                        "name": "privatelink.azurestaticapps.net"
+                                    }
+                                ],
+                                "name": "byteterrace-staticwebapp-privateendpoint",
+                                "subnet": {
+                                    "name":"ByteTerraceSubnet",
+                                    "virtualNetworkName": "byteterrace.net"
+                                }
+                            }
+                        ],
+                        "skuName": "Standard"
                     }
                 ],
                 "storageAccounts": [

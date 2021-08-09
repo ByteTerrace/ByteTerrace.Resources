@@ -889,6 +889,7 @@
                 ],
                 "staticWebApplications": [
                     {
+                        "location": "centralus",
                         "name": "byteterrace",
                         "privateEndpoints": [
                             {

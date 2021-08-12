@@ -244,6 +244,14 @@
                             ]
                         },
                         {
+                            "name": "privatelink.southcentralus.azmk8s.io",
+                            "virtualNetworkLinks": [
+                                {
+                                    "name": "byteterrace.net"
+                                }
+                            ]
+                        },
+                        {
                             "name": "privatelink.table.core.windows.net",
                             "virtualNetworkLinks": [
                                 {
@@ -419,6 +427,34 @@
                             ]
                         },
                         "softDeleteRetentionInDays": 14
+                    }
+                ],
+                "kubernetesServiceClusters": [
+                    {
+                        "administratorObjectIds": [
+                            "f378e8a4-5076-4d18-aae0-48911cd0051b"
+                        ],
+                        "agentPoolProfiles": [],
+                        "audit": {
+                            "logAnalyticsWorkspace": {
+                                "name": "byteterrace"
+                            }
+                        },
+                        "customerManagedEncryption": {
+                            "diskEncryptionSet": {
+                                "name": "byteterrace"
+                            }
+                        },
+                        "kubernetesVersion": "",
+                        "name": "byteterrace",
+                        "networking": {
+                            "plugin": "Azure",
+                            "policy": "Azure",
+                            "subnet": {
+                                "name": "AzureKubernetesServicesSubnet",
+                                "virtualNetworkName": "byteterrace.net"
+                            }
+                        }
                     }
                 ],
                 "_managedHsms": [
@@ -799,6 +835,18 @@
                                 "name": "byteterrace"
                             }
                         },
+                        "name": "AzureKubernetesServicesNetworkSecurityGroup",
+                        "securityRules": []
+                    },
+                    {
+                        "audit": {
+                            "flowLogStorageAccount": {
+                                "name": "byteterrace"
+                            },
+                            "logAnalyticsWorkspace": {
+                                "name": "byteterrace"
+                            }
+                        },
                         "name": "ByteTerraceNetworkSecurityGroup",
                         "securityRules": [
                             {
@@ -887,6 +935,11 @@
                         "version": "IPv4"
                     }
                 ],
+                "routeTables": [
+                    {
+                        "name": "byteterrace"
+                    }
+                ],
                 "staticWebApplications": [
                     {
                         "location": "centralus",
@@ -898,6 +951,7 @@
                                         "name": "privatelink.azurestaticapps.net"
                                     }
                                 ],
+                                "location": "southcentralus",
                                 "name": "byteterrace-staticwebapp-privateendpoint",
                                 "subnet": {
                                     "name":"ByteTerraceSubnet",
@@ -1132,6 +1186,13 @@
                                 "name": "AzureBastionSubnet",
                                 "networkSecurityGroup": {
                                     "name": "AzureBastionNetworkSecurityGroup"
+                                }
+                            },
+                            {
+                                "addressPrefix": "10.255.250.0/23",
+                                "name": "AzureKubernetesServicesSubnet",
+                                "networkSecurityGroup": {
+                                    "name": "AzureKubernetesServicesNetworkSecurityGroup"
                                 }
                             },
                             {

@@ -58,7 +58,7 @@
                         "proximityPlacementGroupName": "byteterrace"
                     }
                 ],
-                "bastionHosts": [
+                "_bastionHosts": [
                     {
                         "audit": {
                             "logAnalyticsWorkspace": {
@@ -556,7 +556,7 @@
                                 "destinationPortRanges": [ "*" ],
                                 "direction": "Inbound",
                                 "name": "Allow-Ase-Inbound",
-                                "priority": 4088,
+                                "priority": 2040,
                                 "protocol": "*",
                                 "sourceAddressPrefixes": [ "10.255.253.0/24" ]
                             },
@@ -566,7 +566,7 @@
                                 "destinationPortRanges": [ "21" ],
                                 "direction": "Inbound",
                                 "name": "Allow-Ftp-Inbound",
-                                "priority": 4089,
+                                "priority": 2041,
                                 "protocol": "TCP",
                                 "sourceAddressPrefixes": [ "*" ]
                             },
@@ -576,7 +576,7 @@
                                 "destinationPortRanges": [ "10001-10020" ],
                                 "direction": "Inbound",
                                 "name": "Allow-FtpData-Inbound",
-                                "priority": 4090,
+                                "priority": 2042,
                                 "protocol": "TCP",
                                 "sourceAddressPrefixes": [ "*" ]
                             },
@@ -586,7 +586,7 @@
                                 "destinationPortRanges": [ "990" ],
                                 "direction": "Inbound",
                                 "name": "Allow-Ftps-Inbound",
-                                "priority": 4091,
+                                "priority": 2043,
                                 "protocol": "TCP",
                                 "sourceAddressPrefixes": [ "*" ]
                             },
@@ -596,7 +596,7 @@
                                 "destinationPortRanges": [ "80" ],
                                 "direction": "Inbound",
                                 "name": "Allow-Http-Inbound",
-                                "priority": 4092,
+                                "priority": 2044,
                                 "protocol": "TCP",
                                 "sourceAddressPrefixes": [ "*" ]
                             },
@@ -606,7 +606,7 @@
                                 "destinationPortRanges": [ "443" ],
                                 "direction": "Inbound",
                                 "name": "Allow-Https-Inbound",
-                                "priority": 4093,
+                                "priority": 2045,
                                 "protocol": "TCP",
                                 "sourceAddressPrefixes": [ "*" ]
                             },
@@ -616,7 +616,7 @@
                                 "destinationPortRanges": [ "4016-4022" ],
                                 "direction": "Inbound",
                                 "name": "Allow-RemoteDebug-Inbound",
-                                "priority": 4094,
+                                "priority": 2046,
                                 "protocol": "TCP",
                                 "sourceAddressPrefixes": [ "*" ]
                             },
@@ -626,7 +626,7 @@
                                 "destinationPortRanges": [ "16001" ],
                                 "direction": "Inbound",
                                 "name": "Allow-AzureLoadBalancer-Inbound",
-                                "priority": 4095,
+                                "priority": 2047,
                                 "protocol": "TCP",
                                 "sourceAddressPrefixes": [ "AzureLoadBalancer" ]
                             },
@@ -636,7 +636,7 @@
                                 "destinationPortRanges": [ "454-455" ],
                                 "direction": "Inbound",
                                 "name": "Allow-AppServiceManagement-Inbound",
-                                "priority": 4096,
+                                "priority": 2048,
                                 "protocol": "TCP",
                                 "sourceAddressPrefixes": [ "AppServiceManagement" ]
                             },
@@ -646,7 +646,7 @@
                                 "destinationPortRanges": [ "*" ],
                                 "direction": "Outbound",
                                 "name": "Allow-Ase-Outbound",
-                                "priority": 4090,
+                                "priority": 2042,
                                 "protocol": "*",
                                 "sourceAddressPrefixes": [ "*" ]
                             },
@@ -656,7 +656,7 @@
                                 "destinationPortRanges": [ "53" ],
                                 "direction": "Outbound",
                                 "name": "Allow-Dns-Outbound",
-                                "priority": 4091,
+                                "priority": 2043,
                                 "protocol": "UDP",
                                 "sourceAddressPrefixes": [ "*" ]
                             },
@@ -666,7 +666,7 @@
                                 "destinationPortRanges": [ "80" ],
                                 "direction": "Outbound",
                                 "name": "Allow-Http-Outbound",
-                                "priority": 4092,
+                                "priority": 2044,
                                 "protocol": "TCP",
                                 "sourceAddressPrefixes": [ "*" ]
                             },
@@ -676,7 +676,7 @@
                                 "destinationPortRanges": [ "443" ],
                                 "direction": "Outbound",
                                 "name": "Allow-Https-Outbound",
-                                "priority": 4093,
+                                "priority": 2045,
                                 "protocol": "TCP",
                                 "sourceAddressPrefixes": [ "*" ]
                             },
@@ -686,7 +686,7 @@
                                 "destinationPortRanges": [ "12000" ],
                                 "direction": "Outbound",
                                 "name": "Allow-Monitor-Outbound",
-                                "priority": 4094,
+                                "priority": 2046,
                                 "protocol": "TCP",
                                 "sourceAddressPrefixes": [ "*" ]
                             },
@@ -696,7 +696,7 @@
                                 "destinationPortRanges": [ "123" ],
                                 "direction": "Outbound",
                                 "name": "Allow-Ntp-Outbound",
-                                "priority": 4095,
+                                "priority": 2047,
                                 "protocol": "UDP",
                                 "sourceAddressPrefixes": [ "*" ]
                             },
@@ -706,7 +706,7 @@
                                 "destinationPortRanges": [ "1433" ],
                                 "direction": "Outbound",
                                 "name": "Allow-Sql-Outbound",
-                                "priority": 4096,
+                                "priority": 2048,
                                 "protocol": "TCP",
                                 "sourceAddressPrefixes": [ "*" ]
                             }
@@ -729,7 +729,7 @@
                                 "destinationPortRanges": [ "443" ],
                                 "direction": "Inbound",
                                 "name": "Allow-AzureLoadBalancer-Inbound",
-                                "priority": 4093,
+                                "priority": 2045,
                                 "protocol": "TCP",
                                 "sourceAddressPrefixes": [ "AzureLoadBalancer" ]
                             },
@@ -742,7 +742,7 @@
                                 ],
                                 "direction": "Inbound",
                                 "name": "Allow-BastionHostCommunication-Inbound",
-                                "priority": 4094,
+                                "priority": 2046,
                                 "protocol": "*",
                                 "sourceAddressPrefixes": [ "VirtualNetwork" ]
                             },
@@ -752,7 +752,7 @@
                                 "destinationPortRanges": [ "443" ],
                                 "direction": "Inbound",
                                 "name": "Allow-Https-Inbound",
-                                "priority": 4095,
+                                "priority": 2047,
                                 "protocol": "TCP",
                                 "sourceAddressPrefixes": [ "Internet" ]
                             },
@@ -762,7 +762,7 @@
                                 "destinationPortRanges": [ "443" ],
                                 "direction": "Inbound",
                                 "name": "Allow-GatewayManager-Inbound",
-                                "priority": 4096,
+                                "priority": 2048,
                                 "protocol": "TCP",
                                 "sourceAddressPrefixes": [ "GatewayManager" ]
                             },
@@ -772,7 +772,7 @@
                                 "destinationPortRanges": [ "443" ],
                                 "direction": "Outbound",
                                 "name": "Allow-AzureCloud-Outbound",
-                                "priority": 4093,
+                                "priority": 2045,
                                 "protocol": "TCP",
                                 "sourceAddressPrefixes": [ "*" ]
                             },
@@ -785,7 +785,7 @@
                                 ],
                                 "direction": "Outbound",
                                 "name": "Allow-BastionHostCommunication-Outbound",
-                                "priority": 4094,
+                                "priority": 2046,
                                 "protocol": "*",
                                 "sourceAddressPrefixes": [ "VirtualNetwork" ]
                             },
@@ -795,7 +795,7 @@
                                 "destinationPortRanges": [ "80" ],
                                 "direction": "Outbound",
                                 "name": "Allow-GetSessionInformation-Outbound",
-                                "priority": 4095,
+                                "priority": 2047,
                                 "protocol": "*",
                                 "sourceAddressPrefixes": [ "*" ]
                             },
@@ -808,7 +808,7 @@
                                 ],
                                 "direction": "Outbound",
                                 "name": "Allow-SshRdp-Outbound",
-                                "priority": 4096,
+                                "priority": 2048,
                                 "protocol": "*",
                                 "sourceAddressPrefixes": [ "*" ]
                             }
@@ -855,7 +855,7 @@
                                 "destinationPortRanges": [ "443" ],
                                 "direction": "Inbound",
                                 "name": "Allow-AzureFrontDoor.FirstParty-Inbound",
-                                "priority": 4092,
+                                "priority": 2047,
                                 "protocol": "TCP",
                                 "sourceAddressPrefixes": [ "AzureFrontDoor.FirstParty" ]
                             },
@@ -865,7 +865,7 @@
                                 "destinationPortRanges": [ "443" ],
                                 "direction": "Inbound",
                                 "name": "Allow-AzureFrontDoor.Frontend-Inbound",
-                                "priority": 4093,
+                                "priority": 2048,
                                 "protocol": "TCP",
                                 "sourceAddressPrefixes": [ "AzureFrontDoor.Frontend" ]
                             },
@@ -875,7 +875,7 @@
                                 "destinationPortRanges": [ "443" ],
                                 "direction": "Outbound",
                                 "name": "Allow-AzureFrontDoor.FirstParty-Outbound",
-                                "priority": 4093,
+                                "priority": 2045,
                                 "protocol": "*",
                                 "sourceAddressPrefixes": [ "VirtualNetwork" ]
                             },
@@ -885,7 +885,7 @@
                                 "destinationPortRanges": [ "443" ],
                                 "direction": "Outbound",
                                 "name": "Allow-AzureFrontDoor.Frontend-Outbound",
-                                "priority": 4094,
+                                "priority": 2046,
                                 "protocol": "*",
                                 "sourceAddressPrefixes": [ "VirtualNetwork" ]
                             },
@@ -895,7 +895,7 @@
                                 "destinationPortRanges": [ "443" ],
                                 "direction": "Outbound",
                                 "name": "Allow-AzureActiveDirectory-Outbound",
-                                "priority": 4095,
+                                "priority": 2047,
                                 "protocol": "*",
                                 "sourceAddressPrefixes": [ "VirtualNetwork" ]
                             },
@@ -905,7 +905,7 @@
                                 "destinationPortRanges": [ "443" ],
                                 "direction": "Outbound",
                                 "name": "Allow-AzureResourceManager-Outbound",
-                                "priority": 4096,
+                                "priority": 2048,
                                 "protocol": "*",
                                 "sourceAddressPrefixes": [ "VirtualNetwork" ]
                             }
@@ -1060,6 +1060,10 @@
                             "publisher": "MicrosoftWindowsDesktop",
                             "sku": "20h2-pro-g2",
                             "version": "latest"
+                        },
+                        "isVulnerabilityAssessmentEnabled": true,
+                        "justInTimeAccess": {
+                            "isEnabled": true,
                         },
                         "licenseType": "Windows_Client",
                         "name": "byteterrace",

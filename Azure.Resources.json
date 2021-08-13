@@ -1063,7 +1063,7 @@
                         },
                         "isVulnerabilityAssessmentEnabled": true,
                         "justInTimeAccess": {
-                            "isEnabled": true,
+                            "isEnabled": true
                         },
                         "licenseType": "Windows_Client",
                         "name": "byteterrace",

@@ -55,7 +55,9 @@
                         "name": "byteterrace",
                         "numberOfFaultDomains": 3,
                         "numberOfUpdateDomains": 5,
-                        "proximityPlacementGroupName": "byteterrace"
+                        "proximityPlacementGroup": {
+                            "name": "byteterrace"
+                        }
                     }
                 ],
                 "_bastionHosts": [
@@ -1068,9 +1070,13 @@
                                 "name": "byteterrace"
                             }
                         },
-                        "availabilitySetName": "byteterrace",
+                        "availabilitySet": {
+                            "name": "byteterrace"
+                        },
                         "dataDisks": [],
-                        "diskEncryptionSetName": "byteterrace",
+                        "diskEncryptionSet": {
+                            "name": "byteterrace"
+                        },
                         "imageReference": {
                             "offer": "Windows-10",
                             "publisher": "MicrosoftWindowsDesktop",
@@ -1105,7 +1111,32 @@
                             }
                         ],
                         "priority": "Regular",
-                        "size": "Standard_D4s_v4"
+                        "skuName": "Standard_D4s_v4"
+                    }
+                ],
+                "virtualMachineScaleSets": [
+                    {
+                        "audit": {
+                            "logAnalyticsWorkspace": {
+                                "name": "byteterrace"
+                            }
+                        },
+                        "diskEncryptionSet": {
+                            "name": "byteterrace"
+                        },
+                        "imageReference": {
+                            "offer": "Windows-10",
+                            "publisher": "MicrosoftWindowsDesktop",
+                            "sku": "20h2-pro-g2",
+                            "version": "latest"
+                        },
+                        "licenseType": "Windows_Client",
+                        "name": "byteterrace",
+                        "numberOfVirtualMachines": 0,
+                        "proximityPlacementGroup": {
+                            "name": "byteterrace"
+                        },
+                        "skuName": "Standard_D4s_v4"
                     }
                 ],
                 "virtualNetworks": [

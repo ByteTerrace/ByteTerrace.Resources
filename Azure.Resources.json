@@ -34,7 +34,7 @@
                         "virtualIpType": "Internal"
                     }
                 ],
-                "applicationServicePlans": [
+                "_applicationServicePlans": [
                     {
                         "audit": {
                             "logAnalyticsWorkspace": {
@@ -918,7 +918,7 @@
                     }
                 ],
                 "publicIpAddresses": [
-                    {
+                    /*{
                         "audit": {
                             "logAnalyticsWorkspace": {
                                 "name": "byteterrace"
@@ -933,6 +933,22 @@
                         "skuName": "Standard",
                         "skuTier": "Regional",
                         "version": "IPv4"
+                    },*/
+                    {
+                        "audit": {
+                            "logAnalyticsWorkspace": {
+                                "name": "byteterrace"
+                            }
+                        },
+                        "availabilityZones": [
+                            "1",
+                            "2",
+                            "3"
+                        ],
+                        "name": "ByteTerracePublicIpAddress",
+                        "skuName": "Standard",
+                        "skuTier": "Regional",
+                        "version": "IPv4"
                     }
                 ],
                 "routeTables": [
@@ -940,7 +956,7 @@
                         "name": "byteterrace"
                     }
                 ],
-                "staticWebApplications": [
+                "_staticWebApplications": [
                     {
                         "location": "centralus",
                         "name": "byteterrace",
@@ -1077,6 +1093,9 @@
                                             "name": "byteterrace"
                                         },
                                         "name": "default",
+                                        "publicIpAddress": {
+                                            "name": "ByteTerracePublicIpAddress"
+                                        },
                                         "subnet": {
                                             "name": "ByteTerraceSubnet",
                                             "virtualNetworkName": "byteterrace.net"
@@ -1093,6 +1112,10 @@
                     {
                         "addressPrefixes": [
                             "10.255.0.0/16"
+                        ],
+                        "dnsServers": [
+                            "1.1.1.1",
+                            "1.0.0.1"
                         ],
                         "name": "byteterrace.net",
                         "subnets": [
@@ -1301,7 +1324,7 @@
                         ]
                     }
                 ],
-                "webApplications": [
+                "_webApplications": [
                     {
                         "applicationSettings": {
                             "collection": []

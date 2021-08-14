@@ -918,6 +918,22 @@
                     }
                 ],
                 "publicIpAddresses": [
+                    /*{
+                        "audit": {
+                            "logAnalyticsWorkspace": {
+                                "name": "byteterrace"
+                            }
+                        },
+                        "availabilityZones": [
+                            "1",
+                            "2",
+                            "3"
+                        ],
+                        "name": "AzureBastionPublicIpAddress",
+                        "skuName": "Standard",
+                        "skuTier": "Regional",
+                        "version": "IPv4"
+                    },*/
                     {
                         "audit": {
                             "logAnalyticsWorkspace": {
@@ -1097,7 +1113,7 @@
                         "addressPrefixes": [
                             "10.255.0.0/16"
                         ],
-                        "dnsServers": [
+                        "_dnsServers": [
                             "1.1.1.1",
                             "1.0.0.1"
                         ],

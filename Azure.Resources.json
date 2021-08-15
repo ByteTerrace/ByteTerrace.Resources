@@ -396,13 +396,15 @@
                         }
                     ]
                 },
-                "hostGroups": {
-                    "availabilityZones": [],
-                    "hosts": [],
-                    "isAutomaticPlacementEnabled": true,
-                    "numberOfFaultDomains": 3,
-                    "name": "byteterrace"
-                },
+                "hostGroups": [
+                    {
+                        "availabilityZones": [],
+                        "hosts": [],
+                        "isAutomaticPlacementEnabled": true,
+                        "numberOfFaultDomains": 3,
+                        "name": "byteterrace"
+                    }
+                ],
                 "keyVaults": [
                     {
                         "audit": {

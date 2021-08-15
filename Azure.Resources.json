@@ -1146,7 +1146,7 @@
                         },
                         "licenseType": "Windows_Client",
                         "name": "byteterrace",
-                        "networkConfigurations": [
+                        "networkInterfaceConfigurations": [
                             {
                                 "ipConfigurations": [
                                     {

@@ -440,7 +440,7 @@
                         "softDeleteRetentionInDays": 14
                     }
                 ],
-                "kubernetesServiceClusters": [
+                "_kubernetesServiceClusters": [
                     {
                         "administratorObjectIds": [
                             "f378e8a4-5076-4d18-aae0-48911cd0051b"
@@ -456,7 +456,7 @@
                                 "name": "byteterrace"
                             }
                         },
-                        "kubernetesVersion": "",
+                        "kubernetesVersion": "1.20.7",
                         "name": "byteterrace",
                         "networking": {
                             "plugin": "Azure",

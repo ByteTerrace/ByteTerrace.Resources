@@ -396,11 +396,11 @@
                         }
                     ]
                 },
-                "hostGroups": [
+                "_hostGroups": [
                     {
                         "availabilityZones": [],
                         "hosts": [],
-                        "isAutomaticPlacementEnabled": true,
+                        "isAutomaticPlacementEnabled": false,
                         "numberOfFaultDomains": 3,
                         "name": "byteterrace"
                     }
@@ -1130,6 +1130,11 @@
                                 "name": "byteterrace"
                             }
                         },
+                        "availabilityZones": [
+                            1,
+                            2,
+                            3
+                        ],
                         "diskEncryptionSet": {
                             "name": "byteterrace"
                         },
@@ -1141,6 +1146,15 @@
                         },
                         "licenseType": "Windows_Client",
                         "name": "byteterrace",
+                        "networkConfigurations": [
+                            {
+                                "name": "default",
+                                "networkSecurityGroup": {
+                                    "name": "ByteTerraceNetworkSecurityGroup"
+                                }
+                            }
+                        ],
+                        "numberOfFaultDomains": 1,
                         "numberOfVirtualMachines": 0,
                         "proximityPlacementGroup": {
                             "name": "byteterrace"

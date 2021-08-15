@@ -1148,9 +1148,21 @@
                         "name": "byteterrace",
                         "networkConfigurations": [
                             {
+                                "ipConfigurations": [
+                                    {
+                                        "name": "default",
+                                        "properties": {
+                                            "primary": true,
+                                            "privateIPAddressVersion": "IPv4",
+                                            "subnet": {
+                                                "id": "/subscriptions/28932662-8488-49f8-9638-94a96eaceacb/resourceGroups/byteterrace/providers/Microsoft.Network/virtualNetworks/byteterrace.net/subnets/ByteTerraceSubnet"
+                                            }
+                                        }
+                                    }
+                                ],
                                 "name": "default",
                                 "networkSecurityGroup": {
-                                    "name": "ByteTerraceNetworkSecurityGroup"
+                                    "name": "ByteterraceNetworkSecurityGroup"
                                 }
                             }
                         ],

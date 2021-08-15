@@ -997,7 +997,7 @@
                             }
                         },
                         "blobServices": {
-                            "privateEndpoints": [
+                            "_privateEndpoints": [
                                 {
                                     "dnsZones": [
                                         {
@@ -1019,7 +1019,7 @@
                             }
                         },
                         "fileServices": {
-                            "privateEndpoints": [
+                            "_privateEndpoints": [
                                 {
                                     "dnsZones": [
                                         {
@@ -1039,7 +1039,7 @@
                         "isSharedKeyAccessEnabled": true,
                         "name": "byteterrace",
                         "queueServices": {
-                            "privateEndpoints": [
+                            "_privateEndpoints": [
                                 {
                                     "dnsZones": [
                                         {
@@ -1055,7 +1055,7 @@
                             ]
                         },
                         "tableServices": {
-                            "privateEndpoints": [
+                            "_privateEndpoints": [
                                 {
                                     "dnsZones": [
                                         {

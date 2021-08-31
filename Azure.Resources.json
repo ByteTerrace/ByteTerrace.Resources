@@ -50,6 +50,44 @@
                         "skuName": "EP1"
                     }
                 ],
+                "_automationAccounts": [
+                    {
+                        "desiredStateConfiguration": {
+                            "privateEndpoints": [
+                                {
+                                    "dnsZones": [
+                                        {
+                                            "name": "privatelink.azure-automation.net"
+                                        }
+                                    ],
+                                    "name": "byteterrace-automationdsc-privateendpoint",
+                                    "subnet": {
+                                        "name":"ByteTerraceSubnet",
+                                        "virtualNetworkName": "byteterrace.net"
+                                    }
+                                }
+                            ]
+                        },
+                        "isPublicNetworkAccessEnabled": false,
+                        "name": "byteterrace",
+                        "webWorker": {
+                            "privateEndpoints": [
+                                {
+                                    "dnsZones": [
+                                        {
+                                            "name": "privatelink.azure-automation.net"
+                                        }
+                                    ],
+                                    "name": "byteterrace-automationww-privateendpoint",
+                                    "subnet": {
+                                        "name":"ByteTerraceSubnet",
+                                        "virtualNetworkName": "byteterrace.net"
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                ],
                 "availabilitySets": [
                     {
                         "name": "byteterrace",
@@ -166,6 +204,14 @@
                             ]
                         },
                         {
+                            "name": "privatelink.azure-automation.net",
+                            "virtualNetworkLinks": [
+                                {
+                                    "name": "byteterrace.net"
+                                }
+                            ]
+                        },
+                        {
                             "name": "privatelink.blob.core.windows.net",
                             "virtualNetworkLinks": [
                                 {
@@ -238,7 +284,23 @@
                             ]
                         },
                         {
+                            "name": "privatelink.redis.cache.windows.net",
+                            "virtualNetworkLinks": [
+                                {
+                                    "name": "byteterrace.net"
+                                }
+                            ]
+                        },
+                        {
                             "name": "privatelink.scus.backup.windowsazure.com",
+                            "virtualNetworkLinks": [
+                                {
+                                    "name": "byteterrace.net"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "privatelink.servicebus.windows.net",
                             "virtualNetworkLinks": [
                                 {
                                     "name": "byteterrace.net"
@@ -393,6 +455,33 @@
                         },
                         {
                             "name": "bytrc.com"
+                        }
+                    ]
+                },
+                "_eventHub": {
+                    "namespaces": [
+                        {
+                            "audit": {
+                                "logAnalyticsWorkspace": {
+                                    "name": "byteterrace"
+                                }
+                            },
+                            "name": "byteterrace",
+                            "privateEndpoints": [
+                                {
+                                    "dnsZones": [
+                                        {
+                                            "name": "privatelink.servicebus.windows.net"
+                                        }
+                                    ],
+                                    "name": "byteterrace-eventhubnamespace-privateendpoint",
+                                    "subnet": {
+                                        "name":"ByteTerraceSubnet",
+                                        "virtualNetworkName": "byteterrace.net"
+                                    }
+                                }
+                            ],
+                            "skuName": "Premium"
                         }
                     ]
                 },
@@ -962,11 +1051,63 @@
                         "version": "IPv4"
                     }
                 ],
+                "_redisCaches": [
+                    {
+                        "audit": {
+                            "logAnalyticsWorkspace": {
+                                "name": "byteterrace"
+                            }
+                        },
+                        "name": "byteterrace",
+                        "privateEndpoints": [
+                            {
+                                "dnsZones": [
+                                    {
+                                        "name": "privatelink.redis.cache.windows.net"
+                                    }
+                                ],
+                                "name": "byteterrace-rediscache-privateendpoint",
+                                "subnet": {
+                                    "name":"ByteTerraceSubnet",
+                                    "virtualNetworkName": "byteterrace.net"
+                                }
+                            }
+                        ],
+                        "skuName": "Premium"
+                    }
+                ],
                 "routeTables": [
                     {
                         "name": "byteterrace"
                     }
                 ],
+                "_serviceBus": {
+                    "namespaces": [
+                        {
+                            "audit": {
+                                "logAnalyticsWorkspace": {
+                                    "name": "byteterrace"
+                                }
+                            },
+                            "name": "byteterrace",
+                            "privateEndpoints": [
+                                {
+                                    "dnsZones": [
+                                        {
+                                            "name": "privatelink.servicebus.windows.net"
+                                        }
+                                    ],
+                                    "name": "byteterrace-servicebusnamespace-privateendpoint",
+                                    "subnet": {
+                                        "name":"TarsonisSubnet",
+                                        "virtualNetworkName": "byteterrace.net"
+                                    }
+                                }
+                            ],
+                            "skuName": "Premium"
+                        }
+                    ]
+                },
                 "_staticWebApplications": [
                     {
                         "location": "centralus",
@@ -1168,9 +1309,6 @@
                         ],
                         "numberOfFaultDomains": 1,
                         "numberOfVirtualMachines": 0,
-                        "proximityPlacementGroup": {
-                            "name": "byteterrace"
-                        },
                         "skuName": "Standard_D4s_v4"
                     }
                 ],

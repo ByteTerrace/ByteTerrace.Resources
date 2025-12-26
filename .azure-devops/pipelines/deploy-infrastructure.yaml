@@ -1,40 +1,62 @@
+schedules:
+  - cron: "0 12 * * *"
+    displayName: "Daily Sync"
+    branches:
+      include:
+        - main
+
 trigger: none
 
 pool:
-  name: 'bytrcmdopp000'
+  name: "bytrcmdopp000"
 
-steps:
-- task: AzureCLI@2
-  inputs:
-    arguments: >-
-      -DeploymentName '$(Build.BuildId)'
-      -ResourceGroupName 'byteterrace'
-      -TemplateFilePath '$(Pipeline.Workspace)/s/main.bicep'
-    azureSubscription: 'byteterrace-mpn | byteterrace'
-    failOnStandardError: true
-    inlineScript: |
-      [CmdletBinding()]
-      param(
-          [Parameter(Mandatory = $true, Position = 0)]
-          [string]$DeploymentName,
-          [Parameter(Mandatory = $true, Position = 0)]
-          [string]$ResourceGroupName,
-          [Parameter(Mandatory = $true, Position = 1)]
-          [string]$TemplateFilePath
-      )
-
-      begin {}
-
-      process {
-          az deployment group create `
-              --name $DeploymentName `
-              --resource-group $ResourceGroupName `
-              --template-file $TemplateFilePath;
-      }
-
-      end {
-          return 0;
-      }
-    powerShellIgnoreLASTEXITCODE: true
-    scriptLocation: 'scriptPath'
-    scriptType: 'pscore'
+jobs:
+  - deployment: "main"
+    displayName: "main"
+    environment: "production"
+    pool:
+      name: "bytrcmdopp000"
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+            - checkout: self
+              clean: true
+              displayName: "checkout repository"
+              enabled: true
+              fetchDepth: 1
+              timeoutInMinutes: 3
+            - task: AzureCLI@2
+              displayName: "deploy infrastructure"
+              enabled: true
+              inputs:
+                arguments: >-
+                  -DeploymentName '$(Build.BuildId)'
+                  -ResourceGroupName 'byteterrace'
+                  -TemplateFilePath '$(Pipeline.Workspace)/s/main.bicep'
+                azureSubscription: "byteterrace-mpn | byteterrace"
+                failOnStandardError: true
+                inlineScript: |
+                  [CmdletBinding()]
+                  param(
+                      [Parameter(Mandatory = $true, Position = 0)]
+                      [string]$DeploymentName,
+                      [Parameter(Mandatory = $true, Position = 1)]
+                      [string]$ResourceGroupName,
+                      [Parameter(Mandatory = $true, Position = 2)]
+                      [string]$TemplateFilePath
+                  )
+                  begin {}
+                  process {
+                      az deployment group create `
+                          --name $DeploymentName `
+                          --resource-group $ResourceGroupName `
+                          --template-file $TemplateFilePath;
+                  }
+                  end {
+                      return 0;
+                  }
+                powerShellIgnoreLASTEXITCODE: true
+                scriptLocation: "inlineScript"
+                scriptType: "pscore"
+                visibleAzLogin: false

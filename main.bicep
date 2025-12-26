@@ -48,10 +48,14 @@ type resourceType = {
     name: string
     tags: tagsType?
   }
-  containerRegistry: {
+  /*communicationService: {
     name: string
     tags: tagsType?
   }
+  containerRegistry: {
+    name: string
+    tags: tagsType?
+  }*/
   devOpsAgentPool: {
     @minValue(1)
     @maxValue(10000)
@@ -154,6 +158,10 @@ param resources resourceType = {
       {
         resourceAppId: '00000003-0000-0000-c000-000000000000' // Microsoft Graph
         resourceAccess: [
+          { // NOTE: Admin consent required.
+            id: 'e4c9e354-4dc5-45b8-9e7c-e1393b0b1a20' // https://graph.microsoft.com/AuditLog.Read.All
+            type: 'Scope'
+          }
           {
             id: '38826093-1258-4dea-98f0-00003be2b8d0' // https://graph.microsoft.com/Chat.Create
             type: 'Scope'
@@ -164,6 +172,10 @@ param resources resourceType = {
           }
           {
             id: 'e383f46e-2787-4529-855e-0e479a3ffac0' // https://graph.microsoft.com/Mail.Send
+            type: 'Scope'
+          }
+          { // NOTE: Admin consent required.
+            id: 'fc30e98b-8810-4501-81f5-c20a3196387b' // https://graph.microsoft.com/User.RevokeSessions.All
             type: 'Scope'
           }
         ]
@@ -190,9 +202,12 @@ param resources resourceType = {
   applicationServicePlan: {
     name: 'bytrcaspp000'
   }
+  /*communicationService: {
+    name: 'bytrcacsp000'
+  }
   containerRegistry: {
     name: 'bytrccrp000'
-  }
+  }*/
   devOpsAgentPool: {
     concurrency: 2
     images: [
@@ -313,7 +328,6 @@ var natGatewayResourceIdMap = {
   '${resources.natGateway.name}': natGateway.outputs.resourceId
 }
 var owner = {
-  name: deployer().userPrincipalName
   principalId: deployer().objectId
 }
 var publicIpPrefixResourceIdMap = {
@@ -386,6 +400,10 @@ resource applicationRegistration 'Microsoft.Graph/applications@v1.0' = {
 }
 resource applicationRegistration_servicePrincipal 'Microsoft.Graph/servicePrincipals@v1.0' = {
   appId: applicationRegistration.appId
+  owners: {
+    relationships: [owner.principalId]
+    relationshipSemantics: 'append'
+  }
 }
 resource devOpsInfrastructure_servicePrincipal 'Microsoft.Graph/servicePrincipals@v1.0' existing = {
   appId: '31687f79-5e43-4c1e-8c63-d9f4bff5cf8b'
@@ -448,7 +466,21 @@ module applicationServicePlan 'br/public:avm/res/web/serverfarm:0.5.0' = {
     zoneRedundant: false
   }
 }
-/*module containerRegistry 'br/public:avm/res/container-registry/registry:0.9.3' = {
+/*module communicationService 'br/public:avm/res/communication/communication-service:0.4.2' = {
+  params: {
+    dataLocation: 'United States'
+    diagnosticSettings: []
+    enableTelemetry: false
+    location: 'global'
+    lock: {
+      kind: lockKind
+    }
+    name: resources.communicationService.name
+    roleAssignments: []
+    tags: resources.communicationService.?tags
+  }
+}
+module containerRegistry 'br/public:avm/res/container-registry/registry:0.9.3' = {
   params: {
     acrAdminUserEnabled: false
     acrSku: 'Premium'

@@ -1,0 +1,40 @@
+trigger: none
+
+pool:
+  name: 'bytrcmdopp000'
+
+steps:
+- task: AzureCLI@2
+  inputs:
+    arguments: >-
+      -DeploymentName '$(Build.BuildId)'
+      -ResourceGroupName 'byteterrace'
+      -TemplateFilePath '$(Pipeline.Workspace)/s/main.bicep'
+    azureSubscription: 'byteterrace-mpn | byteterrace'
+    failOnStandardError: true
+    inlineScript: |
+      [CmdletBinding()]
+      param(
+          [Parameter(Mandatory = $true, Position = 0)]
+          [string]$DeploymentName,
+          [Parameter(Mandatory = $true, Position = 0)]
+          [string]$ResourceGroupName,
+          [Parameter(Mandatory = $true, Position = 1)]
+          [string]$TemplateFilePath
+      )
+
+      begin {}
+
+      process {
+          az deployment group create `
+              --name $DeploymentName `
+              --resource-group $ResourceGroupName `
+              --template-file $TemplateFilePath;
+      }
+
+      end {
+          return 0;
+      }
+    powerShellIgnoreLASTEXITCODE: true
+    scriptLocation: 'scriptPath'
+    scriptType: 'pscore'

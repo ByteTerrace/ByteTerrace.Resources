@@ -157,7 +157,7 @@ type tagsType = { *: string }
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Parameters
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-param deployOwnerRoleAssignments bool = false
+param deployOwnerRoleAssignments bool = true
 param location string = resourceGroup().location
 param lockKind ('CanNotDelete' | 'None' | 'ReadOnly') = 'CanNotDelete'
 param resources resourceType = {
@@ -286,6 +286,7 @@ param resources resourceType = {
     'byteterrace.org': {}
     'byteterrace.us': {}
     'byteterrace.xyz': {}
+    'portal.byteterrace.com': {}
   }
   storageAccountFunction: {
     name: 'bytrcstp000'
@@ -351,6 +352,7 @@ var natGatewayResourceIdMap = {
 var owner = {
   principalId: deployer().objectId
 }
+var portalPublicDnsZone = first(filter(objectKeys(resources.publicDnsZones), zone => startsWith(zone, 'portal.')))! // TODO: Refactor to be more robust.
 var publicIpPrefixResourceIdMap = {
   '${resources.natGateway.publicIpPrefix.name}': natGateway_publicIpPrefix.outputs.resourceId
 }
@@ -394,6 +396,20 @@ module frontDoor 'br/public:avm/res/cdn/profile:0.16.1' = {
             ruleSets: []
             supportedProtocols: ['Https']
           }
+          {
+            cacheConfiguration: null
+            customDomainNames: [replace(portalPublicDnsZone, '.', '-')]
+            enabledState: 'Enabled'
+            forwardingProtocol: 'HttpsOnly'
+            httpsRedirect: 'Enabled'
+            linkToDefaultDomain: 'Disabled'
+            name: 'portal'
+            originGroupName: 'public-storage'
+            originPath: '/$web'
+            patternsToMatch: []
+            ruleSets: []
+            supportedProtocols: ['Https']
+          }
         ]
       }
     ]
@@ -405,6 +421,14 @@ module frontDoor 'br/public:avm/res/cdn/profile:0.16.1' = {
         hostName: apiPublicDnsZone
         minimumTlsVersion: 'TLS12'
         name: replace(apiPublicDnsZone, '.', '-')
+      }
+      {
+        azureDnsZoneResourceId: publicDnsZones.outputs.dnsZoneMap[portalPublicDnsZone]
+        certificateType: 'ManagedCertificate'
+        cipherSuiteSetType: 'TLS12_2023'
+        hostName: portalPublicDnsZone
+        minimumTlsVersion: 'TLS12'
+        name: replace(portalPublicDnsZone, '.', '-')
       }
     ]
     diagnosticSettings: [
@@ -452,10 +476,58 @@ module frontDoor 'br/public:avm/res/cdn/profile:0.16.1' = {
         ]
         sessionAffinityState: 'Disabled'
       }
+      {
+        healthProbeSettings: {
+          probeIntervalInSeconds: 127
+          probePath: '/index.html'
+          probeProtocol: 'Https'
+          probeRequestType: 'GET'
+        }
+        loadBalancingSettings: {
+          sampleSize: 5
+          successfulSamplesRequired: 3
+        }
+        name: 'public-storage'
+        origins: [
+          {
+            enabledState: 'Enabled'
+            enforceCertificateNameCheck: true
+            hostName: parseUri(storageAccountPublic.outputs.primaryBlobEndpoint).host
+            httpPort: 80
+            httpsPort: 443
+            name: replace(parseUri(storageAccountPublic.outputs.primaryBlobEndpoint).host, '.', '-')
+            originHostHeader: parseUri(storageAccountPublic.outputs.primaryBlobEndpoint).host
+          }
+        ]
+        sessionAffinityState: 'Disabled'
+      }
     ]
     name: resources.frontDoor.name
     roleAssignments: []
-    ruleSets: []
+    ruleSets: [
+      {
+        name: 'ForceBrotliCompression'
+        rules: [
+          {
+            actions: [
+              {
+                name: 'ModifyRequestHeader'
+                parameters: {
+                  headerAction: 'Overwrite'
+                  headerName: 'Content-Encoding'
+                  typeName: 'DeliveryRuleHeaderActionParameters'
+                  value: 'br'
+                }
+              }
+            ]
+            conditions: []
+            matchProcessingBehavior: 'Stop'
+            name: 'OverwriteContentEncoding'
+            order: 0
+          }
+        ]
+      }
+    ]
     securityPolicies: [
       {
         associations: [
@@ -466,6 +538,13 @@ module frontDoor 'br/public:avm/res/cdn/profile:0.16.1' = {
                   'Microsoft.Cdn/profiles/customDomains',
                   resources.frontDoor.name,
                   replace(apiPublicDnsZone, '.', '-')
+                )
+              }
+              {
+                id: resourceId(
+                  'Microsoft.Cdn/profiles/customDomains',
+                  resources.frontDoor.name,
+                  replace(portalPublicDnsZone, '.', '-')
                 )
               }
             ]
@@ -480,31 +559,34 @@ module frontDoor 'br/public:avm/res/cdn/profile:0.16.1' = {
     tags: resources.frontDoor.?tags
   }
 }
-module frontDoor_dns 'br/public:avm/res/network/dns-zone:0.5.4' = {
-  params: {
-    a: [
-      {
-        name: '@'
-        targetResourceId: '${frontDoor.outputs.resourceId}/afdEndpoints/default'
-        ttl: 3600
-      }
-    ]
-    enableTelemetry: false
-    location: 'global'
-    name: join(skip(split(frontDoor.outputs.dnsValidation[0].dnsTxtRecordName!, '.'), 1), '.')
-    txt: [
-      {
-        name: first(split(frontDoor.outputs.dnsValidation[0].dnsTxtRecordName!, '.'))
-        ttl: 3600
-        txtRecords: [
-          {
-            value: [frontDoor.outputs.dnsValidation[0].dnsTxtRecordValue!]
-          }
-        ]
-      }
-    ]
+module frontDoor_dns 'br/public:avm/res/network/dns-zone:0.5.4' = [
+  // TODO: Refactor this to be more robust.
+  for i in range(0, 2): {
+    params: {
+      a: [
+        {
+          name: '@'
+          targetResourceId: '${frontDoor.outputs.resourceId}/afdEndpoints/default'
+          ttl: 3600
+        }
+      ]
+      enableTelemetry: false
+      location: 'global'
+      name: join(skip(split(frontDoor.outputs.dnsValidation[i].dnsTxtRecordName!, '.'), 1), '.')
+      txt: [
+        {
+          name: first(split(frontDoor.outputs.dnsValidation[i].dnsTxtRecordName!, '.'))
+          ttl: 3600
+          txtRecords: [
+            {
+              value: [frontDoor.outputs.dnsValidation[i].dnsTxtRecordValue!]
+            }
+          ]
+        }
+      ]
+    }
   }
-}
+]
 module frontDoor_waf 'br/public:avm/res/network/front-door-web-application-firewall-policy:0.3.3' = {
   params: {
     customRules: {
@@ -1590,15 +1672,6 @@ module storageAccountFunction 'br/public:avm/res/storage/storage-account:0.31.0'
     }
     requireInfrastructureEncryption: true
     roleAssignments: [
-      ...(deployOwnerRoleAssignments
-        ? [
-            {
-              principalId: owner.principalId
-              principalType: 'ServicePrincipal'
-              roleDefinitionIdOrName: 'Storage Blob Data Owner'
-            }
-          ]
-        : [])
       {
         principalId: userAssignedIdentityFunctionApplication.outputs.principalId
         principalType: 'ServicePrincipal'
@@ -1749,7 +1822,17 @@ module storageAccountPublic 'br/public:avm/res/storage/storage-account:0.31.0' =
       queues: []
     }
     requireInfrastructureEncryption: true
-    roleAssignments: []
+    roleAssignments: [
+      ...(deployOwnerRoleAssignments
+        ? [
+            {
+              principalId: owner.principalId
+              principalType: 'ServicePrincipal'
+              roleDefinitionIdOrName: 'Storage Blob Data Owner'
+            }
+          ]
+        : [])
+    ]
     skuName: 'Standard_RAGRS'
     supportsHttpsTrafficOnly: true
     tableServices: {

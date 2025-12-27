@@ -1,3 +1,17 @@
+parameters:
+  - name: "agentPoolName"
+    default: "bytrcmdopp000"
+    displayName: "Agent Pool Name"
+    type: "string"
+  - name: "resourceGroupName"
+    default: "byteterrace"
+    displayName: "Resource Group Name"
+    type: "string"
+  - name: "serviceConnectionName"
+    default: "byteterrace-mpn | byteterrace"
+    displayName: "Service Connection Name"
+    type: "string"
+
 schedules:
   - cron: "0 18 * * *"
     always: true
@@ -8,20 +22,17 @@ schedules:
 
 trigger: none
 
-pool:
-  name: "bytrcmdopp000"
-
 jobs:
   - deployment: "main"
     displayName: "main"
     environment: "production"
     pool:
-      name: "bytrcmdopp000"
+      name: "${{ parameters.agentPoolName }}"
     strategy:
       runOnce:
         deploy:
           steps:
-            - checkout: self
+            - checkout: "self"
               clean: true
               displayName: "checkout repository"
               enabled: true
@@ -33,9 +44,9 @@ jobs:
               inputs:
                 arguments: >-
                   -DeploymentName '$(Build.BuildId)'
-                  -ResourceGroupName 'byteterrace'
+                  -ResourceGroupName '${{ parameters.resourceGroupName }}'
                   -TemplateFilePath '$(Pipeline.Workspace)/s/main.bicep'
-                azureSubscription: "byteterrace-mpn | byteterrace"
+                azureSubscription: "${{ parameters.serviceConnectionName }}"
                 failOnStandardError: true
                 inlineScript: |
                   [CmdletBinding()]
@@ -55,7 +66,9 @@ jobs:
                           --template-file $TemplateFilePath;
                   }
                   end {
-                      return 0;
+                      if ((Test-Path -LiteralPath 'variable:\LASTEXITCODE')) {
+                          exit $LASTEXITCODE;
+                      }
                   }
                 powerShellIgnoreLASTEXITCODE: true
                 scriptLocation: "inlineScript"

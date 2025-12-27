@@ -1,6 +1,7 @@
 targetScope = 'resourceGroup'
 
 type dnsZoneMapType = {
+  configurationStore: string
   containerRegistry: string
   keyVault: string
   monitor: {
@@ -24,6 +25,7 @@ param lockKind ('CanNotDelete' | 'None' | 'ReadOnly') = 'CanNotDelete'
 param virtualNetworkResourceIds string[] = []
 
 var dnsZoneMap dnsZoneMapType = {
+  configurationStore: 'privatelink.azconfig.io'
   containerRegistry: 'privatelink.azurecr.io'
   keyVault: 'privatelink.vaultcore.azure.net'
   monitor: {

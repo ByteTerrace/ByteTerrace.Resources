@@ -1,5 +1,8 @@
 extension graph
 
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// Imports
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 import {
   imageType
 } from 'br/public:avm/res/dev-ops-infrastructure/pool:0.7.0'
@@ -16,6 +19,9 @@ import {
   publicDnsZoneType
 } from './publicDnsZones.bicep'
 
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// Types
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 type resourceType = {
   applicationInsights: {
     name: string
@@ -51,8 +57,12 @@ type resourceType = {
   /*communicationService: {
     name: string
     tags: tagsType?
+  }*/
+  configurationStore: {
+    name: string
+    tags: tagsType?
   }
-  containerRegistry: {
+  /*containerRegistry: {
     name: string
     tags: tagsType?
   }*/
@@ -144,6 +154,9 @@ type resourceType = {
 }
 type tagsType = { *: string }
 
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// Parameters
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 param deployOwnerRoleAssignments bool = false
 param location string = resourceGroup().location
 param lockKind ('CanNotDelete' | 'None' | 'ReadOnly') = 'CanNotDelete'
@@ -158,7 +171,8 @@ param resources resourceType = {
       {
         resourceAppId: '00000003-0000-0000-c000-000000000000' // Microsoft Graph
         resourceAccess: [
-          { // NOTE: Admin consent required.
+          {
+            // NOTE: Admin consent required.
             id: 'e4c9e354-4dc5-45b8-9e7c-e1393b0b1a20' // https://graph.microsoft.com/AuditLog.Read.All
             type: 'Scope'
           }
@@ -174,7 +188,8 @@ param resources resourceType = {
             id: 'e383f46e-2787-4529-855e-0e479a3ffac0' // https://graph.microsoft.com/Mail.Send
             type: 'Scope'
           }
-          { // NOTE: Admin consent required.
+          {
+            // NOTE: Admin consent required.
             id: 'fc30e98b-8810-4501-81f5-c20a3196387b' // https://graph.microsoft.com/User.RevokeSessions.All
             type: 'Scope'
           }
@@ -204,8 +219,11 @@ param resources resourceType = {
   }
   /*communicationService: {
     name: 'bytrcacsp000'
+  }*/
+  configurationStore: {
+    name: 'bytrcappcsp000'
   }
-  containerRegistry: {
+  /*containerRegistry: {
     name: 'bytrccrp000'
   }*/
   devOpsAgentPool: {
@@ -318,6 +336,9 @@ param resources resourceType = {
   }
 }
 
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// Variables
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 var apiPublicDnsZone = first(filter(objectKeys(resources.publicDnsZones), zone => startsWith(zone, 'api.')))! // TODO: Refactor to be more robust.
 var applicationRegistrationUniqueName = guid(resources.applicationRegistration.name)
 var defaultCustomerManagedKey = {
@@ -339,76 +360,9 @@ var subnetResourceIdMap = {
   privateEndpoints: virtualNetwork.outputs.subnetResourceIds[0]
 }
 
-resource applicationRegistration 'Microsoft.Graph/applications@v1.0' = {
-  api: {
-    acceptMappedClaims: false
-    knownClientApplications: []
-    oauth2PermissionScopes: []
-    preAuthorizedApplications: []
-    requestedAccessTokenVersion: 2
-  }
-  authenticationBehaviors: {
-    blockAzureADGraphAccess: true
-    removeUnverifiedEmailClaim: true
-  }
-  defaultRedirectUri: null
-  description: null
-  displayName: resources.applicationRegistration.name
-  groupMembershipClaims: 'SecurityGroup'
-  identifierUris: [resources.applicationRegistration.identifierUri]
-  info: {
-    marketingUrl: null
-    privacyStatementUrl: null
-    supportUrl: null
-    termsOfServiceUrl: null
-  }
-  isDeviceOnlyAuthSupported: false
-  nativeAuthenticationApisEnabled: 'none'
-  optionalClaims: {
-    accessToken: []
-    idToken: []
-    saml2Token: []
-  }
-  owners: {
-    relationships: [owner.principalId]
-    relationshipSemantics: 'append' // TODO: Change to 'replace' after Microsoft resolves issue with replication delay.
-  }
-  publicClient: {
-    redirectUris: []
-  }
-  requiredResourceAccess: resources.applicationRegistration.?requiredResourceAccess
-  servicePrincipalLockConfiguration: {
-    allProperties: true
-    credentialsWithUsageSign: true
-    credentialsWithUsageVerify: true
-    isEnabled: true
-    tokenEncryptionKeyId: true
-  }
-  signInAudience: 'AzureADMyOrg'
-  spa: resources.applicationRegistration.?spa
-  tags: []
-  uniqueName: applicationRegistrationUniqueName
-  web: resources.applicationRegistration.?web
-
-  resource applicationRegistration_federatedIdentityCredential 'federatedIdentityCredentials@v1.0' = {
-    audiences: ['api://AzureADTokenExchange']
-    description: 'Federated identity credential for authentication to Azure Function App using "Easy Auth".'
-    issuer: '${environment().authentication.loginEndpoint}${tenant().tenantId}/v2.0'
-    name: '${applicationRegistrationUniqueName}/${userAssignedIdentityApplicationRegistration.outputs.clientId}'
-    subject: userAssignedIdentityApplicationRegistration.outputs.principalId
-  }
-}
-resource applicationRegistration_servicePrincipal 'Microsoft.Graph/servicePrincipals@v1.0' = {
-  appId: applicationRegistration.appId
-  owners: {
-    relationships: [owner.principalId]
-    relationshipSemantics: 'append'
-  }
-}
-resource devOpsInfrastructure_servicePrincipal 'Microsoft.Graph/servicePrincipals@v1.0' existing = {
-  appId: '31687f79-5e43-4c1e-8c63-d9f4bff5cf8b'
-}
-
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// Networking Resources
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 @onlyIfNotExists() // NOTE: This bootstrap step was added to address a cyclic dependency between the Front Door and Function Application.
 resource frontDoor_bootstrap 'Microsoft.Cdn/profiles@2025-06-01' = {
   location: 'global'
@@ -418,209 +372,6 @@ resource frontDoor_bootstrap 'Microsoft.Cdn/profiles@2025-06-01' = {
   }
 }
 
-module applicationInsights 'br/public:avm/res/insights/component:0.7.1' = {
-  params: {
-    applicationType: 'web'
-    diagnosticSettings: []
-    disableIpMasking: true
-    disableLocalAuth: true
-    enableTelemetry: false
-    ingestionMode: 'LogAnalytics'
-    kind: 'web'
-    location: location
-    lock: {
-      kind: lockKind
-    }
-    name: resources.applicationInsights.name
-    publicNetworkAccessForIngestion: 'Disabled'
-    publicNetworkAccessForQuery: 'Enabled' // TODO: Set to 'Disabled' when done with initial testing.
-    retentionInDays: 30
-    roleAssignments: [
-      {
-        principalId: userAssignedIdentityFunctionApplication.outputs.principalId
-        principalType: 'ServicePrincipal'
-        roleDefinitionIdOrName: 'Monitoring Metrics Publisher'
-      }
-    ]
-    samplingPercentage: 100
-    tags: resources.applicationInsights.?tags
-    workspaceResourceId: logAnalyticsWorkspace.outputs.resourceId
-  }
-}
-module applicationServicePlan 'br/public:avm/res/web/serverfarm:0.5.0' = {
-  params: {
-    appServiceEnvironmentResourceId: null
-    diagnosticSettings: []
-    enableTelemetry: false
-    kind: 'functionapp'
-    location: location
-    lock: {
-      kind: lockKind
-    }
-    name: resources.applicationServicePlan.name
-    reserved: true
-    roleAssignments: []
-    skuCapacity: 1
-    skuName: 'FC1'
-    tags: resources.applicationServicePlan.?tags
-    zoneRedundant: false
-  }
-}
-/*module communicationService 'br/public:avm/res/communication/communication-service:0.4.2' = {
-  params: {
-    dataLocation: 'United States'
-    diagnosticSettings: []
-    enableTelemetry: false
-    location: 'global'
-    lock: {
-      kind: lockKind
-    }
-    name: resources.communicationService.name
-    roleAssignments: []
-    tags: resources.communicationService.?tags
-  }
-}
-module containerRegistry 'br/public:avm/res/container-registry/registry:0.9.3' = {
-  params: {
-    acrAdminUserEnabled: false
-    acrSku: 'Premium'
-    anonymousPullEnabled: false
-    azureADAuthenticationAsArmPolicyStatus: 'enabled'
-    cacheRules: []
-    credentialSets: []
-    customerManagedKey: {
-      autoRotationEnabled: true
-      keyName: defaultCustomerManagedKey.name
-      keyVaultResourceId: keyVault.outputs.resourceId
-      userAssignedIdentityResourceId: userAssignedIdentityCustomerManagedEncryption.outputs.resourceId
-    }
-    dataEndpointEnabled: true
-    diagnosticSettings: [
-      {
-        logCategoriesAndGroups: [
-          {
-            categoryGroup: 'audit'
-          }
-        ]
-        workspaceResourceId: logAnalyticsWorkspace.outputs.resourceId
-      }
-    ]
-    enableTelemetry: false
-    exportPolicyStatus: 'disabled'
-    location: location
-    lock: {
-      kind: lockKind
-    }
-    managedIdentities: {
-      systemAssigned: false
-      userAssignedResourceIds: [userAssignedIdentityCustomerManagedEncryption.outputs.resourceId]
-    }
-    name: resources.containerRegistry.name
-    networkRuleBypassOptions: 'None'
-    networkRuleSetDefaultAction: 'Deny'
-    networkRuleSetIpRules: []
-    privateEndpoints: [
-      {
-        enableTelemetry: false
-        privateDnsZoneGroup: {
-          privateDnsZoneGroupConfigs: [
-            {
-              privateDnsZoneResourceId: privateEndpointDnsZones.outputs.dnsZoneMap.containerRegistry
-            }
-          ]
-        }
-        subnetResourceId: subnetMap.privateEndpoints
-      }
-    ]
-    publicNetworkAccess: 'Disabled'
-    retentionPolicyDays: 13
-    retentionPolicyStatus: 'enabled'
-    roleAssignments: (deployOwnerRoleAssignments ? [
-      {
-        principalId: owner.principalId
-        principalType: 'ServicePrincipal'
-        roleDefinitionIdOrName: 'AcrPush'
-      }
-    ] : [])
-    softDeletePolicyDays: 13
-    softDeletePolicyStatus: 'disabled'
-    tags: resources.containerRegistry.?tags
-    zoneRedundancy: 'Enabled'
-  }
-}*/
-module devCenter 'br/public:avm/res/dev-center/devcenter:0.1.0' = {
-  params: {
-    enableTelemetry: false
-    location: location
-    lock: {
-      kind: lockKind
-    }
-    name: 'bytrcadcp000'
-    roleAssignments: []
-    tags: {}
-  }
-}
-module devCenter_project 'br/public:avm/res/dev-center/project:0.1.1' = {
-  params: {
-    devCenterResourceId: devCenter.outputs.resourceId
-    enableTelemetry: false
-    location: location
-    lock: {
-      kind: lockKind
-    }
-    name: 'bytrcadcpp000'
-    roleAssignments: []
-    tags: {}
-  }
-}
-module devOpsAgentPool 'br/public:avm/res/dev-ops-infrastructure/pool:0.7.0' = {
-  params: {
-    agentProfile: {
-      kind: 'Stateless'
-      resourcePredictionsProfile: {
-        kind: 'Automatic'
-        predictionPreference: 'MostCostEffective'
-      }
-    }
-    concurrency: resources.devOpsAgentPool.concurrency
-    devCenterProjectResourceId: devCenter_project.outputs.resourceId
-    diagnosticSettings: [
-      {
-        logCategoriesAndGroups: [
-          {
-            category: 'ProvisioningLogs'
-          }
-        ]
-        workspaceResourceId: logAnalyticsWorkspace.outputs.resourceId
-      }
-    ]
-    enableTelemetry: false
-    fabricProfileSkuName: resources.devOpsAgentPool.vmSkuName
-    images: resources.devOpsAgentPool.images
-    location: location
-    lock: {
-      kind: lockKind
-    }
-    managedIdentities: {
-      systemAssigned: false
-      userAssignedResourceIds: []
-    }
-    name: resources.devOpsAgentPool.name
-    organizationProfile: {
-      kind: 'AzureDevOps'
-      organizations: resources.devOpsAgentPool.organizationProfile.organizations
-      permissionProfile: {
-        kind: 'CreatorOnly'
-      }
-    }
-    osProfile: {
-      logonType: 'Interactive'
-    }
-    roleAssignments: []
-    subnetResourceId: subnetResourceIdMap.devOpsAgentPool
-    tags: resources.devOpsAgentPool.?tags
-  }
-}
 module frontDoor 'br/public:avm/res/cdn/profile:0.16.1' = {
   params: {
     afdEndpoints: [
@@ -802,6 +553,569 @@ module frontDoor_waf 'br/public:avm/res/network/front-door-web-application-firew
     tags: resources.frontDoor.webApplicationFirewallPolicy.?tags
   }
 }
+module monitorPrivateLinkScope 'br/public:avm/res/insights/private-link-scope:0.7.2' = {
+  params: {
+    accessModeSettings: {
+      exclusions: []
+      ingestionAccessMode: 'PrivateOnly'
+      queryAccessMode: 'Open' // TODO: Set to 'PrivateOnly' when done with initial testing.
+    }
+    enableTelemetry: false
+    location: 'global'
+    lock: {
+      kind: lockKind
+    }
+    name: resources.monitorPrivateLinkScope.name
+    privateEndpoints: [
+      {
+        enableTelemetry: false
+        privateDnsZoneGroup: {
+          privateDnsZoneGroupConfigs: [
+            {
+              privateDnsZoneResourceId: privateEndpointDnsZones.outputs.dnsZoneMap.monitor.agentService
+            }
+            {
+              privateDnsZoneResourceId: privateEndpointDnsZones.outputs.dnsZoneMap.monitor.core
+            }
+            {
+              privateDnsZoneResourceId: privateEndpointDnsZones.outputs.dnsZoneMap.monitor.insightsOds
+            }
+            {
+              privateDnsZoneResourceId: privateEndpointDnsZones.outputs.dnsZoneMap.monitor.insightsOms
+            }
+            {
+              privateDnsZoneResourceId: privateEndpointDnsZones.outputs.dnsZoneMap.storageAccount.blob
+            }
+          ]
+        }
+        subnetResourceId: subnetResourceIdMap.privateEndpoints
+      }
+    ]
+    roleAssignments: []
+    scopedResources: [
+      {
+        linkedResourceId: applicationInsights.outputs.resourceId
+        name: applicationInsights.outputs.applicationId
+      }
+      {
+        linkedResourceId: logAnalyticsWorkspace.outputs.resourceId
+        name: logAnalyticsWorkspace.outputs.logAnalyticsWorkspaceId
+      }
+    ]
+    tags: resources.monitorPrivateLinkScope.?tags
+  }
+}
+module natGateway 'br/public:avm/res/network/nat-gateway:2.0.0' = {
+  params: {
+    availabilityZone: -1
+    enableTelemetry: false
+    location: location
+    lock: {
+      kind: lockKind
+    }
+    name: resources.natGateway.?name
+    publicIPPrefixResourceIds: [publicIpPrefixResourceIdMap[resources.natGateway.publicIpPrefix.name]]
+    roleAssignments: []
+    tags: resources.natGateway.?tags
+  }
+}
+module natGateway_publicIpPrefix 'br/public:avm/res/network/public-ip-prefix:0.7.2' = {
+  params: {
+    availabilityZones: [
+      1
+      2
+      3
+    ]
+    enableTelemetry: false
+    location: location
+    lock: {
+      kind: lockKind
+    }
+    name: resources.natGateway.publicIpPrefix.name
+    prefixLength: 31
+    publicIPAddressVersion: 'IPv4'
+    roleAssignments: []
+    tags: resources.natGateway.publicIpPrefix.?tags
+    tier: 'Regional'
+  }
+}
+module networkSecurityGroups 'br/public:avm/res/network/network-security-group:0.5.2' = [
+  for subnet in resources.virtualNetwork.subnets: {
+    params: {
+      diagnosticSettings: []
+      enableTelemetry: false
+      flushConnection: false
+      location: location
+      lock: {
+        kind: lockKind
+      }
+      name: replace(subnet.name, 'snet', 'nsg')
+      roleAssignments: []
+      securityRules: []
+    }
+  }
+]
+module networkSecurityPerimeter 'br/public:avm/res/network/network-security-perimeter:0.1.3' = {
+  params: {
+    diagnosticSettings: []
+    enableTelemetry: false
+    location: location
+    lock: {
+      kind: lockKind
+    }
+    name: resources.networkSecurityPerimeter.name
+    profiles: [
+      {
+        accessRules: []
+        name: 'default'
+      }
+    ]
+    resourceAssociations: [
+      /* TODO: Uncomment with App Configuration Store is onboarded.
+      {
+        accessMode: 'Enforced'
+        privateLinkResource: configurationStore.outputs.resourceId
+        profile: 'default'
+      }
+      */
+      /* TODO: Uncomment with Container Registry is onboarded.
+      {
+        accessMode: 'Enforced'
+        privateLinkResource: containerRegistry.outputs.resourceId
+        profile: 'default'
+      }
+      */
+      /* TODO: Uncomment with Web App is onboarded.
+      {
+        accessMode: 'Enforced'
+        privateLinkResource: functionApp.outputs.resourceId
+        profile: 'default'
+      }
+      */
+      {
+        accessMode: 'Learning' // TODO: Set to 'Enforced' when dependencies are onboarded.
+        privateLinkResource: keyVault.outputs.resourceId
+        profile: 'default'
+      }
+      {
+        accessMode: 'Learning' // TODO: Set to 'Enforced' when done with initial testing.
+        privateLinkResource: logAnalyticsWorkspace.outputs.resourceId
+        profile: 'default'
+      }
+      {
+        accessMode: 'Learning' // TODO: Set to 'Enforced' when dependencies are onboarded.
+        privateLinkResource: storageAccountFunction.outputs.resourceId
+        profile: 'default'
+      }
+      {
+        accessMode: 'Learning'
+        privateLinkResource: storageAccountPublic.outputs.resourceId
+        profile: 'default'
+      }
+    ]
+    roleAssignments: []
+    tags: resources.networkSecurityPerimeter.?tags
+  }
+}
+module privateEndpointDnsZones './privateEndpointDnsZones.bicep' = {
+  params: {
+    lockKind: lockKind
+    virtualNetworkResourceIds: [virtualNetwork.outputs.resourceId]
+  }
+}
+module publicDnsZones './publicDnsZones.bicep' = {
+  params: {
+    lockKind: lockKind
+    zones: resources.publicDnsZones
+  }
+}
+module virtualNetwork 'br/public:avm/res/network/virtual-network:0.7.2' = {
+  params: {
+    addressPrefixes: resources.virtualNetwork.addressPrefixes
+    diagnosticSettings: resources.virtualNetwork.?diagnosticSettings
+    dnsServers: resources.virtualNetwork.?dnsServers
+    enableTelemetry: false
+    enableVmProtection: true
+    location: location
+    lock: {
+      kind: 'None' // NOTE: Lock is not set in order to allow subnet delegation modifications (example: Azure Managed DevOps Pools).
+    }
+    name: resources.virtualNetwork.name
+    peerings: []
+    roleAssignments: (0 != length(filter(
+        resources.virtualNetwork.subnets,
+        subnet => ('microsoft.devopsinfrastructure/pools' == toLower(subnet.?delegation ?? ''))
+      ))
+      ? [
+          {
+            principalId: devOpsInfrastructure_servicePrincipal.id
+            principalType: 'ServicePrincipal'
+            roleDefinitionIdOrName: 'Reader'
+          }
+        ]
+      : [])
+    subnets: [
+      for (subnet, index) in resources.virtualNetwork.subnets: {
+        ...subnet
+        natGatewayResourceId: (contains(subnet, 'natGatewayResourceId')
+          ? (contains(subnet.natGatewayResourceId!, '/')
+              ? subnet.natGatewayResourceId!
+              : natGatewayResourceIdMap[subnet.natGatewayResourceId!])
+          : null)
+        networkSecurityGroupResourceId: networkSecurityGroups[index].outputs.resourceId
+        roleAssignments: (('microsoft.devopsinfrastructure/pools' == toLower(subnet.?delegation ?? ''))
+          ? [
+              {
+                principalId: devOpsInfrastructure_servicePrincipal.id
+                principalType: 'ServicePrincipal'
+                roleDefinitionIdOrName: 'Network Contributor'
+              }
+            ]
+          : [])
+      }
+    ]
+    vnetEncryption: true
+    vnetEncryptionEnforcement: 'AllowUnencrypted'
+    tags: resources.virtualNetwork.?tags
+  }
+}
+
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// DevOps Resources
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+resource devOpsInfrastructure_servicePrincipal 'Microsoft.Graph/servicePrincipals@v1.0' existing = {
+  appId: '31687f79-5e43-4c1e-8c63-d9f4bff5cf8b'
+}
+
+module devCenter 'br/public:avm/res/dev-center/devcenter:0.1.0' = {
+  params: {
+    enableTelemetry: false
+    location: location
+    lock: {
+      kind: lockKind
+    }
+    name: 'bytrcadcp000'
+    roleAssignments: []
+    tags: {}
+  }
+}
+module devCenter_project 'br/public:avm/res/dev-center/project:0.1.1' = {
+  params: {
+    devCenterResourceId: devCenter.outputs.resourceId
+    enableTelemetry: false
+    location: location
+    lock: {
+      kind: lockKind
+    }
+    name: 'bytrcadcpp000'
+    roleAssignments: []
+    tags: {}
+  }
+}
+module devOpsAgentPool 'br/public:avm/res/dev-ops-infrastructure/pool:0.7.0' = {
+  params: {
+    agentProfile: {
+      kind: 'Stateless'
+      resourcePredictionsProfile: {
+        kind: 'Automatic'
+        predictionPreference: 'MostCostEffective'
+      }
+    }
+    concurrency: resources.devOpsAgentPool.concurrency
+    devCenterProjectResourceId: devCenter_project.outputs.resourceId
+    diagnosticSettings: [
+      {
+        logCategoriesAndGroups: [
+          {
+            category: 'ProvisioningLogs'
+          }
+        ]
+        workspaceResourceId: logAnalyticsWorkspace.outputs.resourceId
+      }
+    ]
+    enableTelemetry: false
+    fabricProfileSkuName: resources.devOpsAgentPool.vmSkuName
+    images: resources.devOpsAgentPool.images
+    location: location
+    lock: {
+      kind: lockKind
+    }
+    managedIdentities: {
+      systemAssigned: false
+      userAssignedResourceIds: []
+    }
+    name: resources.devOpsAgentPool.name
+    organizationProfile: {
+      kind: 'AzureDevOps'
+      organizations: resources.devOpsAgentPool.organizationProfile.organizations
+      permissionProfile: {
+        kind: 'CreatorOnly'
+      }
+    }
+    osProfile: {
+      logonType: 'Interactive'
+    }
+    roleAssignments: []
+    subnetResourceId: subnetResourceIdMap.devOpsAgentPool
+    tags: resources.devOpsAgentPool.?tags
+  }
+}
+
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// Application Resources
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+resource applicationRegistration 'Microsoft.Graph/applications@v1.0' = {
+  api: {
+    acceptMappedClaims: false
+    knownClientApplications: []
+    oauth2PermissionScopes: []
+    preAuthorizedApplications: []
+    requestedAccessTokenVersion: 2
+  }
+  authenticationBehaviors: {
+    blockAzureADGraphAccess: true
+    removeUnverifiedEmailClaim: true
+  }
+  defaultRedirectUri: null
+  description: null
+  displayName: resources.applicationRegistration.name
+  groupMembershipClaims: 'SecurityGroup'
+  identifierUris: [resources.applicationRegistration.identifierUri]
+  info: {
+    marketingUrl: null
+    privacyStatementUrl: null
+    supportUrl: null
+    termsOfServiceUrl: null
+  }
+  isDeviceOnlyAuthSupported: false
+  nativeAuthenticationApisEnabled: 'none'
+  optionalClaims: {
+    accessToken: []
+    idToken: []
+    saml2Token: []
+  }
+  owners: {
+    relationships: [owner.principalId]
+    relationshipSemantics: 'append' // TODO: Change to 'replace' after Microsoft resolves issue with replication delay.
+  }
+  publicClient: {
+    redirectUris: []
+  }
+  requiredResourceAccess: resources.applicationRegistration.?requiredResourceAccess
+  servicePrincipalLockConfiguration: {
+    allProperties: true
+    credentialsWithUsageSign: true
+    credentialsWithUsageVerify: true
+    isEnabled: true
+    tokenEncryptionKeyId: true
+  }
+  signInAudience: 'AzureADMyOrg'
+  spa: resources.applicationRegistration.?spa
+  tags: []
+  uniqueName: applicationRegistrationUniqueName
+  web: resources.applicationRegistration.?web
+
+  resource applicationRegistration_federatedIdentityCredential 'federatedIdentityCredentials@v1.0' = {
+    audiences: ['api://AzureADTokenExchange']
+    description: 'Federated identity credential for authentication to Azure Function App using "Easy Auth".'
+    issuer: '${environment().authentication.loginEndpoint}${tenant().tenantId}/v2.0'
+    name: '${applicationRegistrationUniqueName}/${userAssignedIdentityApplicationRegistration.outputs.clientId}'
+    subject: userAssignedIdentityApplicationRegistration.outputs.principalId
+  }
+}
+resource applicationRegistration_servicePrincipal 'Microsoft.Graph/servicePrincipals@v1.0' = {
+  appId: applicationRegistration.appId
+  owners: {
+    relationships: [owner.principalId]
+    relationshipSemantics: 'append'
+  }
+}
+
+module applicationInsights 'br/public:avm/res/insights/component:0.7.1' = {
+  params: {
+    applicationType: 'web'
+    diagnosticSettings: []
+    disableIpMasking: true
+    disableLocalAuth: true
+    enableTelemetry: false
+    ingestionMode: 'LogAnalytics'
+    kind: 'web'
+    location: location
+    lock: {
+      kind: lockKind
+    }
+    name: resources.applicationInsights.name
+    publicNetworkAccessForIngestion: 'Disabled'
+    publicNetworkAccessForQuery: 'Enabled' // TODO: Set to 'Disabled' when done with initial testing.
+    retentionInDays: 30
+    roleAssignments: [
+      {
+        principalId: userAssignedIdentityFunctionApplication.outputs.principalId
+        principalType: 'ServicePrincipal'
+        roleDefinitionIdOrName: 'Monitoring Metrics Publisher'
+      }
+    ]
+    samplingPercentage: 100
+    tags: resources.applicationInsights.?tags
+    workspaceResourceId: logAnalyticsWorkspace.outputs.resourceId
+  }
+}
+module applicationServicePlan 'br/public:avm/res/web/serverfarm:0.5.0' = {
+  params: {
+    appServiceEnvironmentResourceId: null
+    diagnosticSettings: []
+    enableTelemetry: false
+    kind: 'functionapp'
+    location: location
+    lock: {
+      kind: lockKind
+    }
+    name: resources.applicationServicePlan.name
+    reserved: true
+    roleAssignments: []
+    skuCapacity: 1
+    skuName: 'FC1'
+    tags: resources.applicationServicePlan.?tags
+    zoneRedundant: false
+  }
+}
+/*module communicationService 'br/public:avm/res/communication/communication-service:0.4.2' = {
+  params: {
+    dataLocation: 'United States'
+    diagnosticSettings: []
+    enableTelemetry: false
+    location: 'global'
+    lock: {
+      kind: lockKind
+    }
+    name: resources.communicationService.name
+    roleAssignments: []
+    tags: resources.communicationService.?tags
+  }
+}*/
+module configurationStore 'br/public:avm/res/app-configuration/configuration-store:0.9.2' = {
+  params: {
+    createMode: 'Default'
+    customerManagedKey: {
+      autoRotationEnabled: true
+      keyName: defaultCustomerManagedKey.name
+      keyVaultResourceId: keyVault.outputs.resourceId
+      userAssignedIdentityResourceId: userAssignedIdentityCustomerManagedEncryption.outputs.resourceId
+    }
+    dataPlaneProxy: {
+      authenticationMode: 'Pass-through'
+      privateLinkDelegation: 'Enabled'
+    }
+    diagnosticSettings: [
+      {
+        logCategoriesAndGroups: [
+          {
+            categoryGroup: 'audit'
+          }
+        ]
+        workspaceResourceId: logAnalyticsWorkspace.outputs.resourceId
+      }
+    ]
+    disableLocalAuth: true
+    enablePurgeProtection: true
+    enableTelemetry: false
+    location: location
+    lock: {
+      kind: lockKind
+    }
+    managedIdentities: {
+      systemAssigned: false
+      userAssignedResourceIds: [userAssignedIdentityCustomerManagedEncryption.outputs.resourceId]
+    }
+    name: resources.configurationStore.name
+    privateEndpoints: [
+      {
+        enableTelemetry: false
+        privateDnsZoneGroup: {
+          privateDnsZoneGroupConfigs: [
+            {
+              privateDnsZoneResourceId: privateEndpointDnsZones.outputs.dnsZoneMap.configurationStore
+            }
+          ]
+        }
+        subnetResourceId: subnetResourceIdMap.privateEndpoints
+      }
+    ]
+    publicNetworkAccess: 'Disabled'
+    roleAssignments: []
+    sku: 'Standard'
+    softDeleteRetentionInDays: 7
+    tags: resources.configurationStore.?tags
+  }
+}
+/*module containerRegistry 'br/public:avm/res/container-registry/registry:0.9.3' = {
+  params: {
+    acrAdminUserEnabled: false
+    acrSku: 'Premium'
+    anonymousPullEnabled: false
+    azureADAuthenticationAsArmPolicyStatus: 'enabled'
+    cacheRules: []
+    credentialSets: []
+    customerManagedKey: {
+      autoRotationEnabled: true
+      keyName: defaultCustomerManagedKey.name
+      keyVaultResourceId: keyVault.outputs.resourceId
+      userAssignedIdentityResourceId: userAssignedIdentityCustomerManagedEncryption.outputs.resourceId
+    }
+    dataEndpointEnabled: true
+    diagnosticSettings: [
+      {
+        logCategoriesAndGroups: [
+          {
+            categoryGroup: 'audit'
+          }
+        ]
+        workspaceResourceId: logAnalyticsWorkspace.outputs.resourceId
+      }
+    ]
+    enableTelemetry: false
+    exportPolicyStatus: 'disabled'
+    location: location
+    lock: {
+      kind: lockKind
+    }
+    managedIdentities: {
+      systemAssigned: false
+      userAssignedResourceIds: [userAssignedIdentityCustomerManagedEncryption.outputs.resourceId]
+    }
+    name: resources.containerRegistry.name
+    networkRuleBypassOptions: 'None'
+    networkRuleSetDefaultAction: 'Deny'
+    networkRuleSetIpRules: []
+    privateEndpoints: [
+      {
+        enableTelemetry: false
+        privateDnsZoneGroup: {
+          privateDnsZoneGroupConfigs: [
+            {
+              privateDnsZoneResourceId: privateEndpointDnsZones.outputs.dnsZoneMap.containerRegistry
+            }
+          ]
+        }
+        subnetResourceId: subnetMap.privateEndpoints
+      }
+    ]
+    publicNetworkAccess: 'Disabled'
+    retentionPolicyDays: 13
+    retentionPolicyStatus: 'enabled'
+    roleAssignments: (deployOwnerRoleAssignments ? [
+      {
+        principalId: owner.principalId
+        principalType: 'ServicePrincipal'
+        roleDefinitionIdOrName: 'AcrPush'
+      }
+    ] : [])
+    softDeletePolicyDays: 13
+    softDeletePolicyStatus: 'disabled'
+    tags: resources.containerRegistry.?tags
+    zoneRedundancy: 'Enabled'
+  }
+}*/
 module functionApplication 'br/public:avm/res/web/site:0.19.4' = {
   params: {
     basicPublishingCredentialsPolicies: [
@@ -1111,175 +1425,6 @@ module logAnalyticsWorkspace 'br/public:avm/res/operational-insights/workspace:0
     roleAssignments: []
     skuName: 'PerGB2018'
     tags: resources.logAnalyticsWorkspace.?tags
-  }
-}
-module monitorPrivateLinkScope 'br/public:avm/res/insights/private-link-scope:0.7.2' = {
-  params: {
-    accessModeSettings: {
-      exclusions: []
-      ingestionAccessMode: 'PrivateOnly'
-      queryAccessMode: 'Open' // TODO: Set to 'PrivateOnly' when done with initial testing.
-    }
-    enableTelemetry: false
-    location: 'global'
-    lock: {
-      kind: lockKind
-    }
-    name: resources.monitorPrivateLinkScope.name
-    privateEndpoints: [
-      {
-        enableTelemetry: false
-        privateDnsZoneGroup: {
-          privateDnsZoneGroupConfigs: [
-            {
-              privateDnsZoneResourceId: privateEndpointDnsZones.outputs.dnsZoneMap.monitor.agentService
-            }
-            {
-              privateDnsZoneResourceId: privateEndpointDnsZones.outputs.dnsZoneMap.monitor.core
-            }
-            {
-              privateDnsZoneResourceId: privateEndpointDnsZones.outputs.dnsZoneMap.monitor.insightsOds
-            }
-            {
-              privateDnsZoneResourceId: privateEndpointDnsZones.outputs.dnsZoneMap.monitor.insightsOms
-            }
-            {
-              privateDnsZoneResourceId: privateEndpointDnsZones.outputs.dnsZoneMap.storageAccount.blob
-            }
-          ]
-        }
-        subnetResourceId: subnetResourceIdMap.privateEndpoints
-      }
-    ]
-    roleAssignments: []
-    scopedResources: [
-      {
-        linkedResourceId: applicationInsights.outputs.resourceId
-        name: applicationInsights.outputs.applicationId
-      }
-      {
-        linkedResourceId: logAnalyticsWorkspace.outputs.resourceId
-        name: logAnalyticsWorkspace.outputs.logAnalyticsWorkspaceId
-      }
-    ]
-    tags: resources.monitorPrivateLinkScope.?tags
-  }
-}
-module natGateway 'br/public:avm/res/network/nat-gateway:2.0.0' = {
-  params: {
-    availabilityZone: -1
-    enableTelemetry: false
-    location: location
-    lock: {
-      kind: lockKind
-    }
-    name: resources.natGateway.?name
-    publicIPPrefixResourceIds: [publicIpPrefixResourceIdMap[resources.natGateway.publicIpPrefix.name]]
-    roleAssignments: []
-    tags: resources.natGateway.?tags
-  }
-}
-module natGateway_publicIpPrefix 'br/public:avm/res/network/public-ip-prefix:0.7.2' = {
-  params: {
-    availabilityZones: [
-      1
-      2
-      3
-    ]
-    enableTelemetry: false
-    location: location
-    lock: {
-      kind: lockKind
-    }
-    name: resources.natGateway.publicIpPrefix.name
-    prefixLength: 31
-    publicIPAddressVersion: 'IPv4'
-    roleAssignments: []
-    tags: resources.natGateway.publicIpPrefix.?tags
-    tier: 'Regional'
-  }
-}
-module networkSecurityGroups 'br/public:avm/res/network/network-security-group:0.5.2' = [
-  for subnet in resources.virtualNetwork.subnets: {
-    params: {
-      diagnosticSettings: []
-      enableTelemetry: false
-      flushConnection: false
-      location: location
-      lock: {
-        kind: lockKind
-      }
-      name: replace(subnet.name, 'snet', 'nsg')
-      roleAssignments: []
-      securityRules: []
-    }
-  }
-]
-module networkSecurityPerimeter 'br/public:avm/res/network/network-security-perimeter:0.1.3' = {
-  params: {
-    diagnosticSettings: []
-    enableTelemetry: false
-    location: location
-    lock: {
-      kind: lockKind
-    }
-    name: resources.networkSecurityPerimeter.name
-    profiles: [
-      {
-        accessRules: []
-        name: 'default'
-      }
-    ]
-    resourceAssociations: [
-      /* TODO: Uncomment with Azure Container Registry is onboarded.
-      {
-        accessMode: 'Enforced'
-        privateLinkResource: containerRegistry.outputs.resourceId
-        profile: 'default'
-      }
-      */
-      /* TODO: Uncomment with Azure Web App is onboarded.
-      {
-        accessMode: 'Enforced'
-        privateLinkResource: functionApp.outputs.resourceId
-        profile: 'default'
-      }
-      */
-      {
-        accessMode: 'Learning' // TODO: Set to 'Enforced' when dependencies are onboarded.
-        privateLinkResource: keyVault.outputs.resourceId
-        profile: 'default'
-      }
-      {
-        accessMode: 'Learning' // TODO: Set to 'Enforced' when done with initial testing.
-        privateLinkResource: logAnalyticsWorkspace.outputs.resourceId
-        profile: 'default'
-      }
-      {
-        accessMode: 'Learning' // TODO: Set to 'Enforced' when dependencies are onboarded.
-        privateLinkResource: storageAccountFunction.outputs.resourceId
-        profile: 'default'
-      }
-      {
-        accessMode: 'Learning'
-        privateLinkResource: storageAccountPublic.outputs.resourceId
-        profile: 'default'
-      }
-    ]
-    roleAssignments: []
-    tags: resources.networkSecurityPerimeter.?tags
-  }
-}
-module privateEndpointDnsZones './privateEndpointDnsZones.bicep' = {
-  params: {
-    lockKind: lockKind
-    virtualNetworkResourceIds: [virtualNetwork.outputs.resourceId]
-  }
-}
-module publicDnsZones './publicDnsZones.bicep' = {
-  params: {
-    lockKind: lockKind
-    zones: resources.publicDnsZones
   }
 }
 module storageAccountFunction 'br/public:avm/res/storage/storage-account:0.31.0' = {
@@ -1661,55 +1806,5 @@ module userAssignedIdentityFunctionApplication 'br/public:avm/res/managed-identi
     name: resources.userAssignedIdentityFunctionApplication.name
     roleAssignments: []
     tags: resources.userAssignedIdentityFunctionApplication.?tags
-  }
-}
-module virtualNetwork 'br/public:avm/res/network/virtual-network:0.7.2' = {
-  params: {
-    addressPrefixes: resources.virtualNetwork.addressPrefixes
-    diagnosticSettings: resources.virtualNetwork.?diagnosticSettings
-    dnsServers: resources.virtualNetwork.?dnsServers
-    enableTelemetry: false
-    enableVmProtection: true
-    location: location
-    lock: {
-      kind: 'None' // NOTE: Lock is not set in order to allow subnet delegation modifications (example: Azure Managed DevOps Pools).
-    }
-    name: resources.virtualNetwork.name
-    peerings: []
-    roleAssignments: (0 != length(filter(
-        resources.virtualNetwork.subnets,
-        subnet => ('microsoft.devopsinfrastructure/pools' == toLower(subnet.?delegation ?? ''))
-      ))
-      ? [
-          {
-            principalId: devOpsInfrastructure_servicePrincipal.id
-            principalType: 'ServicePrincipal'
-            roleDefinitionIdOrName: 'Reader'
-          }
-        ]
-      : [])
-    subnets: [
-      for (subnet, index) in resources.virtualNetwork.subnets: {
-        ...subnet
-        natGatewayResourceId: (contains(subnet, 'natGatewayResourceId')
-          ? (contains(subnet.natGatewayResourceId!, '/')
-              ? subnet.natGatewayResourceId!
-              : natGatewayResourceIdMap[subnet.natGatewayResourceId!])
-          : null)
-        networkSecurityGroupResourceId: networkSecurityGroups[index].outputs.resourceId
-        roleAssignments: (('microsoft.devopsinfrastructure/pools' == toLower(subnet.?delegation ?? ''))
-          ? [
-              {
-                principalId: devOpsInfrastructure_servicePrincipal.id
-                principalType: 'ServicePrincipal'
-                roleDefinitionIdOrName: 'Network Contributor'
-              }
-            ]
-          : [])
-      }
-    ]
-    vnetEncryption: true
-    vnetEncryptionEnforcement: 'AllowUnencrypted'
-    tags: resources.virtualNetwork.?tags
   }
 }

@@ -1,5 +1,6 @@
 schedules:
-  - cron: "0 12 * * *"
+  - cron: "0 18 * * *"
+    always: true
     displayName: "Daily Sync"
     branches:
       include:

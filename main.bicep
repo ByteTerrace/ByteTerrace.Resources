@@ -141,6 +141,10 @@ type resourceType = {
     name: string
     tags: tagsType?
   }
+  userAssignedIdentityFrontDoor: {
+    name: string
+    tags: tagsType?
+  }
   virtualNetwork: {
     addressPrefixes: string[]
     diagnosticSettings: diagnosticSettingFullType[]?
@@ -303,6 +307,9 @@ param resources resourceType = {
   userAssignedIdentityFunctionApplication: {
     name: 'bytrcidp002'
   }
+  userAssignedIdentityFrontDoor: {
+    name: 'bytrcidp003'
+  }
   virtualNetwork: {
     addressPrefixes: ['10.64.0.0/20']
     name: 'bytrcvnetp000'
@@ -405,9 +412,9 @@ module frontDoor 'br/public:avm/res/cdn/profile:0.16.1' = {
             linkToDefaultDomain: 'Disabled'
             name: 'portal'
             originGroupName: 'public-storage'
-            originPath: '/$web'
+            originPath: null
             patternsToMatch: []
-            ruleSets: []
+            ruleSets: ['portal']
             supportedProtocols: ['Https']
           }
         ]
@@ -448,7 +455,7 @@ module frontDoor 'br/public:avm/res/cdn/profile:0.16.1' = {
     }
     managedIdentities: {
       systemAssigned: false
-      userAssignedResourceIds: []
+      userAssignedResourceIds: [userAssignedIdentityFrontDoor.outputs.resourceId]
     }
     originGroups: [
       {
@@ -479,7 +486,7 @@ module frontDoor 'br/public:avm/res/cdn/profile:0.16.1' = {
       {
         healthProbeSettings: {
           probeIntervalInSeconds: 127
-          probePath: '/index.html'
+          probePath: '/$web/index.html'
           probeProtocol: 'Https'
           probeRequestType: 'GET'
         }
@@ -506,12 +513,40 @@ module frontDoor 'br/public:avm/res/cdn/profile:0.16.1' = {
     roleAssignments: []
     ruleSets: [
       {
-        name: 'ForceBrotliCompression'
+        name: 'portal'
         rules: [
           {
             actions: [
               {
-                name: 'ModifyRequestHeader'
+                name: 'UrlRewrite'
+                parameters: {
+                  destination: '/$web/'
+                  preserveUnmatchedPath: true
+                  sourcePattern: '/'
+                  typeName: 'DeliveryRuleUrlRewriteActionParameters'
+                }
+              }
+            ]
+            conditions: [
+              {
+                name: 'UrlFileExtension'
+                parameters: {
+                  matchValues: ['^(css|gif|html|ico|jpg|js|json|jxl|map|md|pdf|png|svg|txt|woff2)$']
+                  negateCondition: false
+                  operator: 'RegEx'
+                  transforms: ['Lowercase']
+                  typeName: 'DeliveryRuleUrlFileExtensionMatchConditionParameters'
+                }
+              }
+            ]
+            matchProcessingBehavior: 'Continue'
+            name: 'SpaUrlRewriteAssets'
+            order: 0
+          }
+          {
+            actions: [
+              {
+                name: 'ModifyResponseHeader'
                 parameters: {
                   headerAction: 'Overwrite'
                   headerName: 'Content-Encoding'
@@ -519,11 +554,77 @@ module frontDoor 'br/public:avm/res/cdn/profile:0.16.1' = {
                   value: 'br'
                 }
               }
+              {
+                name: 'ModifyResponseHeader'
+                parameters: {
+                  headerAction: 'Append'
+                  headerName: 'Vary'
+                  typeName: 'DeliveryRuleHeaderActionParameters'
+                  value: 'Accept-Encoding'
+                }
+              }
+              {
+                name: 'UrlRewrite'
+                parameters: {
+                  destination: '/$web/index.html'
+                  preserveUnmatchedPath: false
+                  sourcePattern: '/'
+                  typeName: 'DeliveryRuleUrlRewriteActionParameters'
+                }
+              }
             ]
-            conditions: []
+            conditions: [
+              {
+                name: 'UrlFileExtension'
+                parameters: {
+                  matchValues: ['^(css|gif|html|ico|jpg|js|json|jxl|map|md|pdf|png|svg|txt|woff2)$']
+                  negateCondition: true
+                  operator: 'RegEx'
+                  transforms: ['Lowercase']
+                  typeName: 'DeliveryRuleUrlFileExtensionMatchConditionParameters'
+                }
+              }
+            ]
             matchProcessingBehavior: 'Stop'
-            name: 'OverwriteContentEncoding'
-            order: 0
+            name: 'SpaUrlRewriteGeneral'
+            order: 1
+          }
+          {
+            actions: [
+              {
+                name: 'ModifyResponseHeader'
+                parameters: {
+                  headerAction: 'Overwrite'
+                  headerName: 'Content-Encoding'
+                  typeName: 'DeliveryRuleHeaderActionParameters'
+                  value: 'br'
+                }
+              }
+              {
+                name: 'ModifyResponseHeader'
+                parameters: {
+                  headerAction: 'Append'
+                  headerName: 'Vary'
+                  typeName: 'DeliveryRuleHeaderActionParameters'
+                  value: 'Accept-Encoding'
+                }
+              }
+            ]
+            conditions: [
+              {
+                name: 'UrlPath'
+                parameters: {
+                  matchValues: ['^(assets\\/.*|index\\.html)$']
+                  negateCondition: false
+                  operator: 'RegEx'
+                  transforms: ['Lowercase']
+                  typeName: 'DeliveryRuleUrlPathMatchConditionParameters'
+                }
+              }
+            ]
+            matchProcessingBehavior: 'Stop'
+            name: 'SpaContentEncodingOverwrite'
+            order: 2
           }
         ]
       }
@@ -639,7 +740,7 @@ module monitorPrivateLinkScope 'br/public:avm/res/insights/private-link-scope:0.
   params: {
     accessModeSettings: {
       exclusions: []
-      ingestionAccessMode: 'PrivateOnly'
+      ingestionAccessMode: 'Open' // TODO: Set to 'PrivateOnly' when done with initial testing.
       queryAccessMode: 'Open' // TODO: Set to 'PrivateOnly' when done with initial testing.
     }
     enableTelemetry: false
@@ -1502,7 +1603,7 @@ module logAnalyticsWorkspace 'br/public:avm/res/operational-insights/workspace:0
       userAssignedResourceIds: []
     }
     name: resources.logAnalyticsWorkspace.name
-    publicNetworkAccessForIngestion: 'SecuredByPerimeter'
+    publicNetworkAccessForIngestion: 'Enabled' // TODO: Set to 'SecuredByPerimeter' when done with initial testing.
     publicNetworkAccessForQuery: 'Enabled' // TODO: Set to 'SecuredByPerimeter' when done with initial testing.
     roleAssignments: []
     skuName: 'PerGB2018'
@@ -1728,7 +1829,19 @@ module storageAccountPublic 'br/public:avm/res/storage/storage-account:0.31.0' =
       containerDeleteRetentionPolicyAllowPermanentDelete: false
       containerDeleteRetentionPolicyDays: 13
       containerDeleteRetentionPolicyEnabled: true
-      containers: []
+      containers: [
+        {
+          name: '$web'
+          publicAccess: 'Blob' // TODO: Update to 'None' once Azure Front Door authentication is configured.
+          roleAssignments: [
+            {
+              principalId: userAssignedIdentityFrontDoor.outputs.principalId
+              principalType: 'ServicePrincipal'
+              roleDefinitionIdOrName: 'Storage Blob Data Reader'
+            }
+          ]
+        }
+      ]
       corsRules: []
       deleteRetentionPolicyAllowPermanentDelete: false
       deleteRetentionPolicyDays: 13
@@ -1876,6 +1989,19 @@ module userAssignedIdentityCustomerManagedEncryption 'br/public:avm/res/managed-
     name: resources.userAssignedIdentityCustomerManagedEncryption.name
     roleAssignments: []
     tags: resources.userAssignedIdentityCustomerManagedEncryption.?tags
+  }
+}
+module userAssignedIdentityFrontDoor 'br/public:avm/res/managed-identity/user-assigned-identity:0.4.3' = {
+  params: {
+    enableTelemetry: false
+    federatedIdentityCredentials: []
+    location: location
+    lock: {
+      kind: lockKind
+    }
+    name: resources.userAssignedIdentityFrontDoor.name
+    roleAssignments: []
+    tags: resources.userAssignedIdentityFrontDoor.?tags
   }
 }
 module userAssignedIdentityFunctionApplication 'br/public:avm/res/managed-identity/user-assigned-identity:0.4.3' = {

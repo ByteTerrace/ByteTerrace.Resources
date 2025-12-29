@@ -54,18 +54,10 @@ type resourceType = {
     name: string
     tags: tagsType?
   }
-  /*communicationService: {
-    name: string
-    tags: tagsType?
-  }*/
   configurationStore: {
     name: string
     tags: tagsType?
   }
-  /*containerRegistry: {
-    name: string
-    tags: tagsType?
-  }*/
   devOpsAgentPool: {
     @minValue(1)
     @maxValue(10000)
@@ -164,185 +156,7 @@ type tagsType = { *: string }
 param deployOwnerRoleAssignments bool = true
 param location string = resourceGroup().location
 param lockKind ('CanNotDelete' | 'None' | 'ReadOnly') = 'CanNotDelete'
-param resources resourceType = {
-  applicationInsights: {
-    name: 'bytrcappip000'
-  }
-  applicationRegistration: {
-    identifierUri: 'https://api.byteterrace.com'
-    name: 'ByteTerrace'
-    requiredResourceAccess: [
-      {
-        resourceAppId: '00000003-0000-0000-c000-000000000000' // Microsoft Graph
-        resourceAccess: [
-          {
-            // NOTE: Admin consent required.
-            id: 'e4c9e354-4dc5-45b8-9e7c-e1393b0b1a20' // https://graph.microsoft.com/AuditLog.Read.All
-            type: 'Scope'
-          }
-          {
-            id: '38826093-1258-4dea-98f0-00003be2b8d0' // https://graph.microsoft.com/Chat.Create
-            type: 'Scope'
-          }
-          {
-            id: '116b7235-7cc6-461e-b163-8e55691d839e' // https://graph.microsoft.com/ChatMessage.Send
-            type: 'Scope'
-          }
-          {
-            id: 'e383f46e-2787-4529-855e-0e479a3ffac0' // https://graph.microsoft.com/Mail.Send
-            type: 'Scope'
-          }
-          {
-            // NOTE: Admin consent required.
-            id: 'fc30e98b-8810-4501-81f5-c20a3196387b' // https://graph.microsoft.com/User.RevokeSessions.All
-            type: 'Scope'
-          }
-        ]
-      }
-    ]
-    spa: {
-      redirectUris: [
-        'https://byteterrace.app'
-      ]
-    }
-    web: {
-      homePageUrl: 'https://byteterrace.com'
-      implicitGrantSettings: {
-        enableAccessTokenIssuance: false
-        enableIdTokenIssuance: true
-      }
-      logoutUrl: null
-      redirectUris: [
-        'https://byteterrace.com'
-        'https://byteterrace.org'
-      ]
-    }
-  }
-  applicationServicePlan: {
-    name: 'bytrcaspp000'
-  }
-  /*communicationService: {
-    name: 'bytrcacsp000'
-  }*/
-  configurationStore: {
-    name: 'bytrcappcsp000'
-  }
-  /*containerRegistry: {
-    name: 'bytrccrp000'
-  }*/
-  devOpsAgentPool: {
-    concurrency: 2
-    images: [
-      {
-        ephemeralType: 'Automatic'
-        wellKnownImageName: 'ubuntu-24.04'
-      }
-      {
-        ephemeralType: 'Automatic'
-        wellKnownImageName: 'windows-2025'
-      }
-    ]
-    name: 'bytrcmdopp000'
-    organizationProfile: {
-      organizations: [
-        {
-          parallelism: 2
-          projects: ['Koholint']
-          url: 'https://dev.azure.com/byteterrace'
-        }
-      ]
-    }
-    vmSkuName: 'Standard_D2ads_v5'
-  }
-  frontDoor: {
-    name: 'bytrcfdp000'
-    webApplicationFirewallPolicy: {
-      name: 'bytrcfdfpp000'
-    }
-  }
-  functionApplication: {
-    name: 'bytrcfuncp000'
-  }
-  keyVault: {
-    name: 'bytrckvp000'
-  }
-  logAnalyticsWorkspace: {
-    name: 'bytrclogp000'
-  }
-  monitorPrivateLinkScope: {
-    name: 'bytrcmplsp000'
-  }
-  natGateway: {
-    name: 'bytrcngp000'
-    publicIpPrefix: {
-      name: 'bytrcipprep000'
-    }
-  }
-  networkSecurityPerimeter: {
-    name: 'bytrcnspp000'
-  }
-  publicDnsZones: {
-    'api.byteterrace.com': {}
-    'byteterrace.app': {}
-    'byteterrace.com': {}
-    'byteterrace.dev': {}
-    'byteterrace.net': {}
-    'byteterrace.org': {}
-    'byteterrace.us': {}
-    'byteterrace.xyz': {}
-    'portal.byteterrace.com': {}
-  }
-  storageAccountFunction: {
-    name: 'bytrcstp000'
-  }
-  storageAccountPublic: {
-    name: 'bytrcstp001'
-  }
-  userAssignedIdentityApplicationRegistration: {
-    name: 'bytrcidp000'
-  }
-  userAssignedIdentityCustomerManagedEncryption: {
-    name: 'bytrcidp001'
-  }
-  userAssignedIdentityFunctionApplication: {
-    name: 'bytrcidp002'
-  }
-  userAssignedIdentityFrontDoor: {
-    name: 'bytrcidp003'
-  }
-  virtualNetwork: {
-    addressPrefixes: ['10.64.0.0/20']
-    name: 'bytrcvnetp000'
-    subnets: [
-      {
-        addressPrefixes: ['10.64.0.0/24']
-        defaultOutboundAccess: false
-        delegation: null
-        name: 'bytrcsnetp000'
-        privateEndpointNetworkPolicies: 'Enabled'
-        privateLinkServiceNetworkPolicies: 'Enabled'
-      }
-      {
-        addressPrefixes: ['10.64.1.0/26']
-        defaultOutboundAccess: false
-        delegation: 'Microsoft.App/environments'
-        name: 'bytrcsnetp001'
-        natGatewayResourceId: 'bytrcngp000'
-        privateEndpointNetworkPolicies: 'Disabled'
-        privateLinkServiceNetworkPolicies: 'Disabled'
-      }
-      {
-        addressPrefixes: ['10.64.1.64/26']
-        defaultOutboundAccess: false
-        delegation: 'Microsoft.DevOpsInfrastructure/pools'
-        name: 'bytrcsnetp002'
-        natGatewayResourceId: 'bytrcngp000'
-        privateEndpointNetworkPolicies: 'Disabled'
-        privateLinkServiceNetworkPolicies: 'Disabled'
-      }
-    ]
-  }
-}
+param resources resourceType
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Variables
@@ -404,7 +218,10 @@ module frontDoor 'br/public:avm/res/cdn/profile:0.16.1' = {
             supportedProtocols: ['Https']
           }
           {
-            cacheConfiguration: null
+            cacheConfiguration: {
+              queryParameters: 'version'
+              queryStringCachingBehavior: 'IncludeSpecifiedQueryStrings'
+            }
             customDomainNames: [replace(portalPublicDnsZone, '.', '-')]
             enabledState: 'Enabled'
             forwardingProtocol: 'HttpsOnly'
@@ -463,7 +280,7 @@ module frontDoor 'br/public:avm/res/cdn/profile:0.16.1' = {
           probeIntervalInSeconds: 127
           probePath: '/api/health-check'
           probeProtocol: 'Https'
-          probeRequestType: 'GET'
+          probeRequestType: 'HEAD'
         }
         loadBalancingSettings: {
           sampleSize: 5
@@ -488,7 +305,7 @@ module frontDoor 'br/public:avm/res/cdn/profile:0.16.1' = {
           probeIntervalInSeconds: 127
           probePath: '/$web/index.html'
           probeProtocol: 'Https'
-          probeRequestType: 'GET'
+          probeRequestType: 'HEAD'
         }
         loadBalancingSettings: {
           sampleSize: 5
@@ -1162,20 +979,6 @@ module applicationServicePlan 'br/public:avm/res/web/serverfarm:0.5.0' = {
     zoneRedundant: false
   }
 }
-/*module communicationService 'br/public:avm/res/communication/communication-service:0.4.2' = {
-  params: {
-    dataLocation: 'United States'
-    diagnosticSettings: []
-    enableTelemetry: false
-    location: 'global'
-    lock: {
-      kind: lockKind
-    }
-    name: resources.communicationService.name
-    roleAssignments: []
-    tags: resources.communicationService.?tags
-  }
-}*/
 module configurationStore 'br/public:avm/res/app-configuration/configuration-store:0.9.2' = {
   params: {
     createMode: 'Default'
@@ -1231,74 +1034,6 @@ module configurationStore 'br/public:avm/res/app-configuration/configuration-sto
     tags: resources.configurationStore.?tags
   }
 }
-/*module containerRegistry 'br/public:avm/res/container-registry/registry:0.9.3' = {
-  params: {
-    acrAdminUserEnabled: false
-    acrSku: 'Premium'
-    anonymousPullEnabled: false
-    azureADAuthenticationAsArmPolicyStatus: 'enabled'
-    cacheRules: []
-    credentialSets: []
-    customerManagedKey: {
-      autoRotationEnabled: true
-      keyName: defaultCustomerManagedKey.name
-      keyVaultResourceId: keyVault.outputs.resourceId
-      userAssignedIdentityResourceId: userAssignedIdentityCustomerManagedEncryption.outputs.resourceId
-    }
-    dataEndpointEnabled: true
-    diagnosticSettings: [
-      {
-        logCategoriesAndGroups: [
-          {
-            categoryGroup: 'audit'
-          }
-        ]
-        workspaceResourceId: logAnalyticsWorkspace.outputs.resourceId
-      }
-    ]
-    enableTelemetry: false
-    exportPolicyStatus: 'disabled'
-    location: location
-    lock: {
-      kind: lockKind
-    }
-    managedIdentities: {
-      systemAssigned: false
-      userAssignedResourceIds: [userAssignedIdentityCustomerManagedEncryption.outputs.resourceId]
-    }
-    name: resources.containerRegistry.name
-    networkRuleBypassOptions: 'None'
-    networkRuleSetDefaultAction: 'Deny'
-    networkRuleSetIpRules: []
-    privateEndpoints: [
-      {
-        enableTelemetry: false
-        privateDnsZoneGroup: {
-          privateDnsZoneGroupConfigs: [
-            {
-              privateDnsZoneResourceId: privateEndpointDnsZones.outputs.dnsZoneMap.containerRegistry
-            }
-          ]
-        }
-        subnetResourceId: subnetMap.privateEndpoints
-      }
-    ]
-    publicNetworkAccess: 'Disabled'
-    retentionPolicyDays: 13
-    retentionPolicyStatus: 'enabled'
-    roleAssignments: (deployOwnerRoleAssignments ? [
-      {
-        principalId: owner.principalId
-        principalType: 'ServicePrincipal'
-        roleDefinitionIdOrName: 'AcrPush'
-      }
-    ] : [])
-    softDeletePolicyDays: 13
-    softDeletePolicyStatus: 'disabled'
-    tags: resources.containerRegistry.?tags
-    zoneRedundancy: 'Enabled'
-  }
-}*/
 module functionApplication 'br/public:avm/res/web/site:0.19.4' = {
   params: {
     basicPublishingCredentialsPolicies: [
@@ -1343,7 +1078,7 @@ module functionApplication 'br/public:avm/res/web/site:0.19.4' = {
           }
           httpSettings: {
             forwardProxy: {
-              convention: 'NoProxy'
+              convention: 'Standard'
             }
             requireHttps: true
           }

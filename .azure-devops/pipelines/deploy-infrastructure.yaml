@@ -44,8 +44,8 @@ jobs:
               inputs:
                 arguments: >-
                   -DeploymentName '$(Build.BuildId)'
+                  -ParametersFilePath '$(Pipeline.Workspace)/s/main.bicepparam'
                   -ResourceGroupName '${{ parameters.resourceGroupName }}'
-                  -TemplateFilePath '$(Pipeline.Workspace)/s/main.bicep'
                 azureSubscription: "${{ parameters.serviceConnectionName }}"
                 failOnStandardError: true
                 inlineScript: |
@@ -54,16 +54,16 @@ jobs:
                       [Parameter(Mandatory = $true, Position = 0)]
                       [string]$DeploymentName,
                       [Parameter(Mandatory = $true, Position = 1)]
-                      [string]$ResourceGroupName,
+                      [string]$ParametersFilePath,
                       [Parameter(Mandatory = $true, Position = 2)]
-                      [string]$TemplateFilePath
+                      [string]$ResourceGroupName
                   )
                   begin {}
                   process {
                       az deployment group create `
                           --name $DeploymentName `
-                          --resource-group $ResourceGroupName `
-                          --template-file $TemplateFilePath;
+                          --parameters $ParametersFilePath `
+                          --resource-group $ResourceGroupName;
                   }
                   end {
                       if ((Test-Path -LiteralPath 'variable:\LASTEXITCODE')) {

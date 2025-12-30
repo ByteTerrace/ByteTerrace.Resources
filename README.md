@@ -1,31 +1,36 @@
 # ByteTerrace.Resources
 
+[![Board Status](https://dev.azure.com/byteterrace/0fdb7e64-61cc-4f63-b6aa-ee63e5426233/e42b904c-8125-438b-8415-988be75611ea/_apis/work/boardbadge/7cc7ad7f-7b3c-4702-8791-ca64a83d02cb?columnOptions=1)](https://dev.azure.com/byteterrace/0fdb7e64-61cc-4f63-b6aa-ee63e5426233/_boards/board/t/e42b904c-8125-438b-8415-988be75611ea/Stories/)  
+[![Release Status](https://dev.azure.com/byteterrace/Koholint/_apis/build/status%2FDeploy%20Infrastructure?branchName=main)](https://dev.azure.com/byteterrace/Koholint/_build/latest?definitionId=88&branchName=main)
+
 Infrastructure-as-code for Azure resources.
 
 ## Prerequisites
 
-- An Azure subscription with the permissions required to create a resource group and assign roles.
-- An Azure DevOps project with permissions to create a service connection.
-- Azure CLI v2.70 (or greater) installed.
-- PowerShell v7.2 (or greater) installed.
+- An [Azure](https://azure.microsoft.com/en-us/resources/cloud-computing-dictionary/what-is-azure) subscription with the permissions required to create a resource group and assign roles.
+- An [Azure DevOps](https://learn.microsoft.com/en-us/azure/devops/user-guide/what-is-azure-devops) project with permissions to create a service connection.
+- [Azure CLI](https://learn.microsoft.com/en-us/cli/azure/what-is-azure-cli) v2.70 (or greater) installed.
+- [PowerShell](https://learn.microsoft.com/en-us/powershell/scripting/overview) v7.2 (or greater) installed.
 
 ## Getting Started
 
+Use the provided [📋checklist](./CHECKLIST.md) to help track your progress.
+
 1) Clone this repository into your Azure DevOps project.
-2) Create a new branch and adjust the `resources` parameter in `./main.bicepparam`.
+2) Create a new branch and adjust the `resources` parameter in [main.bicepparam](./main.bicepparam).
 3) Follow the bootstrap process outlined below.
-4) Create a new pipeline that points to `.azure-devops/pipelines/deploy-infrastructure.yaml`.
+4) Create a new pipeline that points to [.azure-devops/pipelines/deploy-infrastructure.yaml](./.azure-devops/pipelines/deploy-infrastructure.yaml).
 5) Run the pipeline created in the previous step.
 
 ## Bootstrap Process
 
-### *Automated*
+### 📦 *All-in-one*
 
-1) Download `./bootstrap.ps1` from repository.
-2) Run `bootstrap.ps1` via PowerShell.
+1) Download [bootstrap.ps1](./bootstrap.ps1) script from repository.
+2) Run script via PowerShell.
 3) Follow script prompts.
 
-### *Manual*
+### 🧩 *Step-by-step*
 
 ### 1) Create a Resource Group
 <details>

@@ -3,7 +3,7 @@
 [![Board Status](https://dev.azure.com/byteterrace/0fdb7e64-61cc-4f63-b6aa-ee63e5426233/e42b904c-8125-438b-8415-988be75611ea/_apis/work/boardbadge/7cc7ad7f-7b3c-4702-8791-ca64a83d02cb?columnOptions=1)](https://dev.azure.com/byteterrace/0fdb7e64-61cc-4f63-b6aa-ee63e5426233/_boards/board/t/e42b904c-8125-438b-8415-988be75611ea/Stories/)  
 [![Release Status](https://dev.azure.com/byteterrace/Koholint/_apis/build/status%2FDeploy%20Infrastructure?branchName=main)](https://dev.azure.com/byteterrace/Koholint/_build/latest?definitionId=88&branchName=main)
 
-This repository contains a comprehensive **Infrastructure-as-Code (IaC)** solution for deploying a secure application environment within Microsoft Azure.
+This repository contains a comprehensive **Infrastructure-as-Code (IaC)** foundation for deploying a secure application environment within Microsoft Azure.
 
 ## ✨ Key Features
 
@@ -22,10 +22,12 @@ This repository contains a comprehensive **Infrastructure-as-Code (IaC)** soluti
 
 ::: mermaid
 graph TB
+    AzureDevOps(["🔗 dev.azure.com/&lt;org&gt;"])
     Internet(["🌐 Internet"])
 
     FrontDoor(["🛡️🚪 Front Door + WAF"])
     DnsApi(["🔗 api.&lt;domain&gt;.com"])
+    DnsDevOps(["🔗 devops.&lt;domain&gt;.com"])
     DnsPortal(["🔗 portal.&lt;domain&gt;.com"])
     FunctionApp(["⚙️ Function App"])
     StorageAccountFunction(["🗄️ Storage Account (Function)"])
@@ -43,8 +45,10 @@ graph TB
 
     Internet --> FrontDoor
     FrontDoor --> DnsApi
+    FrontDoor --> DnsDevOps
     FrontDoor --> DnsPortal
     DnsApi --> |🌐🔒 HTTPS| FunctionApp
+    DnsDevOps --> |🌐🔒 HTTPS| AzureDevOps
     DnsPortal --> |🌐🔒 HTTPS| StorageAccountPublic
     FunctionApp -.-> |🕸️🔒 PE| ConfigurationStore
     FunctionApp -.-> |🕸️🔒 PE| StorageAccountFunction

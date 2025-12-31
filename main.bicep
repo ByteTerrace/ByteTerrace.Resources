@@ -15,10 +15,6 @@ import {
   diagnosticSettingFullType
 } from 'br/public:avm/utl/types/avm-common-types:0.6.1'
 
-import {
-  publicDnsZoneType
-} from './publicDnsZones.bicep'
-
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Types
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -58,21 +54,22 @@ type resourceType = {
     name: string
     tags: tagsType?
   }
-  devOpsAgentPool: {
-    @minValue(1)
-    @maxValue(10000)
-    concurrency: int
-    images: imageType[]
-    name: string
-    organizationProfile: {
-      organizations: {
-        parallelism: int
-        projects: string[]
-        url: string
-      }[]
+  devOps: {
+    agentPool: {
+      @minValue(1)
+      @maxValue(10000)
+      concurrency: int
+      images: imageType[]
+      name: string
+      tags: tagsType?
+      vmSkuName: string
     }
-    tags: tagsType?
-    vmSkuName: string
+    organizationName: string
+    projectName: string
+  }
+  dns: {
+    secondLevelDomainName: string
+    topLevelDomainName: string
   }
   frontDoor: {
     name: string
@@ -109,9 +106,6 @@ type resourceType = {
   networkSecurityPerimeter: {
     name: string
     tags: tagsType?
-  }
-  publicDnsZones: {
-    *: publicDnsZoneType
   }
   storageAccountFunction: {
     name: string
@@ -161,11 +155,13 @@ param resources resourceType
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Variables
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-var apiPublicDnsZone = first(filter(objectKeys(resources.publicDnsZones), zone => startsWith(zone, 'api.')))! // TODO: Refactor to be more robust.
+var apexPublicDnsZone = '${resources.dns.secondLevelDomainName}.${resources.dns.topLevelDomainName}'
+var apiPublicDnsZone = 'api.${apexPublicDnsZone}'
 var applicationRegistrationUniqueName = guid(resources.applicationRegistration.name)
 var defaultCustomerManagedKey = {
   name: 'CustomerManagedEncryption'
 }
+var devOpsPublicDnsZone = 'devops.${apexPublicDnsZone}'
 var functionAppContainerName = '${resources.functionApplication.name}-${uniqueString(resourceId('Microsoft.Web/sites', resources.functionApplication.name))}'
 var natGatewayResourceIdMap = {
   '${resources.natGateway.name}': natGateway.outputs.resourceId
@@ -173,7 +169,7 @@ var natGatewayResourceIdMap = {
 var owner = {
   principalId: deployer().objectId
 }
-var portalPublicDnsZone = first(filter(objectKeys(resources.publicDnsZones), zone => startsWith(zone, 'portal.')))! // TODO: Refactor to be more robust.
+var portalPublicDnsZone = 'portal.${apexPublicDnsZone}'
 var publicIpPrefixResourceIdMap = {
   '${resources.natGateway.publicIpPrefix.name}': natGateway_publicIpPrefix.outputs.resourceId
 }
@@ -218,6 +214,20 @@ module frontDoor 'br/public:avm/res/cdn/profile:0.16.1' = {
             supportedProtocols: ['Https']
           }
           {
+            cacheConfiguration: null
+            customDomainNames: [replace(devOpsPublicDnsZone, '.', '-')]
+            enabledState: 'Enabled'
+            forwardingProtocol: 'HttpsOnly'
+            httpsRedirect: 'Enabled'
+            linkToDefaultDomain: 'Disabled'
+            name: 'devops'
+            originGroupName: 'devops'
+            originPath: null
+            patternsToMatch: []
+            ruleSets: ['devops']
+            supportedProtocols: ['Https']
+          }
+          {
             cacheConfiguration: {
               queryParameters: 'version'
               queryStringCachingBehavior: 'IncludeSpecifiedQueryStrings'
@@ -245,6 +255,14 @@ module frontDoor 'br/public:avm/res/cdn/profile:0.16.1' = {
         hostName: apiPublicDnsZone
         minimumTlsVersion: 'TLS12'
         name: replace(apiPublicDnsZone, '.', '-')
+      }
+      {
+        azureDnsZoneResourceId: publicDnsZones.outputs.dnsZoneMap[devOpsPublicDnsZone]
+        certificateType: 'ManagedCertificate'
+        cipherSuiteSetType: 'TLS12_2023'
+        hostName: devOpsPublicDnsZone
+        minimumTlsVersion: 'TLS12'
+        name: replace(devOpsPublicDnsZone, '.', '-')
       }
       {
         azureDnsZoneResourceId: publicDnsZones.outputs.dnsZoneMap[portalPublicDnsZone]
@@ -295,7 +313,30 @@ module frontDoor 'br/public:avm/res/cdn/profile:0.16.1' = {
             httpPort: 80
             httpsPort: 443
             name: replace(functionApplication.outputs.defaultHostname, '.', '-')
-            originHostHeader: functionApplication.outputs.defaultHostname
+          }
+        ]
+        sessionAffinityState: 'Disabled'
+      }
+      {
+        healthProbeSettings: {
+          probeIntervalInSeconds: 127
+          probePath: '/'
+          probeProtocol: 'Https'
+          probeRequestType: 'HEAD'
+        }
+        loadBalancingSettings: {
+          sampleSize: 5
+          successfulSamplesRequired: 3
+        }
+        name: 'devops'
+        origins: [
+          {
+            enabledState: 'Enabled'
+            enforceCertificateNameCheck: true
+            hostName: 'dev.azure.com'
+            httpPort: 80
+            httpsPort: 443
+            name: 'dev-azure-com'
           }
         ]
         sessionAffinityState: 'Disabled'
@@ -320,7 +361,6 @@ module frontDoor 'br/public:avm/res/cdn/profile:0.16.1' = {
             httpPort: 80
             httpsPort: 443
             name: replace(parseUri(storageAccountPublic.outputs.primaryBlobEndpoint).host, '.', '-')
-            originHostHeader: parseUri(storageAccountPublic.outputs.primaryBlobEndpoint).host
           }
         ]
         sessionAffinityState: 'Disabled'
@@ -329,6 +369,28 @@ module frontDoor 'br/public:avm/res/cdn/profile:0.16.1' = {
     name: resources.frontDoor.name
     roleAssignments: []
     ruleSets: [
+      {
+        name: 'devops'
+        rules: [
+          {
+            actions: [
+              {
+                name: 'UrlRedirect'
+                parameters: {
+                  customHostname: 'dev.azure.com'
+                  customPath: '/${resources.devOps.organizationName}/{url_path:seg0:2147483647}'
+                  destinationProtocol: 'Https'
+                  redirectType: 'Moved'
+                  typeName: 'DeliveryRuleUrlRedirectActionParameters'
+                }
+              }
+            ]
+            matchProcessingBehavior: 'Stop'
+            name: 'RedirectAll'
+            order: 0
+          }
+        ]
+      }
       {
         name: 'portal'
         rules: [
@@ -470,7 +532,7 @@ module frontDoor 'br/public:avm/res/cdn/profile:0.16.1' = {
           }
         ]
         name: 'rate-limit'
-        wafPolicyResourceId: frontDoor_waf.outputs.resourceId
+        wafPolicyResourceId: frontDoor_waf_rateLimit.outputs.resourceId
       }
     ]
     sku: 'Standard_AzureFrontDoor'
@@ -479,7 +541,7 @@ module frontDoor 'br/public:avm/res/cdn/profile:0.16.1' = {
 }
 module frontDoor_dns 'br/public:avm/res/network/dns-zone:0.5.4' = [
   // TODO: Refactor this to be more robust.
-  for i in range(0, 2): {
+  for i in range(0, 3): {
     params: {
       a: [
         {
@@ -505,7 +567,7 @@ module frontDoor_dns 'br/public:avm/res/network/dns-zone:0.5.4' = [
     }
   }
 ]
-module frontDoor_waf 'br/public:avm/res/network/front-door-web-application-firewall-policy:0.3.3' = {
+module frontDoor_waf_rateLimit 'br/public:avm/res/network/front-door-web-application-firewall-policy:0.3.3' = {
   params: {
     customRules: {
       rules: [
@@ -726,7 +788,12 @@ module privateEndpointDnsZones './privateEndpointDnsZones.bicep' = {
 module publicDnsZones './publicDnsZones.bicep' = {
   params: {
     lockKind: lockKind
-    zones: resources.publicDnsZones
+    zones: {
+      '${apexPublicDnsZone}': {}
+      '${apiPublicDnsZone}': {}
+      '${devOpsPublicDnsZone}': {}
+      '${portalPublicDnsZone}': {}
+    }
   }
 }
 module virtualNetwork 'br/public:avm/res/network/virtual-network:0.7.2' = {
@@ -821,7 +888,7 @@ module devOpsAgentPool 'br/public:avm/res/dev-ops-infrastructure/pool:0.7.0' = {
         predictionPreference: 'MostCostEffective'
       }
     }
-    concurrency: resources.devOpsAgentPool.concurrency
+    concurrency: resources.devOps.agentPool.concurrency
     devCenterProjectResourceId: devCenter_project.outputs.resourceId
     diagnosticSettings: [
       {
@@ -834,8 +901,8 @@ module devOpsAgentPool 'br/public:avm/res/dev-ops-infrastructure/pool:0.7.0' = {
       }
     ]
     enableTelemetry: false
-    fabricProfileSkuName: resources.devOpsAgentPool.vmSkuName
-    images: resources.devOpsAgentPool.images
+    fabricProfileSkuName: resources.devOps.agentPool.vmSkuName
+    images: resources.devOps.agentPool.images
     location: location
     lock: {
       kind: lockKind
@@ -844,10 +911,17 @@ module devOpsAgentPool 'br/public:avm/res/dev-ops-infrastructure/pool:0.7.0' = {
       systemAssigned: false
       userAssignedResourceIds: []
     }
-    name: resources.devOpsAgentPool.name
+    name: resources.devOps.agentPool.name
     organizationProfile: {
       kind: 'AzureDevOps'
-      organizations: resources.devOpsAgentPool.organizationProfile.organizations
+      organizations: [
+        {
+          openAccess: false
+          parallelism: resources.devOps.agentPool.concurrency
+          projects: [resources.devOps.projectName]
+          url: 'https://dev.azure.com/${resources.devOps.organizationName}'
+        }
+      ]
       permissionProfile: {
         kind: 'CreatorOnly'
       }
@@ -857,7 +931,7 @@ module devOpsAgentPool 'br/public:avm/res/dev-ops-infrastructure/pool:0.7.0' = {
     }
     roleAssignments: []
     subnetResourceId: subnetResourceIdMap.devOpsAgentPool
-    tags: resources.devOpsAgentPool.?tags
+    tags: resources.devOps.agentPool.?tags
   }
 }
 
@@ -1094,7 +1168,7 @@ module functionApplication 'br/public:avm/res/web/site:0.19.4' = {
                 openIdIssuer: '${environment().authentication.loginEndpoint}${tenant().tenantId}/v2.0'
               }
               validation: {
-                allowedAudiences: []
+                allowedAudiences: [applicationRegistration.identifierUris[0]]
                 defaultAuthorizationPolicy: {
                   allowedApplications: [applicationRegistration.appId]
                   allowedPrincipals: {
@@ -1751,4 +1825,25 @@ module userAssignedIdentityFunctionApplication 'br/public:avm/res/managed-identi
     roleAssignments: []
     tags: resources.userAssignedIdentityFunctionApplication.?tags
   }
+}
+
+output applicationRegistration {
+  clientId: string
+  identifierUri: string
+  principalId: string
+} = {
+  clientId: applicationRegistration.appId
+  identifierUri: applicationRegistration.identifierUris[0]
+  principalId: applicationRegistration_servicePrincipal.id
+}
+output outboundPublicIpPrefix string = reference(
+  // TODO: Refactor when AVM public ip prefix module is updated to output the prefix CIDR.
+  resourceId('Microsoft.Network/publicIPPrefixes', resources.natGateway.publicIpPrefix.name),
+  '2025-01-01'
+).ipPrefix
+output publicDns object = {
+  apex: apexPublicDnsZone
+  api: apiPublicDnsZone
+  devOps: devOpsPublicDnsZone
+  portal: portalPublicDnsZone
 }

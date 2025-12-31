@@ -62,29 +62,28 @@ param resources = {
   configurationStore: {
     name: 'bytrcappcsp000'
   }
-  devOpsAgentPool: {
-    concurrency: 2
-    images: [
-      {
-        ephemeralType: 'Automatic'
-        wellKnownImageName: 'ubuntu-24.04'
-      }
-      {
-        ephemeralType: 'Automatic'
-        wellKnownImageName: 'windows-2025'
-      }
-    ]
-    name: 'bytrcmdopp000'
-    organizationProfile: {
-      organizations: [
+  devOps: {
+    agentPool: {
+      concurrency: 2
+      images: [
         {
-          parallelism: 2
-          projects: ['Koholint']
-          url: 'https://dev.azure.com/byteterrace'
+          ephemeralType: 'Automatic'
+          wellKnownImageName: 'ubuntu-24.04'
+        }
+        {
+          ephemeralType: 'Automatic'
+          wellKnownImageName: 'windows-2025'
         }
       ]
+      name: 'bytrcmdopp000'
+      vmSkuName: 'Standard_D2ads_v5'
     }
-    vmSkuName: 'Standard_D2ads_v5'
+    organizationName: 'byteterrace'
+    projectName: 'Koholint'
+  }
+  dns: {
+    secondLevelDomainName: 'byteterrace'
+    topLevelDomainName: 'com'
   }
   frontDoor: {
     name: 'bytrcfdp000'
@@ -112,17 +111,6 @@ param resources = {
   }
   networkSecurityPerimeter: {
     name: 'bytrcnspp000'
-  }
-  publicDnsZones: {
-    'api.byteterrace.com': {}
-    'byteterrace.app': {}
-    'byteterrace.com': {}
-    'byteterrace.dev': {}
-    'byteterrace.net': {}
-    'byteterrace.org': {}
-    'byteterrace.us': {}
-    'byteterrace.xyz': {}
-    'portal.byteterrace.com': {}
   }
   storageAccountFunction: {
     name: 'bytrcstp000'

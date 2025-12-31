@@ -7,8 +7,6 @@ This repository contains a comprehensive **Infrastructure-as-Code (IaC)** founda
 
 ## ✨ Key Features
 
----
-
 - *Zero Trust:* Implements a strict RBAC only approach using managed identities + OIDC for passwordless authentication between all services.
 - *Virtual Networking:* All non-public resources are isolated from the internet and accessed exclusively via private endpoints.
 - *Global Scale & Protection:* Uses Azure Front Door with Web Application Firewall (WAF) as the single global entry point.
@@ -17,8 +15,6 @@ This repository contains a comprehensive **Infrastructure-as-Code (IaC)** founda
 - *Serverless Compute:* Uses Azure Functions Flex Consumption for scalable, event-driven API logic.
 
 ## 📐 Architecture
-
----
 
 ::: mermaid
 graph TB
@@ -30,6 +26,7 @@ graph TB
     DnsDevOps(["🔗 devops.&lt;domain&gt;.com"])
     DnsPortal(["🔗 portal.&lt;domain&gt;.com"])
     FunctionApp(["⚙️ Function App"])
+    RedisCache(["🪣 Redis Cache"])
     StorageAccountFunction(["🗄️ Storage Account (Function)"])
     StorageAccountPublic(["🗄️ Storage Account (Public)"])
     ConfigurationStore(["🎛️ Configuration Store"])
@@ -51,9 +48,11 @@ graph TB
     DnsDevOps --> |🌐🔒 HTTPS| AzureDevOps
     DnsPortal --> |🌐🔒 HTTPS| StorageAccountPublic
     FunctionApp -.-> |🕸️🔒 PE| ConfigurationStore
+    FunctionApp -.-> |🕸️🔒 PE| RedisCache
     FunctionApp -.-> |🕸️🔒 PE| StorageAccountFunction
     FunctionApp --> FunctionAppSubnet
     ConfigurationStore -.-> |🕸️🔒 PE| KeyVault
+    RedisCache -.-> |🕸️🔒 PE| KeyVault
     StorageAccountFunction -.-> |🕸️🔒 PE| KeyVault
     StorageAccountPublic -.-> |🕸️🔒 PE| KeyVault
     DevOpsPool <--> DevOpsPoolSubnet
@@ -61,8 +60,6 @@ graph TB
     FunctionAppSubnet --> NatGateway
     NatGateway --> Internet
 :::
-
----
 
 ## ⚠️ Prerequisites
 

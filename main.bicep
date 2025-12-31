@@ -107,6 +107,79 @@ type resourceType = {
     name: string
     tags: tagsType?
   }
+  /*postgresFlexibleServer: {
+    administrators: {
+      objectId: string
+      principalName: string
+      principalType: ('Group' | 'ServicePrincipal' | 'Unknown' | 'User')
+      tenantId: string?
+    }[]
+    name: string
+    skuName: string?
+    storageSizeGB: (32 | 64 | 128 | 256 | 512 | 1024 | 2048 | 4096 | 8192 | 16384)?
+    tags: tagsType?
+    tier: ('Burstable' | 'GeneralPurpose' | 'MemoryOptimized')?
+    version: ('16' | '17' | '18')
+  }*/
+  redisCache: {
+    capacity: (2 | 3 | 4 | 6 | 8 | 9 | 10)?
+    evictionPolicy: (
+      | 'AllKeysLFU'
+      | 'AllKeysLRU'
+      | 'AllKeysRandom'
+      | 'NoEviction'
+      | 'VolatileLFU'
+      | 'VolatileLRU'
+      | 'VolatileRandom'
+      | 'VolatileTTL')?
+    name: string
+    skuName: (
+      | 'Balanced_B0'
+      | 'Balanced_B1'
+      | 'Balanced_B3'
+      | 'Balanced_B5'
+      | 'Balanced_B10'
+      | 'Balanced_B20'
+      | 'Balanced_B50'
+      | 'Balanced_B100'
+      | 'Balanced_B150'
+      | 'Balanced_B250'
+      | 'Balanced_B350'
+      | 'Balanced_B500'
+      | 'Balanced_B700'
+      | 'Balanced_B1000'
+      | 'ComputeOptimized_X3'
+      | 'ComputeOptimized_X5'
+      | 'ComputeOptimized_X10'
+      | 'ComputeOptimized_X20'
+      | 'ComputeOptimized_X50'
+      | 'ComputeOptimized_X100'
+      | 'ComputeOptimized_X150'
+      | 'ComputeOptimized_X250'
+      | 'ComputeOptimized_X350'
+      | 'ComputeOptimized_X500'
+      | 'ComputeOptimized_X700'
+      | 'FlashOptimized_A250'
+      | 'FlashOptimized_A500'
+      | 'FlashOptimized_A700'
+      | 'FlashOptimized_A1000'
+      | 'FlashOptimized_A1500'
+      | 'FlashOptimized_A2000'
+      | 'FlashOptimized_A4500'
+      | 'MemoryOptimized_M10'
+      | 'MemoryOptimized_M20'
+      | 'MemoryOptimized_M50'
+      | 'MemoryOptimized_M100'
+      | 'MemoryOptimized_M150'
+      | 'MemoryOptimized_M250'
+      | 'MemoryOptimized_M350'
+      | 'MemoryOptimized_M500'
+      | 'MemoryOptimized_M700'
+      | 'MemoryOptimized_M1000'
+      | 'MemoryOptimized_M1500'
+      | 'MemoryOptimized_M2000')
+    tags: tagsType?
+  }
   storageAccountFunction: {
     name: string
     tags: tagsType?
@@ -1102,7 +1175,22 @@ module configurationStore 'br/public:avm/res/app-configuration/configuration-sto
       }
     ]
     publicNetworkAccess: 'Disabled'
-    roleAssignments: []
+    roleAssignments: [
+      ...(deployOwnerRoleAssignments
+        ? [
+            {
+              principalId: owner.principalId
+              principalType: 'ServicePrincipal'
+              roleDefinitionIdOrName: 'App Configuration Data Owner'
+            }
+          ]
+        : [])
+      {
+        principalId: userAssignedIdentityFunctionApplication.outputs.principalId
+        principalType: 'ServicePrincipal'
+        roleDefinitionIdOrName: 'App Configuration Data Reader'
+      }
+    ]
     sku: 'Standard'
     softDeleteRetentionInDays: 7
     tags: resources.configurationStore.?tags
@@ -1417,6 +1505,127 @@ module logAnalyticsWorkspace 'br/public:avm/res/operational-insights/workspace:0
     roleAssignments: []
     skuName: 'PerGB2018'
     tags: resources.logAnalyticsWorkspace.?tags
+  }
+}
+/*module postgreSql 'br/public:avm/res/db-for-postgre-sql/flexible-server:0.15.1' = {
+  params: {
+    administrators: resources.postgresFlexibleServer.?administrators
+    authConfig: {
+      activeDirectoryAuth: 'Enabled'
+      passwordAuth: 'Disabled'
+    }
+    autoGrow: 'Disabled'
+    availabilityZone: -1
+    backupRetentionDays: 7
+    configurations: [
+      {
+        name: 'pgaadauth.enable_group_sync'
+        source: 'user-override'
+        value: 'on'
+      }
+    ]
+    createMode: 'Default'
+    customerManagedKey: {
+      autoRotationEnabled: true
+      keyName: defaultCustomerManagedKey.name
+      keyVaultResourceId: keyVault.outputs.resourceId
+      userAssignedIdentityResourceId: userAssignedIdentityCustomerManagedEncryption.outputs.resourceId
+    }
+    databases: []
+    diagnosticSettings: []
+    enableTelemetry: false
+    geoRedundantBackup: 'Disabled'
+    highAvailability: 'Disabled'
+    location: location
+    lock: {
+      kind: lockKind
+    }
+    managedIdentities: {
+      systemAssigned: false
+      userAssignedResourceIds: [userAssignedIdentityCustomerManagedEncryption.outputs.resourceId]
+    }
+    name: resources.postgresFlexibleServer.name
+    privateEndpoints: [
+      {
+        enableTelemetry: false
+        privateDnsZoneGroup: {
+          privateDnsZoneGroupConfigs: [
+            {
+              privateDnsZoneResourceId: privateEndpointDnsZones.outputs.dnsZoneMap.postgresFlexibleServer
+            }
+          ]
+        }
+        subnetResourceId: subnetResourceIdMap.privateEndpoints
+      }
+    ]
+    publicNetworkAccess: 'Disabled'
+    roleAssignments: []
+    skuName: (resources.postgresFlexibleServer.?skuName ?? 'Standard_B1ms')
+    storageSizeGB: (resources.postgresFlexibleServer.?storageSizeGB ?? 64)
+    tags: resources.postgresFlexibleServer.?tags
+    tier: (resources.postgresFlexibleServer.?tier ?? 'Burstable')
+    version: resources.postgresFlexibleServer.version
+  }
+}*/
+module redisCache 'br/public:avm/res/cache/redis-enterprise:0.5.0' = {
+  params: {
+    availabilityZones: []
+    capacity: (resources.redisCache.?capacity ?? 2)
+    customerManagedKey: {
+      keyName: defaultCustomerManagedKey.name
+      keyVaultResourceId: keyVault.outputs.resourceId
+      userAssignedIdentityResourceId: userAssignedIdentityCustomerManagedEncryption.outputs.resourceId
+    }
+    database: {
+      accessKeysAuthentication: 'Disabled'
+      accessPolicyAssignments: [
+        {
+          accessPolicyName: 'default'
+          name: userAssignedIdentityFunctionApplication.outputs.name
+          userObjectId: userAssignedIdentityFunctionApplication.outputs.principalId
+        }
+      ]
+      clusteringPolicy: 'NoCluster'
+      clientProtocol: 'Encrypted'
+      deferUpgrade: 'NotDeferred'
+      diagnosticSettings: []
+      evictionPolicy: (resources.redisCache.?evictionPolicy ?? 'VolatileLRU')
+      modules: []
+      name: 'default'
+      persistence: {
+        type: 'disabled'
+      }
+      port: 10000
+    }
+    diagnosticSettings: []
+    enableTelemetry: false
+    highAvailability: 'Disabled'
+    location: location
+    lock: {
+      kind: lockKind
+    }
+    managedIdentities: {
+      userAssignedResourceIds: [userAssignedIdentityCustomerManagedEncryption.outputs.resourceId]
+    }
+    minimumTlsVersion: '1.2'
+    name: resources.redisCache.name
+    privateEndpoints: [
+      {
+        enableTelemetry: false
+        privateDnsZoneGroup: {
+          privateDnsZoneGroupConfigs: [
+            {
+              privateDnsZoneResourceId: privateEndpointDnsZones.outputs.dnsZoneMap.redisCache
+            }
+          ]
+        }
+        subnetResourceId: subnetResourceIdMap.privateEndpoints
+      }
+    ]
+    publicNetworkAccess: 'Disabled'
+    roleAssignments: []
+    skuName: (resources.redisCache.?skuName ?? 'Balanced_B0')
+    tags: resources.redisCache.?tags
   }
 }
 module storageAccountFunction 'br/public:avm/res/storage/storage-account:0.31.0' = {
@@ -1841,9 +2050,11 @@ output outboundPublicIpPrefix string = reference(
   resourceId('Microsoft.Network/publicIPPrefixes', resources.natGateway.publicIpPrefix.name),
   '2025-01-01'
 ).ipPrefix
+//output postgreSqlEndpoint string = postgreSql.outputs.fqdn!
 output publicDns object = {
   apex: apexPublicDnsZone
   api: apiPublicDnsZone
   devOps: devOpsPublicDnsZone
   portal: portalPublicDnsZone
 }
+output redisCacheEndpoint string = redisCache.outputs.endpoint

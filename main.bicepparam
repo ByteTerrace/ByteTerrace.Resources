@@ -112,6 +112,26 @@ param resources = {
   networkSecurityPerimeter: {
     name: 'bytrcnspp000'
   }
+  /*postgresFlexibleServer: {
+    administrators: [
+      {
+        objectId: '<PLACEHOLDER>'
+        principalType: 'ServicePrincipal'
+        principalName: '<PLACEHOLDER>'
+      }
+    ]
+    name: 'bytrcpsqlp000'
+    skuName: 'Standard_B1ms'
+    storageSizeGB: 64
+    tier: 'Burstable'
+    version: '18'
+  }*/
+  redisCache: {
+    capacity: 2
+    evictionPolicy: 'VolatileLRU'
+    name: 'bytrcamrp000'
+    skuName: 'Balanced_B0'
+  }
   storageAccountFunction: {
     name: 'bytrcstp000'
   }

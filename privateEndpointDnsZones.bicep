@@ -10,6 +10,8 @@ type dnsZoneMapType = {
     insightsOds: string
     insightsOms: string
   }
+  postgresFlexibleServer: string
+  redisCache: string
   storageAccount: {
     blob: string
     dfs: string
@@ -34,6 +36,8 @@ var dnsZoneMap dnsZoneMapType = {
     insightsOds: 'privatelink.ods.opinsights.azure.com'
     insightsOms: 'privatelink.oms.opinsights.azure.com'
   }
+  postgresFlexibleServer: 'privatelink.postgres.database.azure.com'
+  redisCache: 'privatelink.redis.azure.net'
   storageAccount: {
     blob: 'privatelink.blob.${environment().suffixes.storage}'
     dfs: 'privatelink.dfs.${environment().suffixes.storage}'

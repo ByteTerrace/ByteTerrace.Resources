@@ -16,7 +16,7 @@ This repository contains a comprehensive **Infrastructure-as-Code (IaC)** founda
 
 ## 📐 Architecture
 
-::: mermaid
+``` mermaid
 graph TB
     AzureDevOps(["🔗 dev.azure.com/&lt;org&gt;"])
     Internet(["🌐 Internet"])
@@ -59,7 +59,7 @@ graph TB
     DevOpsPoolSubnet --> NatGateway
     FunctionAppSubnet --> NatGateway
     NatGateway --> Internet
-:::
+```
 
 ## ⚠️ Prerequisites
 

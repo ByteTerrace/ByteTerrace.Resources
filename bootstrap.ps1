@@ -89,19 +89,19 @@ process {
         --assignee-principal-type 'ServicePrincipal' `
         --name 'b9fefe22-ace0-4824-ab27-4ca4bdbd6f73' `
         --role 'Contributor' `
-        --scope $resourceGroupId;
+        --scope $resourceGroupId; #TODO: Generate name based on hash of UMI object id, role, and scope.
     az role assignment create `
         --assignee-object-id $managedIdentityObjectId `
         --assignee-principal-type 'ServicePrincipal' `
         --name 'b9fefe22-ace0-436d-9392-6faa218b955f' `
         --role 'Locks Contributor' `
-        --scope $resourceGroupId;
+        --scope $resourceGroupId; #TODO: Generate name based on hash of UMI object id, role, and scope.
     az role assignment create `
         --assignee-object-id $managedIdentityObjectId `
         --assignee-principal-type 'ServicePrincipal' `
         --name 'b9fefe22-ace0-46ea-9d0f-93fec3cbd79c' `
         --role 'Role Based Access Control Administrator' `
-        --scope $resourceGroupId;
+        --scope $resourceGroupId; #TODO: Generate name based on hash of UMI object id, role, and scope.
 
     # transform service connection JSON template
     $rootNode = [Text.Json.Nodes.JsonNode]::Parse($serviceConnectionJsonTemplate);

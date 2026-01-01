@@ -231,11 +231,21 @@ param resources resourceType
 var apexPublicDnsZone = '${resources.dns.secondLevelDomainName}.${resources.dns.topLevelDomainName}'
 var apiPublicDnsZone = 'api.${apexPublicDnsZone}'
 var applicationRegistrationUniqueName = guid(resources.applicationRegistration.name)
-var defaultCustomerManagedKey = {
-  name: 'CustomerManagedEncryption'
+var defaultCustomerManagedKeySettings = {
+  keyName: 'CustomerManagedEncryption'
+}
+var defaultDataProtectionSettings = {
+  blob: {
+    blobPath: '/keys.xml'
+    containerName: 'data-protection'
+  }
+  keyName: 'DataProtection'
 }
 var devOpsPublicDnsZone = 'devops.${apexPublicDnsZone}'
 var functionAppContainerName = '${resources.functionApplication.name}-${uniqueString(resourceId('Microsoft.Web/sites', resources.functionApplication.name))}'
+var keyVaultKeyUriMap = {
+  dataProtection: keyVault.outputs.keys[1].uri
+}
 var natGatewayResourceIdMap = {
   '${resources.natGateway.name}': natGateway.outputs.resourceId
 }
@@ -246,6 +256,7 @@ var portalPublicDnsZone = 'portal.${apexPublicDnsZone}'
 var publicIpPrefixResourceIdMap = {
   '${resources.natGateway.publicIpPrefix.name}': natGateway_publicIpPrefix.outputs.resourceId
 }
+var staticSiteContainerName = '$web'
 var subnetResourceIdMap = {
   devOpsAgentPool: virtualNetwork.outputs.subnetResourceIds[2]
   flexConsumptionApplicationServicePlan: virtualNetwork.outputs.subnetResourceIds[1]
@@ -417,7 +428,7 @@ module frontDoor 'br/public:avm/res/cdn/profile:0.16.1' = {
       {
         healthProbeSettings: {
           probeIntervalInSeconds: 127
-          probePath: '/$web/index.html'
+          probePath: '/${staticSiteContainerName}/index.html'
           probeProtocol: 'Https'
           probeRequestType: 'HEAD'
         }
@@ -472,7 +483,7 @@ module frontDoor 'br/public:avm/res/cdn/profile:0.16.1' = {
               {
                 name: 'UrlRewrite'
                 parameters: {
-                  destination: '/$web/'
+                  destination: '/${staticSiteContainerName}/'
                   preserveUnmatchedPath: true
                   sourcePattern: '/'
                   typeName: 'DeliveryRuleUrlRewriteActionParameters'
@@ -518,7 +529,7 @@ module frontDoor 'br/public:avm/res/cdn/profile:0.16.1' = {
               {
                 name: 'UrlRewrite'
                 parameters: {
-                  destination: '/$web/index.html'
+                  destination: '/${staticSiteContainerName}/index.html'
                   preserveUnmatchedPath: false
                   sourcePattern: '/'
                   typeName: 'DeliveryRuleUrlRewriteActionParameters'
@@ -1092,7 +1103,7 @@ module applicationInsights 'br/public:avm/res/insights/component:0.7.1' = {
       kind: lockKind
     }
     name: resources.applicationInsights.name
-    publicNetworkAccessForIngestion: 'Disabled'
+    publicNetworkAccessForIngestion: 'Enabled' // TODO: Set to 'Disabled' when done with initial testing.
     publicNetworkAccessForQuery: 'Enabled' // TODO: Set to 'Disabled' when done with initial testing.
     retentionInDays: 30
     roleAssignments: [
@@ -1131,7 +1142,7 @@ module configurationStore 'br/public:avm/res/app-configuration/configuration-sto
     createMode: 'Default'
     customerManagedKey: {
       autoRotationEnabled: true
-      keyName: defaultCustomerManagedKey.name
+      keyName: defaultCustomerManagedKeySettings.keyName
       keyVaultResourceId: keyVault.outputs.resourceId
       userAssignedIdentityResourceId: userAssignedIdentityCustomerManagedEncryption.outputs.resourceId
     }
@@ -1222,8 +1233,12 @@ module functionApplication 'br/public:avm/res/web/site:0.19.4' = {
           APPLICATIONINSIGHTS_AUTHENTICATION_STRING: 'Authorization=AAD;ClientId=${userAssignedIdentityFunctionApplication.outputs.clientId}'
           AzureWebJobsStorage__clientId: userAssignedIdentityFunctionApplication.outputs.clientId
           AzureWebJobsStorage__credential: 'managedidentity'
-          AZURE_CLIENT_ID: userAssignedIdentityApplicationRegistration.outputs.clientId
+          AZURE_CLIENT_ID: userAssignedIdentityFunctionApplication.outputs.clientId
+          ConfigurationStore__Endpoint: configurationStore.outputs.endpoint
+          DataProtection__BlobUri: '${storageAccountFunction.outputs.primaryBlobEndpoint}${defaultDataProtectionSettings.blob.containerName}${defaultDataProtectionSettings.blob.blobPath}'
+          DataProtection__KeyUri: keyVaultKeyUriMap.dataProtection
           OVERRIDE_USE_MI_FIC_ASSERTION_CLIENTID: userAssignedIdentityApplicationRegistration.outputs.clientId
+          RedisCache__Endpoint: redisCache.outputs.endpoint
           WEBSITE_AUTH_AAD_ALLOWED_TENANTS: tenant().tenantId
         }
         retainCurrentAppSettings: false
@@ -1352,7 +1367,7 @@ module functionApplication 'br/public:avm/res/web/site:0.19.4' = {
       ipSecurityRestrictions: [
         {
           action: 'Allow'
-          description: 'Allows a specific Azure Front Door instance to access the site.'
+          description: 'Allows the Azure Front Door instance to access the site.'
           headers: {
             'x-azure-fdid': [frontDoor_bootstrap.properties.frontDoorId]
           }
@@ -1360,6 +1375,14 @@ module functionApplication 'br/public:avm/res/web/site:0.19.4' = {
           name: 'AllowAzureFrontDoor'
           priority: 1
           tag: 'ServiceTag'
+        }
+        {
+          action: 'Allow'
+          description: 'Allows the Azure Managed DevOps Pool subnet to access the site.'
+          name: 'AllowManagedDevOpsPool'
+          priority: 1
+          tag: 'Default'
+          vnetSubnetResourceId: subnetResourceIdMap.devOpsAgentPool
         }
       ]
       ipSecurityRestrictionsDefaultAction: 'Deny'
@@ -1408,9 +1431,45 @@ module keyVault 'br/public:avm/res/key-vault/vault:0.13.3' = {
           'unwrapKey'
           'wrapKey'
         ]
-        keySize: 4096
+        keySize: 2048
         kty: 'RSA-HSM'
-        name: defaultCustomerManagedKey.name
+        name: defaultCustomerManagedKeySettings.keyName
+        rotationPolicy: {
+          lifetimeActions: [
+            {
+              action: {
+                type: 'notify'
+              }
+              trigger: {
+                timeBeforeExpiry: 'P30D'
+              }
+            }
+            {
+              action: {
+                type: 'rotate'
+              }
+              trigger: {
+                timeAfterCreate: 'P60D'
+              }
+            }
+          ]
+        }
+        roleAssignments: [
+          {
+            principalId: userAssignedIdentityCustomerManagedEncryption.outputs.principalId
+            principalType: 'ServicePrincipal'
+            roleDefinitionIdOrName: 'Key Vault Crypto Service Encryption User'
+          }
+        ]
+      }
+      {
+        keyOps: [
+          'unwrapKey'
+          'wrapKey'
+        ]
+        keySize: 2048
+        kty: 'RSA-HSM'
+        name: defaultDataProtectionSettings.keyName
         rotationPolicy: {
           lifetimeActions: [
             {
@@ -1572,7 +1631,7 @@ module redisCache 'br/public:avm/res/cache/redis-enterprise:0.5.0' = {
     availabilityZones: []
     capacity: (resources.redisCache.?capacity ?? 2)
     customerManagedKey: {
-      keyName: defaultCustomerManagedKey.name
+      keyName: defaultCustomerManagedKeySettings.keyName
       keyVaultResourceId: keyVault.outputs.resourceId
       userAssignedIdentityResourceId: userAssignedIdentityCustomerManagedEncryption.outputs.resourceId
     }
@@ -1651,6 +1710,9 @@ module storageAccountFunction 'br/public:avm/res/storage/storage-account:0.31.0'
       containerDeleteRetentionPolicyEnabled: true
       containers: [
         {
+          name: defaultDataProtectionSettings.blob.containerName
+        }
+        {
           name: functionAppContainerName
         }
       ]
@@ -1676,7 +1738,7 @@ module storageAccountFunction 'br/public:avm/res/storage/storage-account:0.31.0'
     }
     customerManagedKey: {
       autoRotationEnabled: true
-      keyName: defaultCustomerManagedKey.name
+      keyName: defaultCustomerManagedKeySettings.keyName
       keyVaultResourceId: keyVault.outputs.resourceId
       userAssignedIdentityResourceId: userAssignedIdentityCustomerManagedEncryption.outputs.resourceId
     }
@@ -1849,7 +1911,7 @@ module storageAccountPublic 'br/public:avm/res/storage/storage-account:0.31.0' =
       containerDeleteRetentionPolicyEnabled: true
       containers: [
         {
-          name: '$web'
+          name: staticSiteContainerName
           publicAccess: 'Blob' // TODO: Update to 'None' once Azure Front Door authentication is configured.
           roleAssignments: [
             {
@@ -1882,7 +1944,7 @@ module storageAccountPublic 'br/public:avm/res/storage/storage-account:0.31.0' =
     }
     customerManagedKey: {
       autoRotationEnabled: true
-      keyName: defaultCustomerManagedKey.name
+      keyName: defaultCustomerManagedKeySettings.keyName
       keyVaultResourceId: keyVault.outputs.resourceId
       userAssignedIdentityResourceId: userAssignedIdentityCustomerManagedEncryption.outputs.resourceId
     }
@@ -2045,6 +2107,8 @@ output applicationRegistration {
   identifierUri: applicationRegistration.identifierUris[0]
   principalId: applicationRegistration_servicePrincipal.id
 }
+output configurationStoreEndpoint string = configurationStore.outputs.endpoint
+output functionApplicationEndpoint string = 'https://${functionApplication.outputs.defaultHostname}/api'
 output outboundPublicIpPrefix string = reference(
   // TODO: Refactor when AVM public ip prefix module is updated to output the prefix CIDR.
   resourceId('Microsoft.Network/publicIPPrefixes', resources.natGateway.publicIpPrefix.name),
@@ -2058,3 +2122,4 @@ output publicDns object = {
   portal: portalPublicDnsZone
 }
 output redisCacheEndpoint string = redisCache.outputs.endpoint
+output staticSiteEndpoint string = '${storageAccountPublic.outputs.primaryBlobEndpoint}${staticSiteContainerName}/index.html'

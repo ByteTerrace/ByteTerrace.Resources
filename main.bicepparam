@@ -179,6 +179,7 @@ param resources = {
         natGatewayResourceId: 'bytrcngp000'
         privateEndpointNetworkPolicies: 'Disabled'
         privateLinkServiceNetworkPolicies: 'Disabled'
+        serviceEndpoints: ['Microsoft.Web']
       }
     ]
   }

@@ -77,6 +77,8 @@ var dnsZones {
     index: index
   }
 )
+var configurationStoreDnsZoneIndex = first(filter(dnsZones, zone => (dnsZoneMap.configurationStore == zone.value)))!.index
+var redisCacheDnsZoneIndex = first(filter(dnsZones, zone => (dnsZoneMap.redisCache == zone.value)))!.index
 var storageAccountBlobDnsZoneIndex = first(filter(dnsZones, zone => (dnsZoneMap.storageAccount.blob == zone.value)))!.index
 
 @onlyIfNotExists()
@@ -98,7 +100,37 @@ resource privateDnsZones_lock 'Microsoft.Authorization/locks@2020-05-01' = [
     scope: privateDnsZones[zone.index]
   }
 ]
-@onlyIfNotExists() // NOTE: This virtual network link was added to fix an issue where Azure Functions Flex Consumption plans cannot access private endpoints.
+@onlyIfNotExists() // NOTE: This virtual network link was added to fix an issue where Azure Functions Flex Consumption plans could not access private endpoints.
+resource configurationStore_virtualNetworkLinks 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2024-06-01' = [
+  for id in virtualNetworkResourceIds: {
+    location: 'global'
+    name: '${last(split(id, '/'))}-${uniqueString(privateDnsZones[configurationStoreDnsZoneIndex].id, id)}'
+    parent: privateDnsZones[configurationStoreDnsZoneIndex]
+    properties: {
+      registrationEnabled: false
+      resolutionPolicy: 'Default'
+      virtualNetwork: {
+        id: id
+      }
+    }
+  }
+]
+@onlyIfNotExists() // NOTE: This virtual network link was added to fix an issue where Azure Functions Flex Consumption plans could not access private endpoints.
+resource redisCache_virtualNetworkLinks 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2024-06-01' = [
+  for id in virtualNetworkResourceIds: {
+    location: 'global'
+    name: '${last(split(id, '/'))}-${uniqueString(privateDnsZones[redisCacheDnsZoneIndex].id, id)}'
+    parent: privateDnsZones[redisCacheDnsZoneIndex]
+    properties: {
+      registrationEnabled: false
+      resolutionPolicy: 'Default'
+      virtualNetwork: {
+        id: id
+      }
+    }
+  }
+]
+@onlyIfNotExists() // NOTE: This virtual network link was added to fix an issue where Azure Functions Flex Consumption plans could not access private endpoints.
 resource storageAccountBlobDnsZone_virtualNetworkLinks 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2024-06-01' = [
   for id in virtualNetworkResourceIds: {
     location: 'global'

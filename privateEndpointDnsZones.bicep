@@ -78,6 +78,7 @@ var dnsZones {
   }
 )
 var configurationStoreDnsZoneIndex = first(filter(dnsZones, zone => (dnsZoneMap.configurationStore == zone.value)))!.index
+var keyVaultDnsZoneIndex = first(filter(dnsZones, zone => (dnsZoneMap.keyVault == zone.value)))!.index
 var redisCacheDnsZoneIndex = first(filter(dnsZones, zone => (dnsZoneMap.redisCache == zone.value)))!.index
 var storageAccountBlobDnsZoneIndex = first(filter(dnsZones, zone => (dnsZoneMap.storageAccount.blob == zone.value)))!.index
 
@@ -106,6 +107,21 @@ resource configurationStore_virtualNetworkLinks 'Microsoft.Network/privateDnsZon
     location: 'global'
     name: '${last(split(id, '/'))}-${uniqueString(privateDnsZones[configurationStoreDnsZoneIndex].id, id)}'
     parent: privateDnsZones[configurationStoreDnsZoneIndex]
+    properties: {
+      registrationEnabled: false
+      resolutionPolicy: 'Default'
+      virtualNetwork: {
+        id: id
+      }
+    }
+  }
+]
+@onlyIfNotExists() // NOTE: This virtual network link was added to fix an issue where Azure Functions Flex Consumption plans could not access private endpoints.
+resource keyVault_virtualNetworkLinks 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2024-06-01' = [
+  for id in virtualNetworkResourceIds: {
+    location: 'global'
+    name: '${last(split(id, '/'))}-${uniqueString(privateDnsZones[keyVaultDnsZoneIndex].id, id)}'
+    parent: privateDnsZones[keyVaultDnsZoneIndex]
     properties: {
       registrationEnabled: false
       resolutionPolicy: 'Default'

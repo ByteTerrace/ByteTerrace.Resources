@@ -1238,7 +1238,7 @@ module functionApplication 'br/public:avm/res/web/site:0.19.4' = {
           DataProtection__BlobUri: '${storageAccountFunction.outputs.primaryBlobEndpoint}${defaultDataProtectionSettings.blob.containerName}${defaultDataProtectionSettings.blob.blobPath}'
           DataProtection__KeyUri: keyVaultKeyUriMap.dataProtection
           OVERRIDE_USE_MI_FIC_ASSERTION_CLIENTID: userAssignedIdentityApplicationRegistration.outputs.clientId
-          RedisCache__Endpoint: redisCache.outputs.endpoint
+          RedisCache__Configuration: redisCache.outputs.endpoint
           WEBSITE_AUTH_AAD_ALLOWED_TENANTS: tenant().tenantId
         }
         retainCurrentAppSettings: false
@@ -1492,7 +1492,7 @@ module keyVault 'br/public:avm/res/key-vault/vault:0.13.3' = {
         }
         roleAssignments: [
           {
-            principalId: userAssignedIdentityCustomerManagedEncryption.outputs.principalId
+            principalId: userAssignedIdentityFunctionApplication.outputs.principalId
             principalType: 'ServicePrincipal'
             roleDefinitionIdOrName: 'Key Vault Crypto Service Encryption User'
           }

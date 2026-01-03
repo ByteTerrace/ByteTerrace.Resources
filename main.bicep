@@ -1026,7 +1026,18 @@ resource applicationRegistration 'Microsoft.Graph/applications@v1.0' = {
   api: {
     acceptMappedClaims: false
     knownClientApplications: []
-    oauth2PermissionScopes: []
+    oauth2PermissionScopes: [
+      {
+        adminConsentDescription: 'Allow the application to access ${resources.applicationRegistration.name} on behalf of the signed-in user.'
+        adminConsentDisplayName: 'Access ${resources.applicationRegistration.name}'
+        id: guid(tenant().tenantId, applicationRegistrationUniqueName, 'scope', 'user_impersonation')
+        isEnabled: true
+        type: 'User'
+        userConsentDescription: 'Allow the application to access ${resources.applicationRegistration.name} on your behalf.'
+        userConsentDisplayName: 'Access ${resources.applicationRegistration.name} as the Signed-in User'
+        value: 'user_impersonation'
+      }
+    ]
     preAuthorizedApplications: []
     requestedAccessTokenVersion: 2
   }
@@ -1275,13 +1286,13 @@ module functionApplication 'br/public:avm/res/web/site:0.19.4' = {
                 defaultAuthorizationPolicy: {
                   allowedApplications: [applicationRegistration.appId]
                   allowedPrincipals: {
-                    groups: []
-                    identities: []
+                    groups: null
+                    identities: null
                   }
                 }
                 jwtClaimChecks: {
-                  allowedClientApplications: []
-                  allowedGroups: []
+                  allowedClientApplications: null
+                  allowedGroups: null
                 }
               }
             }
@@ -1358,7 +1369,10 @@ module functionApplication 'br/public:avm/res/web/site:0.19.4' = {
     siteConfig: {
       alwaysOn: false
       cors: {
-        allowedOrigins: ['https://portal.azure.com']
+        allowedOrigins: [
+          'https://portal.azure.com'
+          'https://${portalPublicDnsZone}'
+        ]
         supportCredentials: false
       }
       ftpsState: 'Disabled'

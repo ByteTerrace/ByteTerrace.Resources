@@ -14,34 +14,30 @@ param resources = {
         resourceAppId: '00000003-0000-0000-c000-000000000000' // Microsoft Graph
         resourceAccess: [
           {
-            // NOTE: Admin consent required.
-            id: 'e4c9e354-4dc5-45b8-9e7c-e1393b0b1a20' // https://graph.microsoft.com/AuditLog.Read.All
+            id: '64a6cdd6-aab1-4aaf-94b8-3cc8405e90d0' // https://graph.microsoft.com/email
             type: 'Scope'
           }
           {
-            id: '38826093-1258-4dea-98f0-00003be2b8d0' // https://graph.microsoft.com/Chat.Create
+            id: '7427e0e9-2fba-42fe-b0c0-848c9e6a8182' // https://graph.microsoft.com/offline_access
             type: 'Scope'
           }
           {
-            id: '116b7235-7cc6-461e-b163-8e55691d839e' // https://graph.microsoft.com/ChatMessage.Send
+            id: '37f7f235-527c-4136-accd-4a02d197296e' // https://graph.microsoft.com/openid
             type: 'Scope'
           }
           {
-            id: 'e383f46e-2787-4529-855e-0e479a3ffac0' // https://graph.microsoft.com/Mail.Send
+            id: '14dad69e-099b-42c9-810b-d002981feec1' // https://graph.microsoft.com/profile
             type: 'Scope'
           }
           {
-            // NOTE: Admin consent required.
-            id: 'fc30e98b-8810-4501-81f5-c20a3196387b' // https://graph.microsoft.com/User.RevokeSessions.All
+            id: 'e1fe6dd8-ba31-4d61-89e7-88639da4683d' // https://graph.microsoft.com/User.Read
             type: 'Scope'
           }
         ]
       }
     ]
     spa: {
-      redirectUris: [
-        'https://byteterrace.app'
-      ]
+      redirectUris: ['https://byteterrace.com']
     }
     web: {
       homePageUrl: 'https://byteterrace.com'
@@ -50,10 +46,7 @@ param resources = {
         enableIdTokenIssuance: true
       }
       logoutUrl: null
-      redirectUris: [
-        'https://byteterrace.com'
-        'https://byteterrace.org'
-      ]
+      redirectUris: []
     }
   }
   applicationServicePlan: {

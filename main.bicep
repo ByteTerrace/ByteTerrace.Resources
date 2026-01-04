@@ -292,7 +292,7 @@ module frontDoor 'br/public:avm/res/cdn/profile:0.16.1' = {
             linkToDefaultDomain: 'Disabled'
             name: 'api'
             originGroupName: 'api'
-            originPath: null
+            originPath: '/api'
             patternsToMatch: []
             ruleSets: []
             supportedProtocols: ['Https']

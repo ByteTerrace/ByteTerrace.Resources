@@ -1060,7 +1060,12 @@ resource applicationRegistration 'Microsoft.Graph/applications@v1.0' = {
   nativeAuthenticationApisEnabled: 'none'
   optionalClaims: {
     accessToken: []
-    idToken: []
+    idToken: [
+      {
+        essential: false
+        name: 'login_hint'
+      }
+    ]
     saml2Token: []
   }
   owners: {
@@ -1936,7 +1941,19 @@ module storageAccountPublic 'br/public:avm/res/storage/storage-account:0.31.0' =
           ]
         }
       ]
-      corsRules: []
+      corsRules: [
+        {
+          allowedHeaders: ['*']
+          allowedMethods: [
+            'GET'
+            'HEAD'
+            'OPTIONS'
+          ]
+          allowedOrigins: ['https://portal.byteterrace.com']
+          exposedHeaders: ['*']
+          maxAgeInSeconds: 0
+        }
+      ]
       deleteRetentionPolicyAllowPermanentDelete: false
       deleteRetentionPolicyDays: 13
       deleteRetentionPolicyEnabled: true

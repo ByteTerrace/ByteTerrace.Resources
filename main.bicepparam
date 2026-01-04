@@ -11,6 +11,33 @@ param resources = {
     name: 'ByteTerrace'
     requiredResourceAccess: [
       {
+        resourceAppId: '499b84ac-1321-427f-aa17-267ca6975798' // Azure DevOps
+        resourceAccess: [
+          {
+            id: 'ee69721e-6c3a-468f-a9ec-302d16a4c599' // https://app.vssps.visualstudio.com/user_impersonation
+            type: 'Scope'
+          }
+        ]
+      }
+      {
+        resourceAppId: '797f4846-ba00-4fd7-ba43-dac1f8f63013' // Azure Service Management
+        resourceAccess: [
+          {
+            id: '41094075-9dad-400e-a0bd-54e686782033' // https://management.azure.com/user_impersonation
+            type: 'Scope'
+          }
+        ]
+      }
+      {
+        resourceAppId: 'e406a681-f3d4-42a8-90b6-c2b029497af1' // Azure Storage
+        resourceAccess: [
+          {
+            id: '03e0da56-190b-40ad-a80c-ea378c433f7f' // https://storage.azure.com/user_impersonation
+            type: 'Scope'
+          }
+        ]
+      }
+      {
         resourceAppId: '00000003-0000-0000-c000-000000000000' // Microsoft Graph
         resourceAccess: [
           {
@@ -37,10 +64,10 @@ param resources = {
       }
     ]
     spa: {
-      redirectUris: ['https://byteterrace.com']
+      redirectUris: ['https://portal.byteterrace.com']
     }
     web: {
-      homePageUrl: 'https://byteterrace.com'
+      homePageUrl: 'https://portal.byteterrace.com'
       implicitGrantSettings: {
         enableAccessTokenIssuance: false
         enableIdTokenIssuance: true

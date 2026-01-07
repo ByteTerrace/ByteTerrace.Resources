@@ -2198,6 +2198,36 @@ module userAssignedIdentityFunctionApplication 'br/public:avm/res/managed-identi
 // Access Management
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 module accessManagement './accessManagement.bicep' = {
+  dependsOn: [
+    applicationInsights
+    applicationServicePlan
+    configurationStore
+    devCenter
+    devCenter_project
+    devOpsAgentPool
+    frontDoor
+    frontDoor_bootstrap
+    frontDoor_dns
+    frontDoor_waf_rateLimit
+    functionApplication
+    keyVault
+    logAnalyticsWorkspace
+    monitorPrivateLinkScope
+    natGateway
+    natGateway_publicIpPrefix
+    networkSecurityGroups
+    networkSecurityPerimeter
+    privateEndpointDnsZones
+    publicDnsZones
+    redisCache
+    storageAccountFunction
+    storageAccountPublic
+    userAssignedIdentityApplicationRegistration
+    userAssignedIdentityCustomerManagedEncryption
+    userAssignedIdentityFrontDoor
+    userAssignedIdentityFunctionApplication
+    virtualNetwork
+  ]
   params: {
     groups: resources.accessManagement.?groups
     roleAssignments: resources.accessManagement.?roleAssignments

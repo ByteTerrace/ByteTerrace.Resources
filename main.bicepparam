@@ -24,7 +24,7 @@ param resources = {
         groupName: 'ByteTerrace API Users'
         principalType: 'Group'
         resourcePath: 'bytrcstp001/default/temp'
-        resourceProvider: 'Microsoft.Storage/storageAccounts/fileServices/files'
+        resourceProvider: 'Microsoft.Storage/storageAccounts/fileServices/fileshares'
         roleDefinitionName: 'ByteTerrace API User'
       }
       {

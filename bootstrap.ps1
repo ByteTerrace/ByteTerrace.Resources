@@ -100,7 +100,7 @@ process {
         --assignee-object-id $managedIdentityObjectId `
         --assignee-principal-type 'ServicePrincipal' `
         --name 'b9fefe22-ace0-46ea-9d0f-93fec3cbd79c' `
-        --role 'Role Based Access Control Administrator' `
+        --role 'User Access Administrator' `
         --scope $resourceGroupId; #TODO: Generate name based on hash of UMI object id, role, and scope.
 
     # transform service connection JSON template
@@ -163,6 +163,34 @@ process {
 "@;
 
     $applicationReadWriteOwnedByPermissionJsonTemplate | az rest `
+        --body "@-" `
+        --method 'POST' `
+        --uri "https://graph.microsoft.com/v1.0/servicePrincipals/${managedIdentityObjectId}/appRoleAssignments";
+
+    # add https://graph.microsoft.com/Group.Create permission to managed identity.
+    $groupCreatePermissionJsonTemplate = @"
+{
+    "appRoleId": "bf7b1a76-6e77-406b-b258-bf5c7720e98f",
+    "principalId": "${managedIdentityObjectId}",
+    "resourceId": "${graphResourceId}"
+}
+"@;
+
+    $groupCreatePermissionJsonTemplate | az rest `
+        --body "@-" `
+        --method 'POST' `
+        --uri "https://graph.microsoft.com/v1.0/servicePrincipals/${managedIdentityObjectId}/appRoleAssignments";
+
+    # add https://graph.microsoft.com/Group.Read.All permission to managed identity.
+    $groupReadAllPermissionJsonTemplate = @"
+{
+    "appRoleId": "5b567255-7703-4780-807c-7be8301ae99b",
+    "principalId": "${managedIdentityObjectId}",
+    "resourceId": "${graphResourceId}"
+}
+"@;
+
+    $groupReadAllPermissionJsonTemplate | az rest `
         --body "@-" `
         --method 'POST' `
         --uri "https://graph.microsoft.com/v1.0/servicePrincipals/${managedIdentityObjectId}/appRoleAssignments";

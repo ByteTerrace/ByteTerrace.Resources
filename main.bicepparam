@@ -3,6 +3,56 @@ using './main.bicep'
 param deployOwnerRoleAssignments = true
 param lockKind = 'CanNotDelete'
 param resources = {
+  accessManagement: {
+    groups: [
+      {
+        description: 'Delegates access to ByteTerrace API resources.'
+        mailEnabled: false
+        mailNickname: 'api-users'
+        name: 'ByteTerrace API Users'
+      }
+    ]
+    roleAssignments: [
+      {
+        groupName: 'ByteTerrace API Users'
+        principalType: 'Group'
+        resourcePath: 'bytrcstp001/default/temp'
+        resourceProvider: 'Microsoft.Storage/storageAccounts/blobServices/containers'
+        roleDefinitionName: 'ByteTerrace API User'
+      }
+      {
+        groupName: 'ByteTerrace API Users'
+        principalType: 'Group'
+        resourcePath: 'bytrcstp001/default/temp'
+        resourceProvider: 'Microsoft.Storage/storageAccounts/queueServices/queues'
+        roleDefinitionName: 'ByteTerrace API User'
+      }
+      {
+        groupName: 'ByteTerrace API Users'
+        principalType: 'Group'
+        resourcePath: 'bytrcstp001/default/temp'
+        resourceProvider: 'Microsoft.Storage/storageAccounts/tableServices/tables'
+        roleDefinitionName: 'ByteTerrace API User'
+      }
+    ]
+    roleDefinitions: [
+      {
+        actions: [
+          'Microsoft.Storage/storageAccounts/blobServices/containers/read'
+          'Microsoft.Storage/storageAccounts/blobServices/generateUserDelegationKey/action'
+          'Microsoft.Storage/storageAccounts/queueServices/queues/read'
+          'Microsoft.Storage/storageAccounts/tableServices/tables/read'
+        ]
+        dataActions: [
+          'Microsoft.Storage/storageAccounts/blobServices/containers/blobs/read'
+          'Microsoft.Storage/storageAccounts/queueServices/queues/messages/read'
+          'Microsoft.Storage/storageAccounts/tableServices/tables/entities/read'
+        ]
+        description: 'Allows access to ByteTerrace API resources.'
+        name: 'ByteTerrace API User'
+      }
+    ]
+  }
   applicationInsights: {
     name: 'bytrcappip000'
   }

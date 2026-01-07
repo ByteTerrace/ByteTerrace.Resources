@@ -15,10 +15,21 @@ import {
   diagnosticSettingFullType
 } from 'br/public:avm/utl/types/avm-common-types:0.6.1'
 
+import {
+  groupType
+  roleAssignmentType
+  roleDefinitionType
+} from './accessManagement.bicep'
+
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Types
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 type resourceType = {
+  accessManagement: {
+    groups: groupType[]?
+    roleAssignments: roleAssignmentType[]?
+    roleDefinitions: roleDefinitionType[]?
+  }
   applicationInsights: {
     name: string
     tags: tagsType?
@@ -2126,6 +2137,20 @@ module userAssignedIdentityFunctionApplication 'br/public:avm/res/managed-identi
     name: resources.userAssignedIdentityFunctionApplication.name
     roleAssignments: []
     tags: resources.userAssignedIdentityFunctionApplication.?tags
+  }
+}
+
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// Access Management
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+module accessManagement './accessManagement.bicep' = {
+  params: {
+    groups: resources.accessManagement.?groups
+    roleAssignments: resources.accessManagement.?roleAssignments
+    roleDefinitions: map((resources.accessManagement.?roleDefinitions ?? []), definition => {
+      ...definition
+      assignableScopes: union([resourceGroup().id], (definition.?assignableScopes ?? []))
+    })
   }
 }
 

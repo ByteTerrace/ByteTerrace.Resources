@@ -24,6 +24,13 @@ param resources = {
         groupName: 'ByteTerrace API Users'
         principalType: 'Group'
         resourcePath: 'bytrcstp001/default/temp'
+        resourceProvider: 'Microsoft.Storage/storageAccounts/fileServices/files'
+        roleDefinitionName: 'ByteTerrace API User'
+      }
+      {
+        groupName: 'ByteTerrace API Users'
+        principalType: 'Group'
+        resourcePath: 'bytrcstp001/default/temp'
         resourceProvider: 'Microsoft.Storage/storageAccounts/queueServices/queues'
         roleDefinitionName: 'ByteTerrace API User'
       }
@@ -41,12 +48,14 @@ param resources = {
           'Microsoft.Storage/storageAccounts/blobServices/containers/read'
           'Microsoft.Storage/storageAccounts/blobServices/generateUserDelegationKey/action'
           'Microsoft.Storage/storageAccounts/fileServices/generateUserDelegationKey/action'
+          'Microsoft.Storage/storageAccounts/fileServices/shares/read'
           'Microsoft.Storage/storageAccounts/queueServices/queues/read'
           'Microsoft.Storage/storageAccounts/tableServices/tables/read'
         ]
         dataActions: [
           'Microsoft.Storage/storageAccounts/blobServices/containers/blobs/read'
           'Microsoft.Storage/storageAccounts/fileServices/fileshares/files/read'
+          'Microsoft.Storage/storageAccounts/fileServices/readFileBackupSemantics/action'
           'Microsoft.Storage/storageAccounts/queueServices/queues/messages/read'
           'Microsoft.Storage/storageAccounts/tableServices/tables/entities/read'
         ]

@@ -1995,7 +1995,19 @@ module storageAccountPublic 'br/public:avm/res/storage/storage-account:0.31.0' =
     enableSftp: false
     enableTelemetry: false
     fileServices: {
-      corsRules: []
+      corsRules: [
+        {
+          allowedHeaders: ['*']
+          allowedMethods: [
+            'GET'
+            'HEAD'
+            'OPTIONS'
+          ]
+          allowedOrigins: ['https://portal.byteterrace.com']
+          exposedHeaders: ['*']
+          maxAgeInSeconds: 0
+        }
+      ]
       diagnosticSettings: [
         {
           logCategoriesAndGroups: [
@@ -2018,7 +2030,15 @@ module storageAccountPublic 'br/public:avm/res/storage/storage-account:0.31.0' =
         days: 13
         enabled: true
       }
-      shares: []
+      shares: [
+        {
+          accessTier: 'TransactionOptimized'
+          enabledProtocols: 'SMB'
+          name: 'temp'
+          roleAssignments: []
+          shareQuota: 5120
+        }
+      ]
     }
     isLocalUserEnabled: false
     keyType: 'Account'
@@ -2043,7 +2063,19 @@ module storageAccountPublic 'br/public:avm/res/storage/storage-account:0.31.0' =
     privateEndpoints: []
     publicNetworkAccess: 'Enabled'
     queueServices: {
-      corsRules: []
+      corsRules: [
+        {
+          allowedHeaders: ['*']
+          allowedMethods: [
+            'GET'
+            'HEAD'
+            'OPTIONS'
+          ]
+          allowedOrigins: ['https://portal.byteterrace.com']
+          exposedHeaders: ['*']
+          maxAgeInSeconds: 0
+        }
+      ]
       diagnosticSettings: [
         {
           logCategoriesAndGroups: [
@@ -2054,7 +2086,12 @@ module storageAccountPublic 'br/public:avm/res/storage/storage-account:0.31.0' =
           workspaceResourceId: logAnalyticsWorkspace.outputs.resourceId
         }
       ]
-      queues: []
+      queues: [
+        {
+          name: 'temp'
+          roleAssignments: []
+        }
+      ]
     }
     requireInfrastructureEncryption: true
     roleAssignments: [
@@ -2071,7 +2108,19 @@ module storageAccountPublic 'br/public:avm/res/storage/storage-account:0.31.0' =
     skuName: 'Standard_RAGRS'
     supportsHttpsTrafficOnly: true
     tableServices: {
-      corsRules: []
+      corsRules: [
+        {
+          allowedHeaders: ['*']
+          allowedMethods: [
+            'GET'
+            'HEAD'
+            'OPTIONS'
+          ]
+          allowedOrigins: ['https://portal.byteterrace.com']
+          exposedHeaders: ['*']
+          maxAgeInSeconds: 0
+        }
+      ]
       diagnosticSettings: [
         {
           logCategoriesAndGroups: [
@@ -2082,7 +2131,12 @@ module storageAccountPublic 'br/public:avm/res/storage/storage-account:0.31.0' =
           workspaceResourceId: logAnalyticsWorkspace.outputs.resourceId
         }
       ]
-      tables: []
+      tables: [
+        {
+          name: 'temp'
+          roleAssignments: []
+        }
+      ]
     }
     tags: resources.storageAccountPublic.?tags
   }

@@ -40,11 +40,13 @@ param resources = {
         actions: [
           'Microsoft.Storage/storageAccounts/blobServices/containers/read'
           'Microsoft.Storage/storageAccounts/blobServices/generateUserDelegationKey/action'
+          'Microsoft.Storage/storageAccounts/fileServices/generateUserDelegationKey/action'
           'Microsoft.Storage/storageAccounts/queueServices/queues/read'
           'Microsoft.Storage/storageAccounts/tableServices/tables/read'
         ]
         dataActions: [
           'Microsoft.Storage/storageAccounts/blobServices/containers/blobs/read'
+          'Microsoft.Storage/storageAccounts/fileServices/fileshares/files/read'
           'Microsoft.Storage/storageAccounts/queueServices/queues/messages/read'
           'Microsoft.Storage/storageAccounts/tableServices/tables/entities/read'
         ]

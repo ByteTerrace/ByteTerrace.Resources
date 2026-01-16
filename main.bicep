@@ -1319,6 +1319,7 @@ module functionApplication 'br/public:avm/res/web/site:0.19.4' = {
                   ...{
                     allowedApplications: [
                       applicationRegistration.appId
+                      ...(resources.functionApplication.?identityProviders.?azureActiveDirectory.?authorizationPolicy.?allowedApplications ?? [])
                     ]
                   }
                 }

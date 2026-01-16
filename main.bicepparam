@@ -14,6 +14,14 @@ param resources = {
     ]
     roleAssignments: [
       {
+        condition: '((!(ActionMatches{\'Microsoft.Storage/storageAccounts/blobServices/containers/blobs/add/action\'}) AND !(ActionMatches{\'Microsoft.Storage/storageAccounts/blobServices/containers/blobs/delete\'}) AND !(ActionMatches{\'Microsoft.Storage/storageAccounts/blobServices/containers/blobs/move/action\'}) AND !(ActionMatches{\'Microsoft.Storage/storageAccounts/blobServices/containers/blobs/read\'} AND !SubOperationMatches{\'Blob.List\'}) AND !(ActionMatches{\'Microsoft.Storage/storageAccounts/blobServices/containers/blobs/runAsSuperUser/action\'}) AND !(ActionMatches{\'Microsoft.Storage/storageAccounts/blobServices/containers/blobs/write\'})) OR (NOT @Resource[Microsoft.Storage/storageAccounts/blobServices/containers:name] StringStartsWithIgnoreCase \'$\' AND @Resource[Microsoft.Storage/storageAccounts/blobServices/containers:name] StringEqualsIgnoreCase @Principal[Microsoft.Directory/CustomSecurityAttributes/Id:ByteTerraceUsers_ObjectId] AND @Resource[Microsoft.Storage/storageAccounts/blobServices/containers/blobs:path] StringLike \'private/*\'))'
+        groupName: 'ByteTerrace API Users'
+        principalType: 'Group'
+        resourcePath: 'bytrcstp001'
+        resourceProvider: 'Microsoft.Storage/storageAccounts'
+        roleDefinitionName: 'ByteTerrace Storage User'
+      }
+      {
         groupName: 'ByteTerrace API Users'
         principalType: 'Group'
         resourcePath: 'bytrcstp001/default/temp'
@@ -62,6 +70,19 @@ param resources = {
         description: 'Allows access to ByteTerrace API resources.'
         name: 'ByteTerrace API User'
       }
+      {
+        actions: []
+        dataActions: [
+          'Microsoft.Storage/storageAccounts/blobServices/containers/blobs/add/action'
+          'Microsoft.Storage/storageAccounts/blobServices/containers/blobs/delete'
+          'Microsoft.Storage/storageAccounts/blobServices/containers/blobs/move/action'
+          'Microsoft.Storage/storageAccounts/blobServices/containers/blobs/read'
+          'Microsoft.Storage/storageAccounts/blobServices/containers/blobs/runAsSuperUser/action'
+          'Microsoft.Storage/storageAccounts/blobServices/containers/blobs/write'
+        ]
+        description: 'Allows access to ByteTerrace API resources.'
+        name: 'ByteTerrace Storage User'
+      }
     ]
   }
   applicationInsights: {
@@ -70,6 +91,12 @@ param resources = {
   applicationRegistration: {
     identifierUri: 'https://api.byteterrace.com'
     name: 'ByteTerrace'
+    preAuthorizedApplications: [
+      {
+        appId: 'aebc6443-996d-45c2-90f0-388ff96faa56' // Visual Studio Code
+        delegatedPermissionIds: ['27b00b05-0edb-55d0-a656-20214c6c6478']
+      }
+    ]
     requiredResourceAccess: [
       {
         resourceAppId: '499b84ac-1321-427f-aa17-267ca6975798' // Azure DevOps
@@ -173,6 +200,13 @@ param resources = {
     }
   }
   functionApplication: {
+    identityProviders: {
+      azureActiveDirectory: {
+        authorizationPolicy: {
+          allowedApplications: ['aebc6443-996d-45c2-90f0-388ff96faa56s']
+        }
+      }
+    }
     name: 'bytrcfuncp000'
   }
   keyVault: {

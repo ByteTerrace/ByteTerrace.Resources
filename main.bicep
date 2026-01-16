@@ -37,6 +37,10 @@ type resourceType = {
   applicationRegistration: {
     identifierUri: string
     name: string
+    preAuthorizedApplications: {
+      appId: string
+      delegatedPermissionIds: string[]
+    }[]
     requiredResourceAccess: {
       resourceAppId: string
       resourceAccess: {
@@ -91,6 +95,17 @@ type resourceType = {
     }
   }
   functionApplication: {
+    identityProviders: {
+      azureActiveDirectory: {
+        authorizationPolicy: {
+          allowedApplications: string[]?
+          allowedPrincipals: {
+            groups: string[]?
+            identities: string[]?
+          }?
+        }?
+      }?
+    }?
     name: string
     tags: tagsType?
   }
@@ -1049,7 +1064,7 @@ resource applicationRegistration 'Microsoft.Graph/applications@v1.0' = {
         value: 'user_impersonation'
       }
     ]
-    preAuthorizedApplications: []
+    preAuthorizedApplications: resources.applicationRegistration.preAuthorizedApplications
     requestedAccessTokenVersion: 2
   }
   authenticationBehaviors: {
@@ -1300,10 +1315,11 @@ module functionApplication 'br/public:avm/res/web/site:0.19.4' = {
               validation: {
                 allowedAudiences: [applicationRegistration.identifierUris[0]]
                 defaultAuthorizationPolicy: {
-                  allowedApplications: [applicationRegistration.appId]
-                  allowedPrincipals: {
-                    groups: null
-                    identities: null
+                  ...(resources.functionApplication.?identityProviders.?azureActiveDirectory.?authorizationPolicy ?? {})
+                  ...{
+                    allowedApplications: [
+                      applicationRegistration.appId
+                    ]
                   }
                 }
                 jwtClaimChecks: {
@@ -1950,6 +1966,11 @@ module storageAccountPublic 'br/public:avm/res/storage/storage-account:0.31.0' =
               roleDefinitionIdOrName: 'Storage Blob Data Reader'
             }
           ]
+        }
+        {
+          name: 'temp'
+          publicAccess: 'None'
+          roleAssignments: []
         }
       ]
       corsRules: [

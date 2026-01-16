@@ -11,6 +11,7 @@ type groupType = {
 }
 @export()
 type roleAssignmentType = {
+  condition: string?
   description: string?
   groupName: string?
   principalId: string?
@@ -86,15 +87,37 @@ resource roleDefinitionsResource 'Microsoft.Authorization/roleDefinitions@2022-0
     }
   }
 ]
-module resourceRoleAssignmentModule 'br/public:avm/ptn/authorization/resource-role-assignment:0.1.2' = [
+module roleAssignmentsModule './avm-temp/resource-role-assignment/main.bicep' = [
   for (assignment, index) in roleAssignments: {
     params: {
+      condition: assignment.?condition
       description: assignment.?description
       enableTelemetry: false
+      name: guid(
+        roleAssignmentResourceIds[index],
+        (assignment.?principalId ?? groupsResource[groupsMap[assignment.groupName!]].id),
+        contains(
+            roleDefinitionsResource[roleDefinitionsMap[assignment.roleDefinitionName]].id,
+            '/providers/Microsoft.Authorization/roleDefinitions/'
+          )
+          ? roleDefinitionsResource[roleDefinitionsMap[assignment.roleDefinitionName]].id
+          : subscriptionResourceId(
+              'Microsoft.Authorization/roleDefinitions',
+              roleDefinitionsResource[roleDefinitionsMap[assignment.roleDefinitionName]].id
+            )
+      )
       principalId: (assignment.?principalId ?? groupsResource[groupsMap[assignment.groupName!]].id)
       principalType: assignment.principalType
       resourceId: roleAssignmentResourceIds[index]
-      roleDefinitionId: roleDefinitionsResource[roleDefinitionsMap[assignment.roleDefinitionName]].id
+      roleDefinitionId: contains(
+          roleDefinitionsResource[roleDefinitionsMap[assignment.roleDefinitionName]].id,
+          '/providers/Microsoft.Authorization/roleDefinitions/'
+        )
+        ? roleDefinitionsResource[roleDefinitionsMap[assignment.roleDefinitionName]].id
+        : subscriptionResourceId(
+            'Microsoft.Authorization/roleDefinitions',
+            roleDefinitionsResource[roleDefinitionsMap[assignment.roleDefinitionName]].id
+          )
     }
   }
 ]

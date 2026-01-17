@@ -61,6 +61,7 @@ param resources = {
       {
         actions: [
           'Microsoft.Storage/storageAccounts/blobServices/containers/write'
+          'Microsoft.Storage/storageAccounts/queueServices/queues/write'
         ]
         dataActions: []
         description: 'Allows access to ByteTerrace API resources.'

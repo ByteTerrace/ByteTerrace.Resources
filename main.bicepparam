@@ -14,7 +14,14 @@ param resources = {
     ]
     roleAssignments: [
       {
-        condition: '((!(ActionMatches{\'Microsoft.Storage/storageAccounts/blobServices/containers/blobs/add/action\'}) AND !(ActionMatches{\'Microsoft.Storage/storageAccounts/blobServices/containers/blobs/delete\'}) AND !(ActionMatches{\'Microsoft.Storage/storageAccounts/blobServices/containers/blobs/move/action\'}) AND !(ActionMatches{\'Microsoft.Storage/storageAccounts/blobServices/containers/blobs/read\'} AND !SubOperationMatches{\'Blob.List\'}) AND !(ActionMatches{\'Microsoft.Storage/storageAccounts/blobServices/containers/blobs/runAsSuperUser/action\'}) AND !(ActionMatches{\'Microsoft.Storage/storageAccounts/blobServices/containers/blobs/write\'})) OR (NOT @Resource[Microsoft.Storage/storageAccounts/blobServices/containers:name] StringStartsWithIgnoreCase \'$\' AND @Resource[Microsoft.Storage/storageAccounts/blobServices/containers:name] StringEqualsIgnoreCase @Principal[Microsoft.Directory/CustomSecurityAttributes/Id:ByteTerraceUsers_ObjectId] AND @Resource[Microsoft.Storage/storageAccounts/blobServices/containers/blobs:path] StringLike \'private/*\')) AND ((!(ActionMatches{\'Microsoft.Storage/storageAccounts/blobServices/containers/blobs/read\'} AND SubOperationMatches{\'Blob.List\'})) OR (@Resource[Microsoft.Storage/storageAccounts/blobServices/containers:name] StringEqualsIgnoreCase @Principal[Microsoft.Directory/CustomSecurityAttributes/Id:ByteTerraceUsers_ObjectId])) AND ((!(ActionMatches{\'Microsoft.Storage/storageAccounts/queueServices/queues/messages/read\'}) AND !(ActionMatches{\'Microsoft.Storage/storageAccounts/queueServices/queues/messages/write\'}) AND !(ActionMatches{\'Microsoft.Storage/storageAccounts/queueServices/queues/messages/delete\'}) AND !(ActionMatches{\'Microsoft.Storage/storageAccounts/queueServices/queues/messages/process/action\'})) OR (@Resource[Microsoft.Storage/storageAccounts/queueServices/queues:name] StringEqualsIgnoreCase @Principal[Microsoft.Directory/CustomSecurityAttributes/Id:ByteTerraceUsers_ObjectId]))'
+        principalType: 'ServicePrincipal'
+        resourcePath: 'bytrcstp001'
+        resourceProvider: 'Microsoft.Storage/storageAccounts'
+        roleDefinitionName: 'ByteTerrace API Host'
+        userAssignedIdentityId: 'bytrcidp002'
+      }
+      {
+        condition: '((!(ActionMatches{\'Microsoft.Storage/storageAccounts/blobServices/containers/blobs/add/action\'}) AND !(ActionMatches{\'Microsoft.Storage/storageAccounts/blobServices/containers/blobs/delete\'}) AND !(ActionMatches{\'Microsoft.Storage/storageAccounts/blobServices/containers/blobs/move/action\'}) AND !(ActionMatches{\'Microsoft.Storage/storageAccounts/blobServices/containers/blobs/read\'} AND !SubOperationMatches{\'Blob.List\'}) AND !(ActionMatches{\'Microsoft.Storage/storageAccounts/blobServices/containers/blobs/runAsSuperUser/action\'}) AND !(ActionMatches{\'Microsoft.Storage/storageAccounts/blobServices/containers/blobs/write\'})) OR (NOT @Resource[Microsoft.Storage/storageAccounts/blobServices/containers:name] StringStartsWithIgnoreCase \'$\' AND @Resource[Microsoft.Storage/storageAccounts/blobServices/containers:name] StringEqualsIgnoreCase @Principal[Microsoft.Directory/CustomSecurityAttributes/Id:ByteTerraceUsers_ObjectId] AND @Resource[Microsoft.Storage/storageAccounts/blobServices/containers/blobs:path] StringLike \'private/*\')) AND ((!(ActionMatches{\'Microsoft.Storage/storageAccounts/blobServices/containers/blobs/read\'} AND SubOperationMatches{\'Blob.List\'})) OR (@Resource[Microsoft.Storage/storageAccounts/blobServices/containers:name] StringEqualsIgnoreCase @Principal[Microsoft.Directory/CustomSecurityAttributes/Id:ByteTerraceUsers_ObjectId])) AND ((!(ActionMatches{\'Microsoft.Storage/storageAccounts/blobServices/containers/blobs/read\'} AND !SubOperationMatches{\'Blob.List\'})) OR (@Resource[Microsoft.Storage/storageAccounts/blobServices/containers/metadata:CanRead] StringNotEqualsIgnoreCase \'Disabled\' AND @Resource[Microsoft.Storage/storageAccounts/blobServices/containers/blobs/tags:CanRead<$key_case_sensitive$>] StringNotEqualsIgnoreCase \'Disabled\')) AND ((!(ActionMatches{\'Microsoft.Storage/storageAccounts/blobServices/containers/blobs/add/action\'} AND SubOperationMatches{\'Blob.Write.WithTagHeaders\'}) AND !(ActionMatches{\'Microsoft.Storage/storageAccounts/blobServices/containers/blobs/write\'} AND SubOperationMatches{\'Blob.Write.WithTagHeaders\'})) OR (@Resource[Microsoft.Storage/storageAccounts/blobServices/containers/metadata:CanWrite] StringNotEqualsIgnoreCase \'Disabled\' AND @Request[Microsoft.Storage/storageAccounts/blobServices/containers/blobs/tags:CanWrite<$key_case_sensitive$>] StringNotEqualsIgnoreCase \'Disabled\')) AND ((!(ActionMatches{\'Microsoft.Storage/storageAccounts/queueServices/queues/messages/read\'}) AND !(ActionMatches{\'Microsoft.Storage/storageAccounts/queueServices/queues/messages/write\'}) AND !(ActionMatches{\'Microsoft.Storage/storageAccounts/queueServices/queues/messages/delete\'}) AND !(ActionMatches{\'Microsoft.Storage/storageAccounts/queueServices/queues/messages/process/action\'})) OR (@Resource[Microsoft.Storage/storageAccounts/queueServices/queues:name] StringEqualsIgnoreCase @Principal[Microsoft.Directory/CustomSecurityAttributes/Id:ByteTerraceUsers_ObjectId]))'
         groupName: 'ByteTerrace API Users'
         principalType: 'Group'
         resourcePath: 'bytrcstp001'
@@ -53,6 +60,14 @@ param resources = {
     roleDefinitions: [
       {
         actions: [
+          'Microsoft.Storage/storageAccounts/blobServices/containers/write'
+        ]
+        dataActions: []
+        description: 'Allows access to ByteTerrace API resources.'
+        name: 'ByteTerrace API Host'
+      }
+      {
+        actions: [
           'Microsoft.Storage/storageAccounts/blobServices/containers/read'
           'Microsoft.Storage/storageAccounts/fileServices/shares/read'
           'Microsoft.Storage/storageAccounts/queueServices/queues/read'
@@ -80,13 +95,15 @@ param resources = {
           'Microsoft.Storage/storageAccounts/blobServices/containers/blobs/move/action'
           'Microsoft.Storage/storageAccounts/blobServices/containers/blobs/read'
           'Microsoft.Storage/storageAccounts/blobServices/containers/blobs/runAsSuperUser/action'
+          'Microsoft.Storage/storageAccounts/blobServices/containers/blobs/tags/read'
+          'Microsoft.Storage/storageAccounts/blobServices/containers/blobs/tags/write'
           'Microsoft.Storage/storageAccounts/blobServices/containers/blobs/write'
           'Microsoft.Storage/storageAccounts/queueServices/queues/messages/delete'
           'Microsoft.Storage/storageAccounts/queueServices/queues/messages/process/action'
           'Microsoft.Storage/storageAccounts/queueServices/queues/messages/read'
           'Microsoft.Storage/storageAccounts/queueServices/queues/messages/write'
         ]
-        description: 'Allows access to ByteTerrace API resources.'
+        description: 'Allows access to ByteTerrace storage resources.'
         name: 'ByteTerrace Storage User'
       }
     ]

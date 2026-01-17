@@ -22,6 +22,7 @@ type roleAssignmentType = {
   resourceProvider: string?
   roleDefinitionName: string
   subscriptionId: string?
+  userAssignedIdentityId: string?
 }
 @export()
 type roleDefinitionType = {
@@ -40,7 +41,8 @@ param groups groupType[] = []
 param roleAssignments roleAssignmentType[] = []
 param roleDefinitions roleDefinitionType[] = []
 
-var groupsMap { *: int } = toObject(range(0, length(groups)), i => groups[i].name, i => i)
+// Note: The { '': 0 } hack found multiple times below is to work around this issue: https://github.com/Azure/bicep/issues/3990.
+var groupsMap { *: int } = { ...{ '': 0 }, ...toObject(range(0, length(groups)), i => groups[i].name, i => i) }
 var roleAssignmentResourceIds = map(
   map(roleAssignments, assignment => {
     resourceGroupName: (assignment.?resourceGroupName ?? resourceGroup().name)
@@ -53,6 +55,26 @@ var roleAssignmentResourceIds = map(
     (assignment.?resourceId ?? '/subscriptions/${assignment.subscriptionId}/resourceGroups/${assignment.resourceGroupName}/providers/${first(assignment.resourceProviderParts)}/${join(map(skip(assignment.resourceProviderParts, 1), (s, i) => '${s}/${assignment.resourcePathParts[i]}'), '/')}')
 )
 var roleDefinitionsMap { *: int } = toObject(range(0, length(roleDefinitions)), i => roleDefinitions[i].name, i => i)
+var userAssignedIdentityMap = {
+  ...{ '': 0 }
+  ...toObject(
+    map(
+      union(
+        [],
+        map(
+          filter(roleAssignments, assignment => contains(assignment, 'userAssignedIdentityId')),
+          assignment => assignment.userAssignedIdentityId!
+        )
+      ),
+      (id, index) => {
+        index: index
+        userAssignedIdentityId: id
+      }
+    ),
+    a => a.userAssignedIdentityId,
+    a => a.index
+  )
+}
 
 @onlyIfNotExists()
 resource groupsResource 'Microsoft.Graph/groups@v1.0' = [
@@ -95,7 +117,9 @@ module roleAssignmentsModule './avm-temp/resource-role-assignment/main.bicep' = 
       enableTelemetry: false
       name: guid(
         roleAssignmentResourceIds[index],
-        (assignment.?principalId ?? groupsResource[groupsMap[assignment.groupName!]].id),
+        (assignment.?principalId ?? (contains(assignment, 'userAssignedIdentityId')
+          ? userAssignedIdentities[userAssignedIdentityMap[?assignment.?userAssignedIdentityId ?? '']].properties.principalId
+          : groupsResource[groupsMap[?assignment.?groupName ?? '']].id)),
         contains(
             roleDefinitionsResource[roleDefinitionsMap[assignment.roleDefinitionName]].id,
             '/providers/Microsoft.Authorization/roleDefinitions/'
@@ -106,7 +130,9 @@ module roleAssignmentsModule './avm-temp/resource-role-assignment/main.bicep' = 
               roleDefinitionsResource[roleDefinitionsMap[assignment.roleDefinitionName]].id
             )
       )
-      principalId: (assignment.?principalId ?? groupsResource[groupsMap[assignment.groupName!]].id)
+      principalId: (assignment.?principalId ?? (contains(assignment, 'userAssignedIdentityId')
+        ? userAssignedIdentities[userAssignedIdentityMap[?assignment.?userAssignedIdentityId ?? '']].properties.principalId
+        : groupsResource[groupsMap[?assignment.?groupName ?? '']].id))
       principalType: assignment.principalType
       resourceId: roleAssignmentResourceIds[index]
       roleDefinitionId: contains(
@@ -119,5 +145,14 @@ module roleAssignmentsModule './avm-temp/resource-role-assignment/main.bicep' = 
             roleDefinitionsResource[roleDefinitionsMap[assignment.roleDefinitionName]].id
           )
     }
+  }
+]
+resource userAssignedIdentities 'Microsoft.ManagedIdentity/userAssignedIdentities@2024-11-30' existing = [
+  for identity in filter(items(userAssignedIdentityMap), item => !empty(item.key)): {
+    name: last(split(identity.key, '/'))
+    scope: resourceGroup(
+      (split(identity.key, '/')[?2] ?? subscription().subscriptionId),
+      (split(identity.key, '/')[?4] ?? resourceGroup().name)
+    )
   }
 ]

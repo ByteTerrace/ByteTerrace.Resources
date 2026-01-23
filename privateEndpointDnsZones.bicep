@@ -81,6 +81,8 @@ var configurationStoreDnsZoneIndex = first(filter(dnsZones, zone => (dnsZoneMap.
 var keyVaultDnsZoneIndex = first(filter(dnsZones, zone => (dnsZoneMap.keyVault == zone.value)))!.index
 var redisCacheDnsZoneIndex = first(filter(dnsZones, zone => (dnsZoneMap.redisCache == zone.value)))!.index
 var storageAccountBlobDnsZoneIndex = first(filter(dnsZones, zone => (dnsZoneMap.storageAccount.blob == zone.value)))!.index
+var storageAccountQueueDnsZoneIndex = first(filter(dnsZones, zone => (dnsZoneMap.storageAccount.queue == zone.value)))!.index
+var storageAccountTableDnsZoneIndex = first(filter(dnsZones, zone => (dnsZoneMap.storageAccount.table == zone.value)))!.index
 
 @onlyIfNotExists()
 resource privateDnsZones 'Microsoft.Network/privateDnsZones@2024-06-01' = [
@@ -101,7 +103,7 @@ resource privateDnsZones_lock 'Microsoft.Authorization/locks@2020-05-01' = [
     scope: privateDnsZones[zone.index]
   }
 ]
-@onlyIfNotExists() // NOTE: This virtual network link was added to fix an issue where Azure Functions Flex Consumption plans could not access private endpoints.
+@onlyIfNotExists()
 resource configurationStore_virtualNetworkLinks 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2024-06-01' = [
   for id in virtualNetworkResourceIds: {
     location: 'global'
@@ -116,7 +118,7 @@ resource configurationStore_virtualNetworkLinks 'Microsoft.Network/privateDnsZon
     }
   }
 ]
-@onlyIfNotExists() // NOTE: This virtual network link was added to fix an issue where Azure Functions Flex Consumption plans could not access private endpoints.
+@onlyIfNotExists()
 resource keyVault_virtualNetworkLinks 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2024-06-01' = [
   for id in virtualNetworkResourceIds: {
     location: 'global'
@@ -131,7 +133,7 @@ resource keyVault_virtualNetworkLinks 'Microsoft.Network/privateDnsZones/virtual
     }
   }
 ]
-@onlyIfNotExists() // NOTE: This virtual network link was added to fix an issue where Azure Functions Flex Consumption plans could not access private endpoints.
+@onlyIfNotExists()
 resource redisCache_virtualNetworkLinks 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2024-06-01' = [
   for id in virtualNetworkResourceIds: {
     location: 'global'
@@ -146,12 +148,42 @@ resource redisCache_virtualNetworkLinks 'Microsoft.Network/privateDnsZones/virtu
     }
   }
 ]
-@onlyIfNotExists() // NOTE: This virtual network link was added to fix an issue where Azure Functions Flex Consumption plans could not access private endpoints.
+@onlyIfNotExists()
 resource storageAccountBlobDnsZone_virtualNetworkLinks 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2024-06-01' = [
   for id in virtualNetworkResourceIds: {
     location: 'global'
     name: '${last(split(id, '/'))}-${uniqueString(privateDnsZones[storageAccountBlobDnsZoneIndex].id, id)}'
     parent: privateDnsZones[storageAccountBlobDnsZoneIndex]
+    properties: {
+      registrationEnabled: false
+      resolutionPolicy: 'Default'
+      virtualNetwork: {
+        id: id
+      }
+    }
+  }
+]
+@onlyIfNotExists()
+resource storageAccountQueueDnsZone_virtualNetworkLinks 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2024-06-01' = [
+  for id in virtualNetworkResourceIds: {
+    location: 'global'
+    name: '${last(split(id, '/'))}-${uniqueString(privateDnsZones[storageAccountQueueDnsZoneIndex].id, id)}'
+    parent: privateDnsZones[storageAccountQueueDnsZoneIndex]
+    properties: {
+      registrationEnabled: false
+      resolutionPolicy: 'Default'
+      virtualNetwork: {
+        id: id
+      }
+    }
+  }
+]
+@onlyIfNotExists()
+resource storageAccountTableDnsZone_virtualNetworkLinks 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2024-06-01' = [
+  for id in virtualNetworkResourceIds: {
+    location: 'global'
+    name: '${last(split(id, '/'))}-${uniqueString(privateDnsZones[storageAccountTableDnsZoneIndex].id, id)}'
+    parent: privateDnsZones[storageAccountTableDnsZoneIndex]
     properties: {
       registrationEnabled: false
       resolutionPolicy: 'Default'

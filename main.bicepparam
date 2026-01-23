@@ -60,7 +60,9 @@ param resources = {
     roleDefinitions: [
       {
         actions: [
+          'Microsoft.Storage/storageAccounts/blobServices/containers/read'
           'Microsoft.Storage/storageAccounts/blobServices/containers/write'
+          'Microsoft.Storage/storageAccounts/queueServices/queues/read'
           'Microsoft.Storage/storageAccounts/queueServices/queues/write'
         ]
         dataActions: []

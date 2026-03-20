@@ -196,6 +196,12 @@ param resources = {
   configurationStore: {
     name: 'bytrcappcsp000'
   }
+  containerApplicationEnvironment: {
+    name: 'bytrccaep000'
+  }
+  containerRegistry: {
+    name: 'bytrccrp000'
+  }
   devOps: {
     agentPool: {
       concurrency: 2

@@ -299,10 +299,11 @@ var subnetResourceIdMap {
   privateEndpoints: string
 } = toObject(
   map(items(resources.virtualNetwork.subnets), (subnet, index) => {
-    '${subnet.key}': virtualNetwork.outputs.subnetResourceIds[index]
+    key: subnet.key
+    value: index
   }),
   subnet => subnet.key,
-  subnet => subnet.value
+  subnet => virtualNetwork.outputs.subnetResourceIds[subnet.value]
 )
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

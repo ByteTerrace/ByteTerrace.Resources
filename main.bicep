@@ -6,14 +6,9 @@ extension graph
 import {
   imageType
 } from 'br/public:avm/res/dev-ops-infrastructure/pool:0.7.0'
-
-import {
-  subnetType
-} from 'br/public:avm/res/network/virtual-network:0.7.2'
-
 import {
   diagnosticSettingFullType
-} from 'br/public:avm/utl/types/avm-common-types:0.6.1'
+} from 'br/public:avm/utl/types/avm-common-types:0.7.0'
 
 import {
   groupType
@@ -235,11 +230,24 @@ type resourceType = {
     diagnosticSettings: diagnosticSettingFullType[]?
     dnsServers: string[]?
     name: string
-    @maxLength(3)
-    @minLength(3)
-    subnets: subnetType[]
+    subnets: {
+      containerApplicationEnvironment: subnetType
+      devOpsAgentPool: subnetType
+      flexConsumptionApplicationServicePlan: subnetType
+      privateEndpoints: subnetType
+    }
     tags: tagsType?
   }
+}
+type subnetType = {
+  addressPrefixes: string[]
+  defaultOutboundAccess: bool
+  delegation: string?
+  name: string
+  natGatewayResourceId: string?
+  privateEndpointNetworkPolicies: ('Disabled' | 'Enabled')?
+  privateLinkServiceNetworkPolicies: ('Disabled' | 'Enabled')?
+  serviceEndpoints: string[]?
 }
 type tagsType = { *: string }
 
@@ -247,6 +255,7 @@ type tagsType = { *: string }
 // Parameters
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 param deployOwnerRoleAssignments bool = true
+param enableTelemetry bool = false
 param location string = resourceGroup().location
 param lockKind ('CanNotDelete' | 'None' | 'ReadOnly') = 'CanNotDelete'
 param resources resourceType
@@ -283,11 +292,18 @@ var publicIpPrefixResourceIdMap = {
   '${resources.natGateway.publicIpPrefix.name}': natGateway_publicIpPrefix.outputs.resourceId
 }
 var staticSiteContainerName = '$web'
-var subnetResourceIdMap = {
-  devOpsAgentPool: virtualNetwork.outputs.subnetResourceIds[2]
-  flexConsumptionApplicationServicePlan: virtualNetwork.outputs.subnetResourceIds[1]
-  privateEndpoints: virtualNetwork.outputs.subnetResourceIds[0]
-}
+var subnetResourceIdMap {
+  containerApplicationEnvironment: string
+  devOpsAgentPool: string
+  flexConsumptionApplicationServicePlan: string
+  privateEndpoints: string
+} = toObject(
+  map(items(resources.virtualNetwork.subnets), (subnet, index) => {
+    '${subnet.key}': virtualNetwork.outputs.subnetResourceIds[index]
+  }),
+  subnet => subnet.key,
+  subnet => subnet.value
+)
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Networking Resources
@@ -301,7 +317,7 @@ resource frontDoor_bootstrap 'Microsoft.Cdn/profiles@2025-06-01' = {
   }
 }
 
-module frontDoor 'br/public:avm/res/cdn/profile:0.16.1' = {
+module frontDoor 'br/public:avm/res/cdn/profile:0.19.0' = {
   params: {
     afdEndpoints: [
       {
@@ -393,7 +409,7 @@ module frontDoor 'br/public:avm/res/cdn/profile:0.16.1' = {
         workspaceResourceId: logAnalyticsWorkspace.outputs.resourceId
       }
     ]
-    enableTelemetry: false
+    enableTelemetry: enableTelemetry
     location: 'global'
     lock: {
       kind: lockKind
@@ -660,7 +676,7 @@ module frontDoor_dns 'br/public:avm/res/network/dns-zone:0.5.4' = [
           ttl: 3600
         }
       ]
-      enableTelemetry: false
+      enableTelemetry: enableTelemetry
       location: 'global'
       name: join(skip(split(frontDoor.outputs.dnsValidation[i].dnsTxtRecordName!, '.'), 1), '.')
       txt: [
@@ -702,7 +718,7 @@ module frontDoor_waf_rateLimit 'br/public:avm/res/network/front-door-web-applica
         }
       ]
     }
-    enableTelemetry: false
+    enableTelemetry: enableTelemetry
     location: 'global'
     lock: {
       kind: lockKind
@@ -732,7 +748,7 @@ module monitorPrivateLinkScope 'br/public:avm/res/insights/private-link-scope:0.
       ingestionAccessMode: 'Open' // TODO: Set to 'PrivateOnly' when done with initial testing.
       queryAccessMode: 'Open' // TODO: Set to 'PrivateOnly' when done with initial testing.
     }
-    enableTelemetry: false
+    enableTelemetry: enableTelemetry
     location: 'global'
     lock: {
       kind: lockKind
@@ -740,7 +756,7 @@ module monitorPrivateLinkScope 'br/public:avm/res/insights/private-link-scope:0.
     name: resources.monitorPrivateLinkScope.name
     privateEndpoints: [
       {
-        enableTelemetry: false
+        enableTelemetry: enableTelemetry
         privateDnsZoneGroup: {
           privateDnsZoneGroupConfigs: [
             {
@@ -777,10 +793,10 @@ module monitorPrivateLinkScope 'br/public:avm/res/insights/private-link-scope:0.
     tags: resources.monitorPrivateLinkScope.?tags
   }
 }
-module natGateway 'br/public:avm/res/network/nat-gateway:2.0.0' = {
+module natGateway 'br/public:avm/res/network/nat-gateway:2.0.1' = {
   params: {
     availabilityZone: -1
-    enableTelemetry: false
+    enableTelemetry: enableTelemetry
     location: location
     lock: {
       kind: lockKind
@@ -798,7 +814,7 @@ module natGateway_publicIpPrefix 'br/public:avm/res/network/public-ip-prefix:0.8
       2
       3
     ]
-    enableTelemetry: false
+    enableTelemetry: enableTelemetry
     ipTags: []
     location: location
     lock: {
@@ -813,17 +829,17 @@ module natGateway_publicIpPrefix 'br/public:avm/res/network/public-ip-prefix:0.8
     tier: 'Regional'
   }
 }
-module networkSecurityGroups 'br/public:avm/res/network/network-security-group:0.5.2' = [
-  for subnet in resources.virtualNetwork.subnets: {
+module networkSecurityGroups 'br/public:avm/res/network/network-security-group:0.5.3' = [
+  for subnet in items(resources.virtualNetwork.subnets): {
     params: {
       diagnosticSettings: []
-      enableTelemetry: false
+      enableTelemetry: enableTelemetry
       flushConnection: false
       location: location
       lock: {
         kind: lockKind
       }
-      name: replace(subnet.name, 'snet', 'nsg')
+      name: replace(subnet.value.name, 'snet', 'nsg')
       roleAssignments: []
       securityRules: []
     }
@@ -832,7 +848,7 @@ module networkSecurityGroups 'br/public:avm/res/network/network-security-group:0
 module networkSecurityPerimeter 'br/public:avm/res/network/network-security-perimeter:0.1.3' = {
   params: {
     diagnosticSettings: []
-    enableTelemetry: false
+    enableTelemetry: enableTelemetry
     location: location
     lock: {
       kind: lockKind
@@ -913,7 +929,7 @@ module virtualNetwork 'br/public:avm/res/network/virtual-network:0.7.2' = {
     addressPrefixes: resources.virtualNetwork.addressPrefixes
     diagnosticSettings: resources.virtualNetwork.?diagnosticSettings
     dnsServers: resources.virtualNetwork.?dnsServers
-    enableTelemetry: false
+    enableTelemetry: enableTelemetry
     enableVmProtection: true
     location: location
     lock: {
@@ -922,8 +938,8 @@ module virtualNetwork 'br/public:avm/res/network/virtual-network:0.7.2' = {
     name: resources.virtualNetwork.name
     peerings: []
     roleAssignments: (0 != length(filter(
-        resources.virtualNetwork.subnets,
-        subnet => ('microsoft.devopsinfrastructure/pools' == toLower(subnet.?delegation ?? ''))
+        items(resources.virtualNetwork.subnets),
+        subnet => ('microsoft.devopsinfrastructure/pools' == toLower(subnet.value.?delegation ?? ''))
       ))
       ? [
           {
@@ -934,15 +950,15 @@ module virtualNetwork 'br/public:avm/res/network/virtual-network:0.7.2' = {
         ]
       : [])
     subnets: [
-      for (subnet, index) in resources.virtualNetwork.subnets: {
-        ...subnet
-        natGatewayResourceId: (contains(subnet, 'natGatewayResourceId')
-          ? (contains(subnet.natGatewayResourceId!, '/')
-              ? subnet.natGatewayResourceId!
-              : natGatewayResourceIdMap[subnet.natGatewayResourceId!])
+      for (subnet, index) in items(resources.virtualNetwork.subnets): {
+        ...subnet.value
+        natGatewayResourceId: (contains(subnet.value, 'natGatewayResourceId')
+          ? (contains(subnet.value.natGatewayResourceId!, '/')
+              ? subnet.value.natGatewayResourceId!
+              : natGatewayResourceIdMap[subnet.value.natGatewayResourceId!])
           : null)
         networkSecurityGroupResourceId: networkSecurityGroups[index].outputs.resourceId
-        roleAssignments: (('microsoft.devopsinfrastructure/pools' == toLower(subnet.?delegation ?? ''))
+        roleAssignments: (('microsoft.devopsinfrastructure/pools' == toLower(subnet.value.?delegation ?? ''))
           ? [
               {
                 principalId: devOpsInfrastructure_servicePrincipal.id
@@ -966,9 +982,9 @@ resource devOpsInfrastructure_servicePrincipal 'Microsoft.Graph/servicePrincipal
   appId: '31687f79-5e43-4c1e-8c63-d9f4bff5cf8b'
 }
 
-module devCenter 'br/public:avm/res/dev-center/devcenter:0.1.0' = {
+module devCenter 'br/public:avm/res/dev-center/devcenter:0.1.1' = {
   params: {
-    enableTelemetry: false
+    enableTelemetry: enableTelemetry
     location: location
     lock: {
       kind: lockKind
@@ -981,7 +997,7 @@ module devCenter 'br/public:avm/res/dev-center/devcenter:0.1.0' = {
 module devCenter_project 'br/public:avm/res/dev-center/project:0.1.1' = {
   params: {
     devCenterResourceId: devCenter.outputs.resourceId
-    enableTelemetry: false
+    enableTelemetry: enableTelemetry
     location: location
     lock: {
       kind: lockKind
@@ -1012,7 +1028,7 @@ module devOpsAgentPool 'br/public:avm/res/dev-ops-infrastructure/pool:0.7.0' = {
         workspaceResourceId: logAnalyticsWorkspace.outputs.resourceId
       }
     ]
-    enableTelemetry: false
+    enableTelemetry: enableTelemetry
     fabricProfileSkuName: resources.devOps.agentPool.vmSkuName
     images: resources.devOps.agentPool.images
     location: location
@@ -1139,7 +1155,7 @@ module applicationInsights 'br/public:avm/res/insights/component:0.7.1' = {
     diagnosticSettings: []
     disableIpMasking: true
     disableLocalAuth: true
-    enableTelemetry: false
+    enableTelemetry: enableTelemetry
     ingestionMode: 'LogAnalytics'
     kind: 'web'
     location: location
@@ -1162,11 +1178,11 @@ module applicationInsights 'br/public:avm/res/insights/component:0.7.1' = {
     workspaceResourceId: logAnalyticsWorkspace.outputs.resourceId
   }
 }
-module applicationServicePlan 'br/public:avm/res/web/serverfarm:0.6.0' = {
+module applicationServicePlan 'br/public:avm/res/web/serverfarm:0.7.0' = {
   params: {
     appServiceEnvironmentResourceId: null
     diagnosticSettings: []
-    enableTelemetry: false
+    enableTelemetry: enableTelemetry
     kind: 'functionapp'
     location: location
     lock: {
@@ -1206,7 +1222,7 @@ module configurationStore 'br/public:avm/res/app-configuration/configuration-sto
     ]
     disableLocalAuth: true
     enablePurgeProtection: true
-    enableTelemetry: false
+    enableTelemetry: enableTelemetry
     location: location
     lock: {
       kind: lockKind
@@ -1218,7 +1234,7 @@ module configurationStore 'br/public:avm/res/app-configuration/configuration-sto
     name: resources.configurationStore.name
     privateEndpoints: [
       {
-        enableTelemetry: false
+        enableTelemetry: enableTelemetry
         privateDnsZoneGroup: {
           privateDnsZoneGroupConfigs: [
             {
@@ -1251,7 +1267,13 @@ module configurationStore 'br/public:avm/res/app-configuration/configuration-sto
     tags: resources.configurationStore.?tags
   }
 }
-module functionApplication 'br/public:avm/res/web/site:0.21.0' = {
+module containerApplicationEnvironment 'br/public:avm/res/app/managed-environment:0.13.1' = {
+  params: {
+    enableTelemetry: enableTelemetry
+    name: ''
+  }
+}
+module functionApplication 'br/public:avm/res/web/site:0.22.0' = {
   params: {
     autoGeneratedDomainNameLabelScope: null
     basicPublishingCredentialsPolicies: [
@@ -1355,7 +1377,7 @@ module functionApplication 'br/public:avm/res/web/site:0.21.0' = {
         workspaceResourceId: logAnalyticsWorkspace.outputs.resourceId
       }
     ]
-    enableTelemetry: false
+    enableTelemetry: enableTelemetry
     extensions: []
     e2eEncryptionEnabled: null
     functionAppConfig: {
@@ -1476,7 +1498,7 @@ module keyVault 'br/public:avm/res/key-vault/vault:0.13.3' = {
     enablePurgeProtection: true
     enableRbacAuthorization: true
     enableSoftDelete: true
-    enableTelemetry: false
+    enableTelemetry: enableTelemetry
     enableVaultForDeployment: false
     enableVaultForDiskEncryption: false
     enableVaultForTemplateDeployment: true
@@ -1567,7 +1589,7 @@ module keyVault 'br/public:avm/res/key-vault/vault:0.13.3' = {
     }
     privateEndpoints: [
       {
-        enableTelemetry: false
+        enableTelemetry: enableTelemetry
         privateDnsZoneGroup: {
           privateDnsZoneGroupConfigs: [
             {
@@ -1597,7 +1619,7 @@ module logAnalyticsWorkspace 'br/public:avm/res/operational-insights/workspace:0
   params: {
     dataRetention: 30
     diagnosticSettings: []
-    enableTelemetry: false
+    enableTelemetry: enableTelemetry
     features: {
       disableLocalAuth: true
       enableDataExport: false
@@ -1647,7 +1669,7 @@ module logAnalyticsWorkspace 'br/public:avm/res/operational-insights/workspace:0
     }
     databases: []
     diagnosticSettings: []
-    enableTelemetry: false
+    enableTelemetry: enableTelemetry
     geoRedundantBackup: 'Disabled'
     highAvailability: 'Disabled'
     location: location
@@ -1661,7 +1683,7 @@ module logAnalyticsWorkspace 'br/public:avm/res/operational-insights/workspace:0
     name: resources.postgresFlexibleServer.name
     privateEndpoints: [
       {
-        enableTelemetry: false
+        enableTelemetry: enableTelemetry
         privateDnsZoneGroup: {
           privateDnsZoneGroupConfigs: [
             {
@@ -1712,7 +1734,7 @@ module redisCache 'br/public:avm/res/cache/redis-enterprise:0.5.0' = {
       port: 10000
     }
     diagnosticSettings: []
-    enableTelemetry: false
+    enableTelemetry: enableTelemetry
     highAvailability: 'Disabled'
     location: location
     lock: {
@@ -1725,7 +1747,7 @@ module redisCache 'br/public:avm/res/cache/redis-enterprise:0.5.0' = {
     name: resources.redisCache.name
     privateEndpoints: [
       {
-        enableTelemetry: false
+        enableTelemetry: enableTelemetry
         privateDnsZoneGroup: {
           privateDnsZoneGroupConfigs: [
             {
@@ -1742,7 +1764,7 @@ module redisCache 'br/public:avm/res/cache/redis-enterprise:0.5.0' = {
     tags: resources.redisCache.?tags
   }
 }
-module storageAccountFunction 'br/public:avm/res/storage/storage-account:0.31.0' = {
+module storageAccountFunction 'br/public:avm/res/storage/storage-account:0.32.0' = {
   params: {
     accessTier: 'Hot'
     allowBlobPublicAccess: false
@@ -1800,7 +1822,7 @@ module storageAccountFunction 'br/public:avm/res/storage/storage-account:0.31.0'
     defaultToOAuthAuthentication: true
     diagnosticSettings: []
     enableSftp: false
-    enableTelemetry: false
+    enableTelemetry: enableTelemetry
     fileServices: {
       corsRules: []
       diagnosticSettings: [
@@ -1849,7 +1871,7 @@ module storageAccountFunction 'br/public:avm/res/storage/storage-account:0.31.0'
     }
     privateEndpoints: [
       {
-        enableTelemetry: false
+        enableTelemetry: enableTelemetry
         name: 'pep-${resources.storageAccountFunction.name}-blob-0'
         privateDnsZoneGroup: {
           privateDnsZoneGroupConfigs: [
@@ -1863,7 +1885,7 @@ module storageAccountFunction 'br/public:avm/res/storage/storage-account:0.31.0'
         subnetResourceId: subnetResourceIdMap.privateEndpoints
       }
       {
-        enableTelemetry: false
+        enableTelemetry: enableTelemetry
         name: 'pep-${resources.storageAccountFunction.name}-queue-0'
         privateDnsZoneGroup: {
           privateDnsZoneGroupConfigs: [
@@ -1877,7 +1899,7 @@ module storageAccountFunction 'br/public:avm/res/storage/storage-account:0.31.0'
         subnetResourceId: subnetResourceIdMap.privateEndpoints
       }
       {
-        enableTelemetry: false
+        enableTelemetry: enableTelemetry
         name: 'pep-${resources.storageAccountFunction.name}-table-0'
         privateDnsZoneGroup: {
           privateDnsZoneGroupConfigs: [
@@ -1943,7 +1965,7 @@ module storageAccountFunction 'br/public:avm/res/storage/storage-account:0.31.0'
     tags: resources.storageAccountFunction.?tags
   }
 }
-module storageAccountPublic 'br/public:avm/res/storage/storage-account:0.31.0' = {
+module storageAccountPublic 'br/public:avm/res/storage/storage-account:0.32.0' = {
   params: {
     accessTier: 'Hot'
     allowBlobPublicAccess: true
@@ -2023,7 +2045,7 @@ module storageAccountPublic 'br/public:avm/res/storage/storage-account:0.31.0' =
     defaultToOAuthAuthentication: true
     diagnosticSettings: []
     enableSftp: false
-    enableTelemetry: false
+    enableTelemetry: enableTelemetry
     fileServices: {
       corsRules: [
         {
@@ -2173,7 +2195,7 @@ module storageAccountPublic 'br/public:avm/res/storage/storage-account:0.31.0' =
 }
 module userAssignedIdentityApplicationRegistration 'br/public:avm/res/managed-identity/user-assigned-identity:0.5.0' = {
   params: {
-    enableTelemetry: false
+    enableTelemetry: enableTelemetry
     federatedIdentityCredentials: []
     location: location
     lock: {
@@ -2186,7 +2208,7 @@ module userAssignedIdentityApplicationRegistration 'br/public:avm/res/managed-id
 }
 module userAssignedIdentityCustomerManagedEncryption 'br/public:avm/res/managed-identity/user-assigned-identity:0.5.0' = {
   params: {
-    enableTelemetry: false
+    enableTelemetry: enableTelemetry
     federatedIdentityCredentials: []
     location: location
     lock: {
@@ -2199,7 +2221,7 @@ module userAssignedIdentityCustomerManagedEncryption 'br/public:avm/res/managed-
 }
 module userAssignedIdentityFrontDoor 'br/public:avm/res/managed-identity/user-assigned-identity:0.5.0' = {
   params: {
-    enableTelemetry: false
+    enableTelemetry: enableTelemetry
     federatedIdentityCredentials: []
     location: location
     lock: {
@@ -2212,7 +2234,7 @@ module userAssignedIdentityFrontDoor 'br/public:avm/res/managed-identity/user-as
 }
 module userAssignedIdentityFunctionApplication 'br/public:avm/res/managed-identity/user-assigned-identity:0.5.0' = {
   params: {
-    enableTelemetry: false
+    enableTelemetry: enableTelemetry
     federatedIdentityCredentials: []
     location: location
     lock: {

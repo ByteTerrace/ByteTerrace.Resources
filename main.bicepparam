@@ -294,25 +294,17 @@ param resources = {
   virtualNetwork: {
     addressPrefixes: ['10.64.0.0/20']
     name: 'bytrcvnetp000'
-    subnets: [
-      {
-        addressPrefixes: ['10.64.0.0/24']
-        defaultOutboundAccess: false
-        delegation: null
-        name: 'bytrcsnetp000'
-        privateEndpointNetworkPolicies: 'Enabled'
-        privateLinkServiceNetworkPolicies: 'Enabled'
-      }
-      {
-        addressPrefixes: ['10.64.1.0/26']
+    subnets: {
+      containerApplicationEnvironment: {
+        addressPrefixes: ['10.64.1.128/26']
         defaultOutboundAccess: false
         delegation: 'Microsoft.App/environments'
-        name: 'bytrcsnetp001'
+        name: 'bytrcsnetp003'
         natGatewayResourceId: 'bytrcngp000'
         privateEndpointNetworkPolicies: 'Disabled'
         privateLinkServiceNetworkPolicies: 'Disabled'
       }
-      {
+      devOpsAgentPool: {
         addressPrefixes: ['10.64.1.64/26']
         defaultOutboundAccess: false
         delegation: 'Microsoft.DevOpsInfrastructure/pools'
@@ -322,6 +314,23 @@ param resources = {
         privateLinkServiceNetworkPolicies: 'Disabled'
         serviceEndpoints: ['Microsoft.Web']
       }
-    ]
+      flexConsumptionApplicationServicePlan: {
+        addressPrefixes: ['10.64.1.0/26']
+        defaultOutboundAccess: false
+        delegation: 'Microsoft.App/environments'
+        name: 'bytrcsnetp001'
+        natGatewayResourceId: 'bytrcngp000'
+        privateEndpointNetworkPolicies: 'Disabled'
+        privateLinkServiceNetworkPolicies: 'Disabled'
+      }
+      privateEndpoints: {
+        addressPrefixes: ['10.64.0.0/24']
+        defaultOutboundAccess: false
+        delegation: null
+        name: 'bytrcsnetp000'
+        privateEndpointNetworkPolicies: 'Enabled'
+        privateLinkServiceNetworkPolicies: 'Enabled'
+      }
+    }
   }
 }

@@ -1423,9 +1423,9 @@ module containerRegistry 'br/public:avm/res/container-registry/registry:0.11.0' 
     azureADAuthenticationAsArmPolicyStatus: 'disabled'
     cacheRules: [
       {
-        name: 'mcr-k8se'
+        name: 'mcr-k8se-quickstart'
         sourceRepository: 'mcr.microsoft.com/k8se/quickstart'
-        targetRepository: 'k8se'
+        targetRepository: 'mcr-k8se-quickstart'
       }
     ]
     customerManagedKey: {

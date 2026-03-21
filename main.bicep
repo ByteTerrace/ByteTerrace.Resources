@@ -64,10 +64,10 @@ type resourceType = {
     name: string
     tags: tagsType?
   }
-  containerApplication: {
+  /*containerApplication: {
     name: string
     tags: tagsType?
-  }
+  }*/
   containerEnvironment: {
     name: string
     tags: tagsType?
@@ -810,7 +810,7 @@ module monitorPrivateLinkScope 'br/public:avm/res/insights/private-link-scope:0.
     tags: resources.monitorPrivateLinkScope.?tags
   }
 }
-#disable-next-line BCP081 // NOTE: Remove this once agent pool is updated.
+#disable-next-line BCP081 // TODO: Remove this once agent pool is updated.
 module natGateway 'br/public:avm/res/network/nat-gateway:2.0.1' = {
   params: {
     availabilityZone: -1
@@ -847,7 +847,7 @@ module natGateway_publicIpPrefix 'br/public:avm/res/network/public-ip-prefix:0.8
     tier: 'Regional'
   }
 }
-#disable-next-line BCP081 // NOTE: Remove this once agent pool is updated.
+#disable-next-line BCP081 // TODO: Remove this once agent pool is updated.
 module networkSecurityGroups 'br/public:avm/res/network/network-security-group:0.5.3' = [
   for subnet in items(resources.virtualNetwork.subnets): {
     params: {
@@ -1286,7 +1286,7 @@ module configurationStore 'br/public:avm/res/app-configuration/configuration-sto
     tags: resources.configurationStore.?tags
   }
 }
-module containerApplication 'br/public:avm/res/app/container-app:0.21.0' = {
+/*module containerApplication 'br/public:avm/res/app/container-app:0.21.0' = {
   params: {
     containers: [
       {
@@ -1323,7 +1323,7 @@ module containerApplication 'br/public:avm/res/app/container-app:0.21.0' = {
     tags: resources.containerApplication.?tags
     workloadProfileName: 'Consumption'
   }
-}
+}*/
 module containerEnvironment 'br/public:avm/res/app/managed-environment:0.13.1' = {
   params: {
     appInsightsConnectionString: applicationInsights.outputs.connectionString

@@ -196,9 +196,9 @@ param resources = {
   configurationStore: {
     name: 'bytrcappcsp000'
   }
-  containerApplication: {
+  /*containerApplication: {
     name: 'bytrccap000'
-  }
+  }*/
   containerEnvironment: {
     name: 'bytrccaep000'
   }

@@ -199,6 +199,9 @@ param resources = {
   containerApplicationEnvironment: {
     name: 'bytrccaep000'
   }
+  containerJob: {
+    name: 'bytrccjp000'
+  }
   containerRegistry: {
     name: 'bytrccrp000'
   }

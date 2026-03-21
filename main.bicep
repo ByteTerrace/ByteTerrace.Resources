@@ -64,14 +64,18 @@ type resourceType = {
     name: string
     tags: tagsType?
   }
-  containerApplicationEnvironment: {
+  containerApplication: {
     name: string
     tags: tagsType?
   }
-  containerJob: {
+  containerEnvironment: {
     name: string
     tags: tagsType?
   }
+  /*containerJob: {
+    name: string
+    tags: tagsType?
+  }*/
   containerRegistry: {
     name: string
     tags: tagsType?
@@ -243,7 +247,7 @@ type resourceType = {
     dnsServers: string[]?
     name: string
     subnets: {
-      containerApplicationEnvironment: subnetType
+      containerEnvironment: subnetType
       devOpsAgentPool: subnetType
       flexConsumptionApplicationServicePlan: subnetType
       privateEndpoints: subnetType
@@ -305,7 +309,7 @@ var publicIpPrefixResourceIdMap = {
 }
 var staticSiteContainerName = '$web'
 var subnetResourceIdMap {
-  containerApplicationEnvironment: string
+  containerEnvironment: string
   devOpsAgentPool: string
   flexConsumptionApplicationServicePlan: string
   privateEndpoints: string
@@ -1282,6 +1286,44 @@ module configurationStore 'br/public:avm/res/app-configuration/configuration-sto
     tags: resources.configurationStore.?tags
   }
 }
+module containerApplication 'br/public:avm/res/app/container-app:0.21.0' = {
+  params: {
+    containers: [
+      {
+        image: '${containerRegistry.outputs.loginServer}/k8se/quickstart:latest'
+        name: 'main'
+        resources: {
+          cpu: 1
+          memory: '2Gi'
+        }
+      }
+    ]
+    environmentResourceId: resourceId(
+      'Microsoft.App/managedEnvironments',
+      resources.containerEnvironment.name
+    )
+    enableTelemetry: enableTelemetry
+    location: location
+    lock: {
+      kind: lockKind
+    }
+    managedIdentities: {
+      systemAssigned: false
+      userAssignedResourceIds: [userAssignedIdentityFunctionApplication.outputs.resourceId]
+    }
+    name: resources.containerApplication.name
+    registries: [
+      {
+        identity: userAssignedIdentityFunctionApplication.outputs.resourceId
+        server: containerRegistry.outputs.loginServer
+      }
+    ]
+    roleAssignments: []
+    secrets: []
+    tags: resources.containerApplication.?tags
+    workloadProfileName: 'Consumption'
+  }
+}
 module containerEnvironment 'br/public:avm/res/app/managed-environment:0.13.1' = {
   params: {
     appInsightsConnectionString: applicationInsights.outputs.connectionString
@@ -1291,13 +1333,13 @@ module containerEnvironment 'br/public:avm/res/app/managed-environment:0.13.1' =
     }
     enableTelemetry: enableTelemetry
     infrastructureResourceGroupName: null
-    infrastructureSubnetResourceId: subnetResourceIdMap.containerApplicationEnvironment
+    infrastructureSubnetResourceId: subnetResourceIdMap.containerEnvironment
     internal: true
     location: location
     lock: {
       kind: lockKind
     }
-    name: resources.containerApplicationEnvironment.name
+    name: resources.containerEnvironment.name
     openTelemetryConfiguration: {
       logsConfiguration: {
         destinations: ['appInsights']
@@ -1310,7 +1352,7 @@ module containerEnvironment 'br/public:avm/res/app/managed-environment:0.13.1' =
     publicNetworkAccess: 'Disabled'
     roleAssignments: []
     storages: []
-    tags: resources.containerApplicationEnvironment.?tags
+    tags: resources.containerEnvironment.?tags
     workloadProfiles: [
       {
         name: 'Consumption'
@@ -1320,7 +1362,7 @@ module containerEnvironment 'br/public:avm/res/app/managed-environment:0.13.1' =
     zoneRedundant: false
   }
 }
-module containerJob 'br/public:avm/res/app/job:0.7.1' = {
+/*module containerJob 'br/public:avm/res/app/job:0.7.1' = {
   params: {
     containers: [
       {
@@ -1334,16 +1376,22 @@ module containerJob 'br/public:avm/res/app/job:0.7.1' = {
     ]
     environmentResourceId: resourceId(
       'Microsoft.App/managedEnvironments',
-      resources.containerApplicationEnvironment.name
+      resources.containerEnvironment.name
     )
     enableTelemetry: enableTelemetry
-    /*eventTriggerConfig: {
+    eventTriggerConfig: {
       parallelism: 1
       replicaCompletionCount: 1
       scale: {
-        rules: []
+        rules: [
+          {
+            metadata: {}
+            name: ''
+            type: ''
+          }
+        ]
       }
-    }*/
+    }
     location: location
     lock: {
       kind: lockKind
@@ -1365,7 +1413,7 @@ module containerJob 'br/public:avm/res/app/job:0.7.1' = {
     tags: resources.containerJob.?tags
     workloadProfileName: 'Consumption'
   }
-}
+}*/
 module containerRegistry 'br/public:avm/res/container-registry/registry:0.11.0' = {
   params: {
     acrAdminUserEnabled: false

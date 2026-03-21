@@ -196,12 +196,15 @@ param resources = {
   configurationStore: {
     name: 'bytrcappcsp000'
   }
-  containerApplicationEnvironment: {
+  containerApplication: {
+    name: 'bytrccap000'
+  }
+  containerEnvironment: {
     name: 'bytrccaep000'
   }
-  containerJob: {
+  /*containerJob: {
     name: 'bytrccjp000'
-  }
+  }*/
   containerRegistry: {
     name: 'bytrccrp000'
   }
@@ -304,7 +307,7 @@ param resources = {
     addressPrefixes: ['10.64.0.0/20']
     name: 'bytrcvnetp000'
     subnets: {
-      containerApplicationEnvironment: {
+      containerEnvironment: {
         addressPrefixes: ['10.64.1.128/26']
         defaultOutboundAccess: false
         delegation: 'Microsoft.App/environments'

@@ -802,6 +802,7 @@ module monitorPrivateLinkScope 'br/public:avm/res/insights/private-link-scope:0.
     tags: resources.monitorPrivateLinkScope.?tags
   }
 }
+#disable-next-line BCP081 // NOTE: Remove this once agent pool is updated.
 module natGateway 'br/public:avm/res/network/nat-gateway:2.0.1' = {
   params: {
     availabilityZone: -1
@@ -838,6 +839,7 @@ module natGateway_publicIpPrefix 'br/public:avm/res/network/public-ip-prefix:0.8
     tier: 'Regional'
   }
 }
+#disable-next-line BCP081 // NOTE: Remove this once agent pool is updated.
 module networkSecurityGroups 'br/public:avm/res/network/network-security-group:0.5.3' = [
   for subnet in items(resources.virtualNetwork.subnets): {
     params: {

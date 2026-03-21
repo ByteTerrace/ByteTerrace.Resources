@@ -14,7 +14,6 @@ param resources = {
     ]
     roleAssignments: [
       {
-        principalType: 'ServicePrincipal'
         resourcePath: 'bytrcstp001'
         resourceProvider: 'Microsoft.Storage/storageAccounts'
         roleDefinitionName: 'ByteTerrace API Host'
@@ -23,35 +22,30 @@ param resources = {
       {
         condition: '((!(ActionMatches{\'Microsoft.Storage/storageAccounts/blobServices/containers/blobs/add/action\'}) AND !(ActionMatches{\'Microsoft.Storage/storageAccounts/blobServices/containers/blobs/delete\'}) AND !(ActionMatches{\'Microsoft.Storage/storageAccounts/blobServices/containers/blobs/move/action\'}) AND !(ActionMatches{\'Microsoft.Storage/storageAccounts/blobServices/containers/blobs/read\'} AND !SubOperationMatches{\'Blob.List\'}) AND !(ActionMatches{\'Microsoft.Storage/storageAccounts/blobServices/containers/blobs/runAsSuperUser/action\'}) AND !(ActionMatches{\'Microsoft.Storage/storageAccounts/blobServices/containers/blobs/write\'})) OR (NOT @Resource[Microsoft.Storage/storageAccounts/blobServices/containers:name] StringStartsWithIgnoreCase \'$\' AND @Resource[Microsoft.Storage/storageAccounts/blobServices/containers:name] StringEqualsIgnoreCase @Principal[Microsoft.Directory/CustomSecurityAttributes/Id:ByteTerraceUsers_ObjectId] AND @Resource[Microsoft.Storage/storageAccounts/blobServices/containers/blobs:path] StringLike \'private/*\')) AND ((!(ActionMatches{\'Microsoft.Storage/storageAccounts/blobServices/containers/blobs/read\'} AND SubOperationMatches{\'Blob.List\'})) OR (@Resource[Microsoft.Storage/storageAccounts/blobServices/containers:name] StringEqualsIgnoreCase @Principal[Microsoft.Directory/CustomSecurityAttributes/Id:ByteTerraceUsers_ObjectId])) AND ((!(ActionMatches{\'Microsoft.Storage/storageAccounts/blobServices/containers/blobs/read\'} AND !SubOperationMatches{\'Blob.List\'})) OR (@Resource[Microsoft.Storage/storageAccounts/blobServices/containers/metadata:CanRead] StringNotEqualsIgnoreCase \'Disabled\' AND @Resource[Microsoft.Storage/storageAccounts/blobServices/containers/blobs/tags:CanRead<$key_case_sensitive$>] StringNotEqualsIgnoreCase \'Disabled\')) AND ((!(ActionMatches{\'Microsoft.Storage/storageAccounts/blobServices/containers/blobs/add/action\'} AND SubOperationMatches{\'Blob.Write.WithTagHeaders\'}) AND !(ActionMatches{\'Microsoft.Storage/storageAccounts/blobServices/containers/blobs/write\'} AND SubOperationMatches{\'Blob.Write.WithTagHeaders\'})) OR (@Resource[Microsoft.Storage/storageAccounts/blobServices/containers/metadata:CanWrite] StringNotEqualsIgnoreCase \'Disabled\' AND @Request[Microsoft.Storage/storageAccounts/blobServices/containers/blobs/tags:CanWrite<$key_case_sensitive$>] StringNotEqualsIgnoreCase \'Disabled\')) AND ((!(ActionMatches{\'Microsoft.Storage/storageAccounts/queueServices/queues/messages/read\'}) AND !(ActionMatches{\'Microsoft.Storage/storageAccounts/queueServices/queues/messages/write\'}) AND !(ActionMatches{\'Microsoft.Storage/storageAccounts/queueServices/queues/messages/delete\'}) AND !(ActionMatches{\'Microsoft.Storage/storageAccounts/queueServices/queues/messages/process/action\'})) OR (@Resource[Microsoft.Storage/storageAccounts/queueServices/queues:name] StringEqualsIgnoreCase @Principal[Microsoft.Directory/CustomSecurityAttributes/Id:ByteTerraceUsers_ObjectId]))'
         groupName: 'ByteTerrace API Users'
-        principalType: 'Group'
         resourcePath: 'bytrcstp001'
         resourceProvider: 'Microsoft.Storage/storageAccounts'
         roleDefinitionName: 'ByteTerrace Storage User'
       }
       {
         groupName: 'ByteTerrace API Users'
-        principalType: 'Group'
         resourcePath: 'bytrcstp001/default/temp'
         resourceProvider: 'Microsoft.Storage/storageAccounts/blobServices/containers'
         roleDefinitionName: 'ByteTerrace API User'
       }
       {
         groupName: 'ByteTerrace API Users'
-        principalType: 'Group'
         resourcePath: 'bytrcstp001/default/temp'
         resourceProvider: 'Microsoft.Storage/storageAccounts/fileServices/fileshares'
         roleDefinitionName: 'ByteTerrace API User'
       }
       {
         groupName: 'ByteTerrace API Users'
-        principalType: 'Group'
         resourcePath: 'bytrcstp001/default/temp'
         resourceProvider: 'Microsoft.Storage/storageAccounts/queueServices/queues'
         roleDefinitionName: 'ByteTerrace API User'
       }
       {
         groupName: 'ByteTerrace API Users'
-        principalType: 'Group'
         resourcePath: 'bytrcstp001/default/temp'
         resourceProvider: 'Microsoft.Storage/storageAccounts/tableServices/tables'
         roleDefinitionName: 'ByteTerrace API User'

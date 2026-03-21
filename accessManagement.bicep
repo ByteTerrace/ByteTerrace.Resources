@@ -15,7 +15,7 @@ type roleAssignmentType = {
   description: string?
   groupName: string?
   principalId: string?
-  principalType: ('' | 'Device' | 'ForeignGroup' | 'Group' | 'ServicePrincipal' | 'User')
+  principalType: ('Device' | 'ForeignGroup' | 'Group' | 'ServicePrincipal' | 'User')?
   resourceGroupName: string?
   resourceId: string?
   resourcePath: string?
@@ -133,7 +133,9 @@ module roleAssignmentsModule './avm-temp/resource-role-assignment/main.bicep' = 
       principalId: (assignment.?principalId ?? (contains(assignment, 'userAssignedIdentityId')
         ? userAssignedIdentities[userAssignedIdentityMap[?assignment.?userAssignedIdentityId ?? '']].properties.principalId
         : groupsResource[groupsMap[?assignment.?groupName ?? '']].id))
-      principalType: assignment.principalType
+      principalType: (assignment.?principalType ?? (contains(assignment, 'userAssignedIdentityId')
+        ? 'ServicePrincipal'
+        : 'Group'))
       resourceId: roleAssignmentResourceIds[index]
       roleDefinitionId: contains(
           roleDefinitionsResource[roleDefinitionsMap[assignment.roleDefinitionName]].id,

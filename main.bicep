@@ -1445,6 +1445,7 @@ module containerRegistry 'br/public:avm/res/container-registry/registry:0.11.0' 
       }
     ]
     enableTelemetry: enableTelemetry
+    exportPolicyStatus: 'disabled'
     location: location
     lock: {
       kind: lockKind
@@ -1585,7 +1586,7 @@ module functionApplication 'br/public:avm/res/web/site:0.22.0' = {
       {
         logCategoriesAndGroups: [
           {
-            category: 'FunctionAppLogs'
+            categoryGroup: 'audit'
           }
         ]
         workspaceResourceId: logAnalyticsWorkspace.outputs.resourceId

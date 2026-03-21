@@ -1475,7 +1475,12 @@ module containerRegistry 'br/public:avm/res/container-registry/registry:0.11.0' 
       {
         principalId: userAssignedIdentityFunctionApplication.outputs.principalId
         principalType: 'ServicePrincipal'
-        roleDefinitionIdOrName: 'AcrPull'
+        roleDefinitionIdOrName: 'Container Registry Repository Catalog Lister'
+      }
+      {
+        principalId: userAssignedIdentityFunctionApplication.outputs.principalId
+        principalType: 'ServicePrincipal'
+        roleDefinitionIdOrName: 'Container Registry Repository Reader'
       }
     ]
     tags: resources.containerRegistry.?tags

@@ -78,6 +78,7 @@ var dnsZones {
   }
 )
 var configurationStoreDnsZoneIndex = first(filter(dnsZones, zone => (dnsZoneMap.configurationStore == zone.value)))!.index
+var containerRegistryDnsZoneIndex = first(filter(dnsZones, zone => (dnsZoneMap.containerRegistry == zone.value)))!.index
 var keyVaultDnsZoneIndex = first(filter(dnsZones, zone => (dnsZoneMap.keyVault == zone.value)))!.index
 var redisCacheDnsZoneIndex = first(filter(dnsZones, zone => (dnsZoneMap.redisCache == zone.value)))!.index
 var storageAccountBlobDnsZoneIndex = first(filter(dnsZones, zone => (dnsZoneMap.storageAccount.blob == zone.value)))!.index
@@ -109,6 +110,21 @@ resource configurationStore_virtualNetworkLinks 'Microsoft.Network/privateDnsZon
     location: 'global'
     name: '${last(split(id, '/'))}-${uniqueString(privateDnsZones[configurationStoreDnsZoneIndex].id, id)}'
     parent: privateDnsZones[configurationStoreDnsZoneIndex]
+    properties: {
+      registrationEnabled: false
+      resolutionPolicy: 'Default'
+      virtualNetwork: {
+        id: id
+      }
+    }
+  }
+]
+@onlyIfNotExists()
+resource containerRegistry_virtualNetworkLinks 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2024-06-01' = [
+  for id in virtualNetworkResourceIds: {
+    location: 'global'
+    name: '${last(split(id, '/'))}-${uniqueString(privateDnsZones[containerRegistryDnsZoneIndex].id, id)}'
+    parent: privateDnsZones[containerRegistryDnsZoneIndex]
     properties: {
       registrationEnabled: false
       resolutionPolicy: 'Default'

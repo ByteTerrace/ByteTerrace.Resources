@@ -1290,7 +1290,7 @@ module containerApplication 'br/public:avm/res/app/container-app:0.21.0' = {
   params: {
     containers: [
       {
-        image: '${containerRegistry.outputs.loginServer}/k8se/quickstart:latest'
+        image: '${containerRegistry.outputs.loginServer}/mcr/k8se/quickstart:latest'
         name: 'main'
         resources: {
           cpu: 1
@@ -1425,7 +1425,7 @@ module containerRegistry 'br/public:avm/res/container-registry/registry:0.11.0' 
       {
         name: 'mcr-k8se-quickstart'
         sourceRepository: 'mcr.microsoft.com/k8se/quickstart'
-        targetRepository: 'mcr-k8se-quickstart'
+        targetRepository: 'mcr/k8se/quickstart'
       }
     ]
     customerManagedKey: {

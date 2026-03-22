@@ -1,7 +1,13 @@
 {
   "customizations": {
     "vscode": {
-      "extensions": ["esbenp.prettier-vscode", "ms-azuretools.vscode-bicep"]
+      "extensions": [
+        "esbenp.prettier-vscode",
+        "ms-azuretools.vscode-bicep"
+      ],
+      "settings": {
+        "adoCodespacesAuth.tenantID": "e09734be-ca09-41ec-b70d-98f5536fb774"
+      }
     }
   },
   "features": {
@@ -12,8 +18,20 @@
     },
     "ghcr.io/devcontainers/features/powershell:2": {
       "version": "latest"
+    },
+    "ghcr.io/microsoft/codespace-features/external-repository:4": {
+      "branch": "main",
+      "clientID": "dceac86e-172a-4779-b914-d983ca431c21",
+      "cloneUrl": "https://dev.azure.com/byteterrace/Koholint/_git/Azure.Resources",
+      "folder": "/workspaces/ado-repos",
+      "gitProvider": "azuredevops",
+      "tenantID": "e09734be-ca09-41ec-b70d-98f5536fb7"
     }
   },
   "image": "mcr.microsoft.com/devcontainers/dotnet:10.0",
-  "name": ".NET 10"
+  "initializeCommand": "mkdir -p ${localWorkspaceFolder}/../ado-repos",
+  "name": "ByteTerrace.Azure.Resources",
+  "onCreateCommand": "external-git clone",
+  "postStartCommand": "external-git config",
+  "workspaceFolder": "/workspaces/ado-repos"
 }

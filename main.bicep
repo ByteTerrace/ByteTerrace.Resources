@@ -2632,7 +2632,16 @@ module userAssignedIdentityFrontDoor 'br/public:avm/res/managed-identity/user-as
 module userAssignedIdentityFunctionApplication 'br/public:avm/res/managed-identity/user-assigned-identity:0.5.0' = {
   params: {
     enableTelemetry: enableTelemetry
-    federatedIdentityCredentials: []
+    federatedIdentityCredentials: [
+      {
+        audiences: [
+          'api://AzureADTokenExchange'
+        ]
+        issuer: 'https://token.actions.githubusercontent.com'
+        name: 'GitHub-Temp'
+        subject: 'repo:byteterrace/Azure.Resources:ref:refs/heads/main'
+      }
+    ]
     location: location
     lock: {
       kind: lockKind

@@ -46,7 +46,7 @@ jobs:
                 arguments: >-
                   -RegistryName '${{ split(split(parameters.containerRegistryEndpoint, '.')[0], '-')[0] }}'
                 azureSubscription: "${{ parameters.serviceConnectionName }}"
-                failOnStandardError: true
+                failOnStandardError: false
                 inlineScript: |
                   [CmdletBinding()]
                   param(

@@ -70,7 +70,7 @@ jobs:
                               -Uri "https://${RegistryEndpoint}/oauth2/exchange"
                       ).refresh_token;
 
-                      Write-Host "##vso[task.setvariable variable=refreshToken;issecret=true]$token";
+                      Write-Host "##vso[task.setvariable variable=refreshToken;isOutput=true;issecret=true]$token";
                   }
                   end {
                       if ((Test-Path -LiteralPath 'variable:\LASTEXITCODE')) {

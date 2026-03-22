@@ -42,7 +42,7 @@ jobs:
               displayName: "get token"
               enabled: true
               inputs:
-                addSpnToEnvironment: false
+                addSpnToEnvironment: true
                 arguments: >-
                   -RegistryName '${{ split(split(parameters.containerRegistryEndpoint, '.')[0], '-')[0] }}'
                 azureSubscription: "${{ parameters.serviceConnectionName }}"
@@ -55,6 +55,15 @@ jobs:
                   )
                   begin {}
                   process {
+                      az login `
+                        --allow-no-subscriptions `
+                        --output 'none' `
+                        --password "${Env:servicePrincipalKey}" `
+                        --scope 'https://containerregistry.azure.net/.default' `
+                        --service-principal `
+                        --tenant "${Env:tenantId}" `
+                        --username "${Env:servicePrincipalId}";
+
                       $token = az acr login `
                           --expose-token `
                           --name $RegistryName `
@@ -68,23 +77,25 @@ jobs:
                           exit $LASTEXITCODE;
                       }
                   }
-                name: "acrLogin.refreshToken"
                 powerShellErrorActionPreference: "stop"
                 powerShellIgnoreLASTEXITCODE: false
                 scriptLocation: "inlineScript"
                 scriptType: "pscore"
                 useGlobalConfig: false
                 visibleAzLogin: false
+              name: "acrLogin"
             - task: PowerShell@2
               displayName: "docker login"
               enabled: true
+              env:
+                REFRESH_TOKEN: "$(acrLogin.refreshToken)"
               inputs:
                 errorActionPreference: "stop"
                 failOnStderr: false
                 ignoreLASTEXITCODE: false
                 pwsh: true
                 script: |
-                  '$(acrLogin.refreshToken)' | docker login `
+                  ${Env:REFRESH_TOKEN} | docker login `
                         --password-stdin `
                         --username 00000000-0000-0000-0000-000000000000 `
                         ${{ parameters.containerRegistryEndpoint }};

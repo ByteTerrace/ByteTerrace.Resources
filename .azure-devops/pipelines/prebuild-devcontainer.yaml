@@ -7,6 +7,10 @@ parameters:
     default: "bytrccrp000-bcfhcyard9buh3h9.azurecr.io"
     displayName: "Container Registry Endpoint"
     type: "string"
+  - name: "serviceConnectionName"
+    default: "byteterrace-mpn | byteterrace"
+    displayName: "Service Connection Name"
+    type: "string"
 
 schedules:
   - cron: "0 18 * * *"
@@ -34,7 +38,67 @@ jobs:
               enabled: true
               fetchDepth: 1
               timeoutInMinutes: 3
+            - task: AzureCLI@2
+              displayName: "get token"
+              enabled: true
+              inputs:
+                addSpnToEnvironment: false
+                azureSubscription: "${{ parameters.serviceConnectionName }}"
+                failOnStandardError: true
+                inlineScript: |
+                  [CmdletBinding()]
+                  param(
+                      [Parameter(Mandatory = $true, Position = 0)]
+                      [string]$RegistryName
+                  )
+                  begin {}
+                  process {
+                      $token = az acr login `
+                          --expose-token `
+                          --name $RegistryName `
+                          --output tsv `
+                          --query 'accessToken';
+
+                      Write-Host "##vso[task.setvariable variable=ACR_TOKEN;issecret=true]$token";
+                  }
+                  end {
+                      if ((Test-Path -LiteralPath 'variable:\LASTEXITCODE')) {
+                          exit $LASTEXITCODE;
+                      }
+                  }
+                powerShellErrorActionPreference: "stop"
+                powerShellIgnoreLASTEXITCODE: false
+                scriptLocation: "inlineScript"
+                scriptType: "pscore"
+                useGlobalConfig: false
+                visibleAzLogin: false
+            - task: PowerShell@2
+              displayName: "docker login"
+              enabled: true
+              inputs:
+                errorActionPreference: "stop"
+                failOnStderr: false
+                ignoreLASTEXITCODE: false
+                pwsh: true
+                script: |
+                  [CmdletBinding()]
+                  param()
+                  begin {}
+                  process {
+                      ${Env:ACR_TOKEN} | docker login `
+                        ${{ parameters.containerRegistryEndpoint }} `
+                          --password-stdin `
+                          --username 00000000-0000-0000-0000-000000000000;
+                  }
+                  end {
+                      if ((Test-Path -LiteralPath 'variable:\LASTEXITCODE')) {
+                          exit $LASTEXITCODE;
+                      }
+                  }
+                targetType: "inline"
             - task: DevcontainersCi@0
+              displayName: "push image"
+              enabled: true
               inputs:
                 imageName: "${{ parameters.containerRegistryEndpoint }}/devcontainers/azure-resources"
                 runCmd: "make ci-build"

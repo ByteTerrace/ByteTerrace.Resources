@@ -61,13 +61,14 @@ jobs:
                           --output tsv `
                           --query 'accessToken';
 
-                      Write-Host "##vso[task.setvariable variable=ACR_TOKEN;issecret=true]$token";
+                      Write-Host "##vso[task.setvariable variable=refreshToken;issecret=true]$token";
                   }
                   end {
                       if ((Test-Path -LiteralPath 'variable:\LASTEXITCODE')) {
                           exit $LASTEXITCODE;
                       }
                   }
+                name: "acrLogin.refreshToken"
                 powerShellErrorActionPreference: "stop"
                 powerShellIgnoreLASTEXITCODE: false
                 scriptLocation: "inlineScript"
@@ -83,7 +84,7 @@ jobs:
                 ignoreLASTEXITCODE: false
                 pwsh: true
                 script: |
-                  ${Env:ACR_TOKEN} | docker login `
+                  '$(acrLogin.refreshToken)' | docker login `
                         --password-stdin `
                         --username 00000000-0000-0000-0000-000000000000 `
                         ${{ parameters.containerRegistryEndpoint }};

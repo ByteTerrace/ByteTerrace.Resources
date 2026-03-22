@@ -44,7 +44,7 @@ jobs:
               inputs:
                 addSpnToEnvironment: false
                 arguments: >-
-                  -RegistryEndpoint '${{ parameters.containerRegistryEndpoint }}'
+                  -RegistryName '${{ split(split(parameters.containerRegistryEndpoint, '.')[0], '-')[0] }}'
                 azureSubscription: "${{ parameters.serviceConnectionName }}"
                 failOnStandardError: false
                 inlineScript: |
@@ -55,20 +55,11 @@ jobs:
                   )
                   begin {}
                   process {
-                      $accessToken = az account get-access-token `
-                          --output 'tsv' `
-                          --query 'accessToken' `
-                          --resource 'https://containerregistry.azure.net';
-                      $tenantId = az account show `
-                          --output 'tsv' `
-                          --query 'tenantId';
-                      $token = (
-                          Invoke-RestMethod `
-                              -Body "grant_type=access_token&service=${RegistryEndpoint}&tenant=${tenantId}&access_token=${accessToken}" `
-                              -ContentType "application/x-www-form-urlencoded" `
-                              -Method Post `
-                              -Uri "https://${RegistryEndpoint}/oauth2/exchange"
-                      ).refresh_token;
+                      $token = az acr login `
+                          --expose-token `
+                          --name $RegistryName `
+                          --output tsv `
+                          --query 'accessToken';
 
                       Write-Host "##vso[task.setvariable variable=refreshToken;isOutput=true;issecret=true]$token";
                   }

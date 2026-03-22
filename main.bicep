@@ -1336,7 +1336,7 @@ module containerApplication 'br/public:avm/res/app/container-app:0.21.0' = {
           }
           {
             name: 'Marketplace__Logging__LogToConsole'
-            value: 'true'
+            value: 'false'
           }
           /*{
             name: 'Marketplace__LogsDirectory'

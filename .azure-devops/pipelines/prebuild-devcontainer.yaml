@@ -36,6 +36,6 @@ jobs:
               timeoutInMinutes: 3
             - task: DevcontainersCi@0
               inputs:
-                imageName: "${{ parameters.containerRegistryEndpoint }}/devcontainers/azure-resources:latest"
+                imageName: "${{ parameters.containerRegistryEndpoint }}/devcontainers/azure-resources"
                 runCmd: "make ci-build"
                 sourceBranchFilterForPush: "refs/heads/main"

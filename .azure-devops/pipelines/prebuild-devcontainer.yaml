@@ -1,0 +1,41 @@
+parameters:
+  - name: "agentPoolName"
+    default: "bytrcmdopp000"
+    displayName: "Agent Pool Name"
+    type: "string"
+  - name: "containerRegistryEndpoint"
+    default: "bytrccrp000-bcfhcyard9buh3h9.azurecr.io"
+    displayName: "Container Registry Endpoint"
+    type: "string"
+
+schedules:
+  - cron: "0 18 * * *"
+    always: true
+    displayName: "Daily Sync"
+    branches:
+      include:
+        - main
+
+trigger: none
+
+jobs:
+  - deployment: "main"
+    displayName: "main"
+    environment: "production"
+    pool:
+      name: "${{ parameters.agentPoolName }}"
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+            - checkout: "self"
+              clean: true
+              displayName: "checkout repository"
+              enabled: true
+              fetchDepth: 1
+              timeoutInMinutes: 3
+            - task: DevcontainersCi@0
+              inputs:
+                imageName: "${{ parameters.containerRegistryEndpoint }}/devcontainers/azure-resources:latest"
+                runCmd: "make ci-build"
+                sourceBranchFilterForPush: "refs/heads/main"

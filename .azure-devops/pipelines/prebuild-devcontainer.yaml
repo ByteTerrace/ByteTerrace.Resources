@@ -51,7 +51,7 @@ jobs:
                   [CmdletBinding()]
                   param(
                       [Parameter(Mandatory = $true, Position = 0)]
-                      [string]$RegistryEndpoint
+                      [string]$RegistryName
                   )
                   begin {}
                   process {

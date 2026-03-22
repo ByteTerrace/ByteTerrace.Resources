@@ -64,10 +64,10 @@ type resourceType = {
     name: string
     tags: tagsType?
   }
-  /*containerApplication: {
+  containerApplication: {
     name: string
     tags: tagsType?
-  }*/
+  }
   containerEnvironment: {
     name: string
     tags: tagsType?
@@ -321,6 +321,16 @@ var subnetResourceIdMap {
   subnet => subnet.key,
   subnet => virtualNetwork.outputs.subnetResourceIds[subnet.value]
 )
+var vsMarketplaceSettings = {
+  extensions: {
+    fileShareName: 'vsmarketplace-extensions'
+    mountPath: '/data/extensions'
+  }
+  logs: {
+    fileShareName: 'vsmarketplace-logs'
+    mountPath: '/data/logs'
+  }
+}
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Networking Resources
@@ -1003,6 +1013,16 @@ resource devOpsInfrastructure_servicePrincipal 'Microsoft.Graph/servicePrincipal
 
 module devCenter 'br/public:avm/res/dev-center/devcenter:0.1.1' = {
   params: {
+    diagnosticSettings: [
+      {
+        logCategoriesAndGroups: [
+          {
+            categoryGroup: 'audit'
+          }
+        ]
+        workspaceResourceId: logAnalyticsWorkspace.outputs.resourceId
+      }
+    ]
     enableTelemetry: enableTelemetry
     location: location
     lock: {
@@ -1286,22 +1306,55 @@ module configurationStore 'br/public:avm/res/app-configuration/configuration-sto
     tags: resources.configurationStore.?tags
   }
 }
-/*module containerApplication 'br/public:avm/res/app/container-app:0.21.0' = {
+module containerApplication 'br/public:avm/res/app/container-app:0.21.0' = {
   params: {
     containers: [
       {
-        image: '${containerRegistry.outputs.loginServer}/mcr/k8se/quickstart:latest'
+        env: [
+          {
+            name: 'APPLICATIONINSIGHTS_CONNECTION_STRING'
+            value: applicationInsights.outputs.connectionString
+          }
+          {
+            name: 'Marketplace__ArtifactsClientId'
+            value: userAssignedIdentityFunctionApplication.outputs.clientId
+          }
+          {
+            name: 'Marketplace__ArtifactsFeed'
+            value: 'vsmarketplace'
+          }
+          {
+            name: 'Marketplace__ArtifactsOrganization'
+            value: 'byteterrace'
+          }
+          {
+            name: 'Marketplace__LogsDirectory'
+            value: vsMarketplaceSettings.logs.mountPath
+          }
+          {
+            name: 'Marketplace__Upstreaming__Mode'
+            value: 'None'
+          }
+        ]
+        image: '${containerRegistry.outputs.loginServer}/mcr/vsmarketplace/vscode-private-marketplace:latest'
         name: 'main'
         resources: {
-          cpu: 1
-          memory: '2Gi'
+          cpu: json('0.5')
+          memory: '1Gi'
         }
+        volumeMounts: [
+          {
+            mountPath: vsMarketplaceSettings.extensions.mountPath
+            volumeName: vsMarketplaceSettings.extensions.fileShareName
+          }
+          {
+            mountPath: vsMarketplaceSettings.logs.mountPath
+            volumeName: vsMarketplaceSettings.logs.fileShareName
+          }
+        ]
       }
     ]
-    environmentResourceId: resourceId(
-      'Microsoft.App/managedEnvironments',
-      resources.containerEnvironment.name
-    )
+    environmentResourceId: resourceId('Microsoft.App/managedEnvironments', resources.containerEnvironment.name)
     enableTelemetry: enableTelemetry
     location: location
     lock: {
@@ -1321,9 +1374,21 @@ module configurationStore 'br/public:avm/res/app-configuration/configuration-sto
     roleAssignments: []
     secrets: []
     tags: resources.containerApplication.?tags
+    volumes: [
+      {
+        name: vsMarketplaceSettings.extensions.fileShareName
+        storageName: vsMarketplaceSettings.extensions.fileShareName
+        storageType: 'Smb'
+      }
+      {
+        name: vsMarketplaceSettings.logs.fileShareName
+        storageName: vsMarketplaceSettings.logs.fileShareName
+        storageType: 'Smb'
+      }
+    ]
     workloadProfileName: 'Consumption'
   }
-}*/
+}
 module containerEnvironment 'br/public:avm/res/app/managed-environment:0.13.1' = {
   params: {
     appInsightsConnectionString: applicationInsights.outputs.connectionString
@@ -1351,7 +1416,20 @@ module containerEnvironment 'br/public:avm/res/app/managed-environment:0.13.1' =
     peerTrafficEncryption: true
     publicNetworkAccess: 'Disabled'
     roleAssignments: []
-    storages: []
+    storages: [
+      {
+        accessMode: 'ReadOnly'
+        kind: 'SMB'
+        name: vsMarketplaceSettings.extensions.fileShareName
+        storageAccountName: resources.storageAccountPublic.name
+      }
+      {
+        accessMode: 'ReadWrite'
+        kind: 'SMB'
+        name: vsMarketplaceSettings.logs.fileShareName
+        storageAccountName: resources.storageAccountPublic.name
+      }
+    ]
     tags: resources.containerEnvironment.?tags
     workloadProfiles: [
       {
@@ -1426,6 +1504,11 @@ module containerRegistry 'br/public:avm/res/container-registry/registry:0.11.0' 
         name: 'mcr-k8se-quickstart'
         sourceRepository: 'mcr.microsoft.com/k8se/quickstart'
         targetRepository: 'mcr/k8se/quickstart'
+      }
+      {
+        name: 'mcr-vsmarketplace-vscode-private-marketplace'
+        sourceRepository: 'mcr.microsoft.com/vsmarketplace/vscode-private-marketplace'
+        targetRepository: 'mcr/vsmarketplace/vscode-private-marketplace'
       }
     ]
     customerManagedKey: {
@@ -1932,7 +2015,7 @@ module redisCache 'br/public:avm/res/cache/redis-enterprise:0.5.0' = {
       accessPolicyAssignments: [
         {
           accessPolicyName: 'default'
-          name: userAssignedIdentityFunctionApplication.outputs.name
+          name: resources.userAssignedIdentityFunctionApplication.name
           userObjectId: userAssignedIdentityFunctionApplication.outputs.principalId
         }
       ]
@@ -2302,6 +2385,20 @@ module storageAccountPublic 'br/public:avm/res/storage/storage-account:0.32.0' =
           accessTier: 'TransactionOptimized'
           enabledProtocols: 'SMB'
           name: 'temp'
+          roleAssignments: []
+          shareQuota: 5120
+        }
+        {
+          accessTier: 'TransactionOptimized'
+          enabledProtocols: 'SMB'
+          name: vsMarketplaceSettings.extensions.fileShareName
+          roleAssignments: []
+          shareQuota: 5120
+        }
+        {
+          accessTier: 'TransactionOptimized'
+          enabledProtocols: 'SMB'
+          name: vsMarketplaceSettings.logs.fileShareName
           roleAssignments: []
           shareQuota: 5120
         }

@@ -44,7 +44,7 @@ jobs:
               inputs:
                 addSpnToEnvironment: false
                 arguments: >-
-                  -RegistryName '${{ split(parameters.containerRegistryEndpoint, '.')[0] }}'
+                  -RegistryName '${{ split(split(parameters.containerRegistryEndpoint, '.')[0], '-')[0] }}'
                 azureSubscription: "${{ parameters.serviceConnectionName }}"
                 failOnStandardError: true
                 inlineScript: |
@@ -55,8 +55,6 @@ jobs:
                   )
                   begin {}
                   process {
-                      Write-Host $RegistryName;
-
                       $token = az acr login `
                           --expose-token `
                           --name $RegistryName `

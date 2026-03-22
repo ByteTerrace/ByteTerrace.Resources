@@ -83,20 +83,10 @@ jobs:
                 ignoreLASTEXITCODE: false
                 pwsh: true
                 script: |
-                  [CmdletBinding()]
-                  param()
-                  begin {}
-                  process {
-                      ${Env:ACR_TOKEN} | docker login `
-                        ${{ parameters.containerRegistryEndpoint }} `
-                          --password-stdin `
-                          --username 00000000-0000-0000-0000-000000000000;
-                  }
-                  end {
-                      if ((Test-Path -LiteralPath 'variable:\LASTEXITCODE')) {
-                          exit $LASTEXITCODE;
-                      }
-                  }
+                  ${Env:ACR_TOKEN} | docker login `
+                      ${{ parameters.containerRegistryEndpoint }} `
+                        --password-stdin `
+                        --username 00000000-0000-0000-0000-000000000000;
                 targetType: "inline"
             - task: DevcontainersCi@0
               displayName: "push image"

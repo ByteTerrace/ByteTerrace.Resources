@@ -84,9 +84,9 @@ jobs:
                 pwsh: true
                 script: |
                   ${Env:ACR_TOKEN} | docker login `
-                      ${{ parameters.containerRegistryEndpoint }} `
                         --password-stdin `
-                        --username 00000000-0000-0000-0000-000000000000;
+                        --username 00000000-0000-0000-0000-000000000000 `
+                        ${{ parameters.containerRegistryEndpoint }};
                 targetType: "inline"
             - task: DevcontainersCi@0
               displayName: "push image"

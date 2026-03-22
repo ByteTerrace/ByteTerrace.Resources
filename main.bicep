@@ -1095,6 +1095,11 @@ module devOpsAgentPool 'br/public:avm/res/dev-ops-infrastructure/pool:0.7.0' = {
       }
     }
     osProfile: {
+      /*secretsManagementSettings: {
+        certificateStoreName: 'My'
+        keyExportable: false
+        observedCertificates: []
+      }*/
       logonType: 'Interactive'
     }
     roleAssignments: []
@@ -1406,7 +1411,7 @@ module containerApplication 'br/public:avm/res/app/container-app:0.21.0' = {
     }
     secrets: []
     tags: resources.containerApplication.?tags
-    volumes: [
+    volumes: [/*
       {
         name: vsMarketplaceSettings.extensions.fileShareName
         storageName: vsMarketplaceSettings.extensions.fileShareName
@@ -1417,7 +1422,7 @@ module containerApplication 'br/public:avm/res/app/container-app:0.21.0' = {
         storageName: vsMarketplaceSettings.logs.fileShareName
         storageType: 'Smb'
       }
-    ]
+    */]
     workloadProfileName: 'Consumption'
   }
 }

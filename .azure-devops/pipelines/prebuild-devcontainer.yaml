@@ -96,5 +96,5 @@ jobs:
               enabled: true
               inputs:
                 imageName: "${{ parameters.containerRegistryEndpoint }}/devcontainers/azure-resources"
-                runCmd: "make ci-build"
+                runCmd: "echo $PWD"
                 sourceBranchFilterForPush: "refs/heads/main"

@@ -241,6 +241,12 @@ param resources = {
     }
     name: 'bytrcfuncp000'
   }
+  gitHub: {
+    networkSettings: {
+      businessId: '572101'
+      name: 'bytrcghns000'
+    }
+  }
   keyVault: {
     name: 'bytrckvp000'
   }
@@ -326,6 +332,14 @@ param resources = {
         delegation: 'Microsoft.App/environments'
         name: 'bytrcsnetp001'
         natGatewayResourceId: 'bytrcngp000'
+        privateEndpointNetworkPolicies: 'Disabled'
+        privateLinkServiceNetworkPolicies: 'Disabled'
+      }
+      gitHubNetwork: {
+        addressPrefixes: ['10.64.1.192/26']
+        defaultOutboundAccess: false
+        delegation: 'GitHub.Network/networkSettings'
+        name: 'bytrcsnetp004'
         privateEndpointNetworkPolicies: 'Disabled'
         privateLinkServiceNetworkPolicies: 'Disabled'
       }

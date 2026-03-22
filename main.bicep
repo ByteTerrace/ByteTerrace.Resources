@@ -120,6 +120,12 @@ type resourceType = {
     name: string
     tags: tagsType?
   }
+  gitHub: {
+    networkSettings: {
+      businessId: string
+      name: string
+    }
+  }
   keyVault: {
     name: string
     tags: tagsType?
@@ -250,6 +256,7 @@ type resourceType = {
       containerEnvironment: subnetType
       devOpsAgentPool: subnetType
       flexConsumptionApplicationServicePlan: subnetType
+      gitHubNetwork: subnetType
       privateEndpoints: subnetType
     }
     tags: tagsType?
@@ -312,6 +319,7 @@ var subnetResourceIdMap {
   containerEnvironment: string
   devOpsAgentPool: string
   flexConsumptionApplicationServicePlan: string
+  gitHubNetwork: string
   privateEndpoints: string
 } = toObject(
   map(items(resources.virtualNetwork.subnets), (subnet, index) => {
@@ -767,6 +775,14 @@ module frontDoor_waf_rateLimit 'br/public:avm/res/network/front-door-web-applica
     roleAssignments: []
     sku: 'Standard_AzureFrontDoor'
     tags: resources.frontDoor.webApplicationFirewallPolicy.?tags
+  }
+}
+resource githubNetworkSettings 'GitHub.Network/networkSettings@2024-04-02' = {
+  location: location
+  name: resources.gitHub.networkSettings.name
+  properties: {
+    businessId: resources.gitHub.networkSettings.businessId
+    subnetId: subnetResourceIdMap.gitHubNetwork
   }
 }
 module monitorPrivateLinkScope 'br/public:avm/res/insights/private-link-scope:0.7.2' = {

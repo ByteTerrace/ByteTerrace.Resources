@@ -18,7 +18,7 @@
           "github": "stable",
           "microsoft": "stable"
         },
-        "git.autofetch": false
+        "git.autofetch": true
       }
     }
   },

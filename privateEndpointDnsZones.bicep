@@ -62,7 +62,7 @@ var dnsZones {
     items(dnsZoneMap),
     category =>
       (contains(category.value, 'privatelink.')
-        ? (contains(category.key, '{0}')
+        ? (contains(category.value, '{0}')
             ? map(locations, location => {
                 category: category.key
                 subCategory: null
@@ -87,7 +87,6 @@ var dnsZones {
   }
 )
 var configurationStoreDnsZoneIndex = first(filter(dnsZones, zone => (dnsZoneMap.configurationStore == zone.value)))!.index
-var containerEnvironmentDnsZoneIndex = first(filter(dnsZones, zone => (dnsZoneMap.containerEnvironment == zone.value)))!.index
 var containerRegistryDnsZoneIndex = first(filter(dnsZones, zone => (dnsZoneMap.containerRegistry == zone.value)))!.index
 var keyVaultDnsZoneIndex = first(filter(dnsZones, zone => (dnsZoneMap.keyVault == zone.value)))!.index
 var redisCacheDnsZoneIndex = first(filter(dnsZones, zone => (dnsZoneMap.redisCache == zone.value)))!.index
@@ -131,15 +130,22 @@ resource configurationStore_virtualNetworkLinks 'Microsoft.Network/privateDnsZon
 ]
 @onlyIfNotExists()
 resource containerEnvironment_virtualNetworkLinks 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2024-06-01' = [
-  for id in virtualNetworkResourceIds: {
+  for entry in flatten(map(
+    virtualNetworkResourceIds,
+    id =>
+      map(locations, location => {
+        id: id
+        index: first(filter(dnsZones, zone => (format(dnsZoneMap.containerEnvironment, location) == zone.value)))!.index
+      })
+  )): {
     location: 'global'
-    name: '${last(split(id, '/'))}-${uniqueString(privateDnsZones[containerEnvironmentDnsZoneIndex].id, id)}'
-    parent: privateDnsZones[containerEnvironmentDnsZoneIndex]
+    name: '${last(split(entry.id, '/'))}-${uniqueString(privateDnsZones[entry.index].id, entry.id)}'
+    parent: privateDnsZones[entry.index]
     properties: {
       registrationEnabled: false
       resolutionPolicy: 'Default'
       virtualNetwork: {
-        id: id
+        id: entry.id
       }
     }
   }

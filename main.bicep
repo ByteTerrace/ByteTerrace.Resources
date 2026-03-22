@@ -1642,6 +1642,11 @@ module containerRegistry 'br/public:avm/res/container-registry/registry:0.11.0' 
     roleAssignmentMode: 'AbacRepositoryPermissions'
     roleAssignments: [
       {
+        principalId: owner.principalId
+        principalType: 'ServicePrincipal'
+        roleDefinitionIdOrName: 'Container Registry Repository Writer'
+      }
+      {
         principalId: userAssignedIdentityFunctionApplication.outputs.principalId
         principalType: 'ServicePrincipal'
         roleDefinitionIdOrName: 'Container Registry Repository Catalog Lister'

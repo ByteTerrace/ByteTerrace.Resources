@@ -3,9 +3,9 @@ parameters:
     default: "bytrcmdopp000"
     displayName: "Agent Pool Name"
     type: "string"
-  - name: "containerRegistryEndpoint"
-    default: "bytrccrp000-bcfhcyard9buh3h9.azurecr.io"
-    displayName: "Container Registry Endpoint"
+  - name: "containerRegistryName"
+    default: "bytrccrp000-bcfhcyard9buh3h9"
+    displayName: "Container Registry Name"
     type: "string"
   - name: "serviceConnectionName"
     default: "byteterrace-mpn | byteterrace"
@@ -44,7 +44,7 @@ jobs:
               inputs:
                 addSpnToEnvironment: false
                 arguments: >-
-                  -RegistryName '${{ split(parameters.containerRegistryEndpoint, '.')[0] }}'
+                  -RegistryName '${{ parameters.containerRegistryName }}'
                 azureSubscription: "${{ parameters.serviceConnectionName }}"
                 failOnStandardError: true
                 inlineScript: |

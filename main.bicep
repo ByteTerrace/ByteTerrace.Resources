@@ -279,6 +279,7 @@ type tagsType = { *: string }
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 param deployOwnerRoleAssignments bool = true
 param enableTelemetry bool = false
+param forcePrivateNetworking bool = true
 param location string = resourceGroup().location
 param lockKind ('CanNotDelete' | 'None' | 'ReadOnly') = 'CanNotDelete'
 param resources resourceType
@@ -314,6 +315,7 @@ var portalPublicDnsZone = 'portal.${apexPublicDnsZone}'
 var publicIpPrefixResourceIdMap = {
   '${resources.natGateway.publicIpPrefix.name}': natGateway_publicIpPrefix.outputs.resourceId
 }
+var publicNetworkAccess = (forcePrivateNetworking ? 'Disabled' : 'Enabled')
 var staticSiteContainerName = '$web'
 var subnetResourceIdMap {
   containerEnvironment: string
@@ -1293,20 +1295,22 @@ module configurationStore 'br/public:avm/res/app-configuration/configuration-sto
       userAssignedResourceIds: [userAssignedIdentityCustomerManagedEncryption.outputs.resourceId]
     }
     name: resources.configurationStore.name
-    privateEndpoints: [
-      {
-        enableTelemetry: enableTelemetry
-        privateDnsZoneGroup: {
-          privateDnsZoneGroupConfigs: [
-            {
-              privateDnsZoneResourceId: privateEndpointDnsZones.outputs.dnsZoneMap.configurationStore
+    privateEndpoints: (forcePrivateNetworking
+      ? [
+          {
+            enableTelemetry: enableTelemetry
+            privateDnsZoneGroup: {
+              privateDnsZoneGroupConfigs: [
+                {
+                  privateDnsZoneResourceId: privateEndpointDnsZones.outputs.dnsZoneMap.configurationStore
+                }
+              ]
             }
-          ]
-        }
-        subnetResourceId: subnetResourceIdMap.privateEndpoints
-      }
-    ]
-    publicNetworkAccess: 'Disabled'
+            subnetResourceId: subnetResourceIdMap.privateEndpoints
+          }
+        ]
+      : null)
+    publicNetworkAccess: publicNetworkAccess
     roleAssignments: [
       ...(deployOwnerRoleAssignments
         ? [
@@ -1468,7 +1472,7 @@ module containerEnvironment 'br/public:avm/res/app/managed-environment:0.13.1' =
       }
     }
     peerTrafficEncryption: true
-    publicNetworkAccess: 'Disabled'
+    publicNetworkAccess: publicNetworkAccess
     roleAssignments: []
     /*storages: [
       {
@@ -1625,20 +1629,22 @@ module containerRegistry 'br/public:avm/res/container-registry/registry:0.11.0' 
     name: resources.containerRegistry.name
     networkRuleBypassOptions: 'None'
     networkRuleSetDefaultAction: 'Deny'
-    privateEndpoints: [
-      {
-        enableTelemetry: enableTelemetry
-        privateDnsZoneGroup: {
-          privateDnsZoneGroupConfigs: [
-            {
-              privateDnsZoneResourceId: privateEndpointDnsZones.outputs.dnsZoneMap.containerRegistry
+    privateEndpoints: (forcePrivateNetworking
+      ? [
+          {
+            enableTelemetry: enableTelemetry
+            privateDnsZoneGroup: {
+              privateDnsZoneGroupConfigs: [
+                {
+                  privateDnsZoneResourceId: privateEndpointDnsZones.outputs.dnsZoneMap.containerRegistry
+                }
+              ]
             }
-          ]
-        }
-        subnetResourceId: subnetResourceIdMap.privateEndpoints
-      }
-    ]
-    publicNetworkAccess: 'Disabled'
+            subnetResourceId: subnetResourceIdMap.privateEndpoints
+          }
+        ]
+      : null)
+    publicNetworkAccess: publicNetworkAccess
     roleAssignmentMode: 'AbacRepositoryPermissions'
     roleAssignments: [
       {
@@ -1975,20 +1981,22 @@ module keyVault 'br/public:avm/res/key-vault/vault:0.13.3' = {
       ipRules: []
       virtualNetworkRules: []
     }
-    privateEndpoints: [
-      {
-        enableTelemetry: enableTelemetry
-        privateDnsZoneGroup: {
-          privateDnsZoneGroupConfigs: [
-            {
-              privateDnsZoneResourceId: privateEndpointDnsZones.outputs.dnsZoneMap.keyVault
+    privateEndpoints: (forcePrivateNetworking
+      ? [
+          {
+            enableTelemetry: enableTelemetry
+            privateDnsZoneGroup: {
+              privateDnsZoneGroupConfigs: [
+                {
+                  privateDnsZoneResourceId: privateEndpointDnsZones.outputs.dnsZoneMap.keyVault
+                }
+              ]
             }
-          ]
-        }
-        subnetResourceId: subnetResourceIdMap.privateEndpoints
-      }
-    ]
-    publicNetworkAccess: 'Disabled' // TODO: Set to 'SecuredByPerimeter' when AVM for Key Vault is updated.
+            subnetResourceId: subnetResourceIdMap.privateEndpoints
+          }
+        ]
+      : null)
+    publicNetworkAccess: publicNetworkAccess // TODO: Set to 'SecuredByPerimeter' when AVM for Key Vault is updated.
     roleAssignments: (deployOwnerRoleAssignments
       ? [
           {
@@ -2051,7 +2059,7 @@ module logAnalyticsWorkspace 'br/public:avm/res/operational-insights/workspace:0
     createMode: 'Default'
     customerManagedKey: {
       autoRotationEnabled: true
-      keyName: defaultCustomerManagedKey.name
+      keyName: defaultCustomerManagedKeySettings.keyName
       keyVaultResourceId: keyVault.outputs.resourceId
       userAssignedIdentityResourceId: userAssignedIdentityCustomerManagedEncryption.outputs.resourceId
     }
@@ -2069,20 +2077,22 @@ module logAnalyticsWorkspace 'br/public:avm/res/operational-insights/workspace:0
       userAssignedResourceIds: [userAssignedIdentityCustomerManagedEncryption.outputs.resourceId]
     }
     name: resources.postgresFlexibleServer.name
-    privateEndpoints: [
-      {
-        enableTelemetry: enableTelemetry
-        privateDnsZoneGroup: {
-          privateDnsZoneGroupConfigs: [
-            {
-              privateDnsZoneResourceId: privateEndpointDnsZones.outputs.dnsZoneMap.postgresFlexibleServer
+    privateEndpoints: (forcePrivateNetworking
+      ? [
+          {
+            enableTelemetry: enableTelemetry
+            privateDnsZoneGroup: {
+              privateDnsZoneGroupConfigs: [
+                {
+                  privateDnsZoneResourceId: privateEndpointDnsZones.outputs.dnsZoneMap.postgresFlexibleServer
+                }
+              ]
             }
-          ]
-        }
-        subnetResourceId: subnetResourceIdMap.privateEndpoints
-      }
-    ]
-    publicNetworkAccess: 'Disabled'
+            subnetResourceId: subnetResourceIdMap.privateEndpoints
+          }
+        ]
+      : null)
+    publicNetworkAccess: publicNetworkAccess
     roleAssignments: []
     skuName: (resources.postgresFlexibleServer.?skuName ?? 'Standard_B1ms')
     storageSizeGB: (resources.postgresFlexibleServer.?storageSizeGB ?? 64)
@@ -2133,20 +2143,22 @@ module redisCache 'br/public:avm/res/cache/redis-enterprise:0.5.0' = {
     }
     minimumTlsVersion: '1.2'
     name: resources.redisCache.name
-    privateEndpoints: [
-      {
-        enableTelemetry: enableTelemetry
-        privateDnsZoneGroup: {
-          privateDnsZoneGroupConfigs: [
-            {
-              privateDnsZoneResourceId: privateEndpointDnsZones.outputs.dnsZoneMap.redisCache
+    privateEndpoints: (forcePrivateNetworking
+      ? [
+          {
+            enableTelemetry: enableTelemetry
+            privateDnsZoneGroup: {
+              privateDnsZoneGroupConfigs: [
+                {
+                  privateDnsZoneResourceId: privateEndpointDnsZones.outputs.dnsZoneMap.redisCache
+                }
+              ]
             }
-          ]
-        }
-        subnetResourceId: subnetResourceIdMap.privateEndpoints
-      }
-    ]
-    publicNetworkAccess: 'Disabled'
+            subnetResourceId: subnetResourceIdMap.privateEndpoints
+          }
+        ]
+      : null)
+    publicNetworkAccess: publicNetworkAccess
     roleAssignments: []
     skuName: (resources.redisCache.?skuName ?? 'Balanced_B0')
     tags: resources.redisCache.?tags
@@ -2257,51 +2269,53 @@ module storageAccountFunction 'br/public:avm/res/storage/storage-account:0.32.0'
       resourceAccessRules: []
       virtualNetworkRules: []
     }
-    privateEndpoints: [
-      {
-        enableTelemetry: enableTelemetry
-        name: 'pep-${resources.storageAccountFunction.name}-blob-0'
-        privateDnsZoneGroup: {
-          privateDnsZoneGroupConfigs: [
-            {
-              privateDnsZoneResourceId: privateEndpointDnsZones.outputs.dnsZoneMap.storageAccount.blob
+    privateEndpoints: (forcePrivateNetworking
+      ? [
+          {
+            enableTelemetry: enableTelemetry
+            name: 'pep-${resources.storageAccountFunction.name}-blob-0'
+            privateDnsZoneGroup: {
+              privateDnsZoneGroupConfigs: [
+                {
+                  privateDnsZoneResourceId: privateEndpointDnsZones.outputs.dnsZoneMap.storageAccount.blob
+                }
+              ]
             }
-          ]
-        }
-        privateLinkServiceConnectionName: '${resources.storageAccountFunction.name}-blob-0'
-        service: 'blob'
-        subnetResourceId: subnetResourceIdMap.privateEndpoints
-      }
-      {
-        enableTelemetry: enableTelemetry
-        name: 'pep-${resources.storageAccountFunction.name}-queue-0'
-        privateDnsZoneGroup: {
-          privateDnsZoneGroupConfigs: [
-            {
-              privateDnsZoneResourceId: privateEndpointDnsZones.outputs.dnsZoneMap.storageAccount.queue
+            privateLinkServiceConnectionName: '${resources.storageAccountFunction.name}-blob-0'
+            service: 'blob'
+            subnetResourceId: subnetResourceIdMap.privateEndpoints
+          }
+          {
+            enableTelemetry: enableTelemetry
+            name: 'pep-${resources.storageAccountFunction.name}-queue-0'
+            privateDnsZoneGroup: {
+              privateDnsZoneGroupConfigs: [
+                {
+                  privateDnsZoneResourceId: privateEndpointDnsZones.outputs.dnsZoneMap.storageAccount.queue
+                }
+              ]
             }
-          ]
-        }
-        privateLinkServiceConnectionName: '${resources.storageAccountFunction.name}-queue-0'
-        service: 'queue'
-        subnetResourceId: subnetResourceIdMap.privateEndpoints
-      }
-      {
-        enableTelemetry: enableTelemetry
-        name: 'pep-${resources.storageAccountFunction.name}-table-0'
-        privateDnsZoneGroup: {
-          privateDnsZoneGroupConfigs: [
-            {
-              privateDnsZoneResourceId: privateEndpointDnsZones.outputs.dnsZoneMap.storageAccount.table
+            privateLinkServiceConnectionName: '${resources.storageAccountFunction.name}-queue-0'
+            service: 'queue'
+            subnetResourceId: subnetResourceIdMap.privateEndpoints
+          }
+          {
+            enableTelemetry: enableTelemetry
+            name: 'pep-${resources.storageAccountFunction.name}-table-0'
+            privateDnsZoneGroup: {
+              privateDnsZoneGroupConfigs: [
+                {
+                  privateDnsZoneResourceId: privateEndpointDnsZones.outputs.dnsZoneMap.storageAccount.table
+                }
+              ]
             }
-          ]
-        }
-        privateLinkServiceConnectionName: '${resources.storageAccountFunction.name}-table-0'
-        service: 'table'
-        subnetResourceId: subnetResourceIdMap.privateEndpoints
-      }
-    ]
-    publicNetworkAccess: 'Disabled' // TODO: Set to 'SecuredByPerimeter' when dependencies are onboarded to NSP.
+            privateLinkServiceConnectionName: '${resources.storageAccountFunction.name}-table-0'
+            service: 'table'
+            subnetResourceId: subnetResourceIdMap.privateEndpoints
+          }
+        ]
+      : null)
+    publicNetworkAccess: publicNetworkAccess // TODO: Set to 'SecuredByPerimeter' when dependencies are onboarded to NSP.
     queueServices: {
       corsRules: []
       diagnosticSettings: [

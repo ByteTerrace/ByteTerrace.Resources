@@ -43,6 +43,8 @@ jobs:
               enabled: true
               inputs:
                 addSpnToEnvironment: false
+                arguments: >-
+                  -RegistryName '${{ split(parameters.containerRegistryEndpoint, '.')[0] }}'
                 azureSubscription: "${{ parameters.serviceConnectionName }}"
                 failOnStandardError: true
                 inlineScript: |

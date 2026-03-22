@@ -2,6 +2,7 @@ targetScope = 'resourceGroup'
 
 type dnsZoneMapType = {
   configurationStore: string
+  containerEnvironment: string
   containerRegistry: string
   keyVault: string
   monitor: {
@@ -23,11 +24,13 @@ type dnsZoneMapType = {
   webApp: string
 }
 
+param locations string[] = [resourceGroup().location]
 param lockKind ('CanNotDelete' | 'None' | 'ReadOnly') = 'CanNotDelete'
 param virtualNetworkResourceIds string[] = []
 
 var dnsZoneMap dnsZoneMapType = {
   configurationStore: 'privatelink.azconfig.io'
+  containerEnvironment: 'privatelink.{0}.azurecontainerapps.io'
   containerRegistry: 'privatelink.azurecr.io'
   keyVault: 'privatelink.vaultcore.azure.net'
   monitor: {
@@ -59,13 +62,19 @@ var dnsZones {
     items(dnsZoneMap),
     category =>
       (contains(category.value, 'privatelink.')
-        ? [
-            {
-              category: category.key
-              subCategory: null
-              value: category.value
-            }
-          ]
+        ? (contains(category.key, '{0}')
+            ? map(locations, location => {
+                category: category.key
+                subCategory: null
+                value: format(category.value, location)
+              })
+            : [
+                {
+                  category: category.key
+                  subCategory: null
+                  value: category.value
+                }
+              ])
         : map(items(category.value), subCategory => {
             category: category.key
             subCategory: subCategory.key
@@ -78,6 +87,7 @@ var dnsZones {
   }
 )
 var configurationStoreDnsZoneIndex = first(filter(dnsZones, zone => (dnsZoneMap.configurationStore == zone.value)))!.index
+var containerEnvironmentDnsZoneIndex = first(filter(dnsZones, zone => (dnsZoneMap.containerEnvironment == zone.value)))!.index
 var containerRegistryDnsZoneIndex = first(filter(dnsZones, zone => (dnsZoneMap.containerRegistry == zone.value)))!.index
 var keyVaultDnsZoneIndex = first(filter(dnsZones, zone => (dnsZoneMap.keyVault == zone.value)))!.index
 var redisCacheDnsZoneIndex = first(filter(dnsZones, zone => (dnsZoneMap.redisCache == zone.value)))!.index
@@ -110,6 +120,21 @@ resource configurationStore_virtualNetworkLinks 'Microsoft.Network/privateDnsZon
     location: 'global'
     name: '${last(split(id, '/'))}-${uniqueString(privateDnsZones[configurationStoreDnsZoneIndex].id, id)}'
     parent: privateDnsZones[configurationStoreDnsZoneIndex]
+    properties: {
+      registrationEnabled: false
+      resolutionPolicy: 'Default'
+      virtualNetwork: {
+        id: id
+      }
+    }
+  }
+]
+@onlyIfNotExists()
+resource containerEnvironment_virtualNetworkLinks 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2024-06-01' = [
+  for id in virtualNetworkResourceIds: {
+    location: 'global'
+    name: '${last(split(id, '/'))}-${uniqueString(privateDnsZones[containerEnvironmentDnsZoneIndex].id, id)}'
+    parent: privateDnsZones[containerEnvironmentDnsZoneIndex]
     properties: {
       registrationEnabled: false
       resolutionPolicy: 'Default'

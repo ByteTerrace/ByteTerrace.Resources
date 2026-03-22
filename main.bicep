@@ -1371,7 +1371,7 @@ module containerApplication 'br/public:avm/res/app/container-app:0.21.0' = {
           cpu: json('0.5')
           memory: '1Gi'
         }
-        volumeMounts: [/*
+        /*volumeMounts: [
           {
             mountPath: vsMarketplaceSettings.extensions.mountPath
             volumeName: vsMarketplaceSettings.extensions.fileShareName
@@ -1380,7 +1380,7 @@ module containerApplication 'br/public:avm/res/app/container-app:0.21.0' = {
             mountPath: vsMarketplaceSettings.logs.mountPath
             volumeName: vsMarketplaceSettings.logs.fileShareName
           }
-        */]
+        ]*/
       }
     ]
     environmentResourceId: resourceId('Microsoft.App/managedEnvironments', resources.containerEnvironment.name)
@@ -1411,7 +1411,7 @@ module containerApplication 'br/public:avm/res/app/container-app:0.21.0' = {
     }
     secrets: []
     tags: resources.containerApplication.?tags
-    volumes: [/*
+    /*volumes: [
       {
         name: vsMarketplaceSettings.extensions.fileShareName
         storageName: vsMarketplaceSettings.extensions.fileShareName
@@ -1422,7 +1422,7 @@ module containerApplication 'br/public:avm/res/app/container-app:0.21.0' = {
         storageName: vsMarketplaceSettings.logs.fileShareName
         storageType: 'Smb'
       }
-    */]
+    ]*/
     workloadProfileName: 'Consumption'
   }
 }
@@ -1475,6 +1475,37 @@ module containerEnvironment 'br/public:avm/res/app/managed-environment:0.13.1' =
       }
     ]
     zoneRedundant: false
+  }
+}
+module containerEnvironment_privateEndpoint 'br/public:avm/res/network/private-endpoint:0.11.0' = {
+  name: '${uniqueString(deployment().name, location)}-managedEnvironments-PrivateEndpoint-0'
+  params: {
+    enableTelemetry: enableTelemetry
+    location: virtualNetwork.outputs.location
+    lock: {
+      kind: lockKind
+    }
+    name: 'pep-${last(split(containerEnvironment.outputs.resourceId, '/'))}-managedEnvironments-0'
+    privateDnsZoneGroup: {
+      privateDnsZoneGroupConfigs: [
+        {
+          privateDnsZoneResourceId: format(
+            privateEndpointDnsZones.outputs.dnsZoneMap.containerEnvironment,
+            virtualNetwork.outputs.name
+          )
+        }
+      ]
+    }
+    privateLinkServiceConnections: [
+      {
+        name: '${last(split(containerEnvironment.outputs.resourceId, '/'))}-managedEnvironments-0'
+        properties: {
+          groupIds: ['managedEnvironments']
+          privateLinkServiceId: containerEnvironment.outputs.resourceId
+        }
+      }
+    ]
+    subnetResourceId: subnetResourceIdMap.privateEndpoints
   }
 }
 /*module containerJob 'br/public:avm/res/app/job:0.7.1' = {

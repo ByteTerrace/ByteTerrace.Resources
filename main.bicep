@@ -1313,6 +1313,7 @@ module configurationStore 'br/public:avm/res/app-configuration/configuration-sto
   }
 }
 module containerApplication 'br/public:avm/res/app/container-app:0.21.0' = {
+  dependsOn: [containerEnvironment_privateEndpoint]
   params: {
     activeRevisionsMode: 'Single'
     containers: [
@@ -1453,7 +1454,7 @@ module containerEnvironment 'br/public:avm/res/app/managed-environment:0.13.1' =
     peerTrafficEncryption: true
     publicNetworkAccess: 'Disabled'
     roleAssignments: []
-    storages: [
+    /*storages: [
       {
         accessMode: 'ReadOnly'
         kind: 'SMB'
@@ -1466,7 +1467,7 @@ module containerEnvironment 'br/public:avm/res/app/managed-environment:0.13.1' =
         name: vsMarketplaceSettings.logs.fileShareName
         storageAccountName: resources.storageAccountPublic.name
       }
-    ]
+    ]*/
     tags: resources.containerEnvironment.?tags
     workloadProfiles: [
       {

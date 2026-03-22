@@ -38,7 +38,6 @@ jobs:
               enabled: true
               fetchDepth: 1
               timeoutInMinutes: 3
-            - script: echo "${{ split(parameters.containerRegistryEndpoint, '.')[0] }}"
             - task: AzureCLI@2
               displayName: "get token"
               enabled: true
@@ -56,6 +55,8 @@ jobs:
                   )
                   begin {}
                   process {
+                      Write-Host $RegistryName;
+
                       $token = az acr login `
                           --expose-token `
                           --name $RegistryName `

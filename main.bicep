@@ -2634,11 +2634,9 @@ module userAssignedIdentityFunctionApplication 'br/public:avm/res/managed-identi
     enableTelemetry: enableTelemetry
     federatedIdentityCredentials: [
       {
-        audiences: [
-          'api://AzureADTokenExchange'
-        ]
+        audiences: ['api://AzureADTokenExchange']
         issuer: 'https://token.actions.githubusercontent.com'
-        name: 'GitHub-Temp'
+        name: 'GitHub-ByteTerrace-Azure_Resources-main'
         subject: 'repo:byteterrace/Azure.Resources:ref:refs/heads/main'
       }
     ]

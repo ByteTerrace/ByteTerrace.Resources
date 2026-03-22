@@ -330,6 +330,7 @@ var vsMarketplaceSettings = {
     fileShareName: 'vsmarketplace-logs'
     mountPath: '/data/logs'
   }
+  targetPort: 8080
 }
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1308,6 +1309,7 @@ module configurationStore 'br/public:avm/res/app-configuration/configuration-sto
 }
 module containerApplication 'br/public:avm/res/app/container-app:0.21.0' = {
   params: {
+    activeRevisionsMode: 'Single'
     containers: [
       {
         env: [
@@ -1328,9 +1330,13 @@ module containerApplication 'br/public:avm/res/app/container-app:0.21.0' = {
             value: 'byteterrace'
           }
           {
+            name: 'Marketplace__Logging__LogToConsole'
+            value: 'true'
+          }
+          /*{
             name: 'Marketplace__LogsDirectory'
             value: vsMarketplaceSettings.logs.mountPath
-          }
+          }*/
           {
             name: 'Marketplace__Upstreaming__Mode'
             value: 'None'
@@ -1338,11 +1344,29 @@ module containerApplication 'br/public:avm/res/app/container-app:0.21.0' = {
         ]
         image: '${containerRegistry.outputs.loginServer}/mcr/vsmarketplace/vscode-private-marketplace:latest'
         name: 'main'
+        probes: [
+          {
+            httpGet: {
+              path: '/health/alive'
+              port: vsMarketplaceSettings.targetPort
+              scheme: 'HTTP'
+            }
+            type: 'Startup'
+          }
+          {
+            httpGet: {
+              path: '/health/ready'
+              port: vsMarketplaceSettings.targetPort
+              scheme: 'HTTP'
+            }
+            type: 'Readiness'
+          }
+        ]
         resources: {
           cpu: json('0.5')
           memory: '1Gi'
         }
-        volumeMounts: [
+        volumeMounts: [/*
           {
             mountPath: vsMarketplaceSettings.extensions.mountPath
             volumeName: vsMarketplaceSettings.extensions.fileShareName
@@ -1351,11 +1375,15 @@ module containerApplication 'br/public:avm/res/app/container-app:0.21.0' = {
             mountPath: vsMarketplaceSettings.logs.mountPath
             volumeName: vsMarketplaceSettings.logs.fileShareName
           }
-        ]
+        */]
       }
     ]
     environmentResourceId: resourceId('Microsoft.App/managedEnvironments', resources.containerEnvironment.name)
     enableTelemetry: enableTelemetry
+    ingressAllowInsecure: false
+    ingressExternal: true
+    ingressTargetPort: vsMarketplaceSettings.targetPort
+    ingressTransport: 'auto'
     location: location
     lock: {
       kind: lockKind
@@ -1372,6 +1400,10 @@ module containerApplication 'br/public:avm/res/app/container-app:0.21.0' = {
       }
     ]
     roleAssignments: []
+    scaleSettings: {
+      maxReplicas: 1
+      minReplicas: 1
+    }
     secrets: []
     tags: resources.containerApplication.?tags
     volumes: [

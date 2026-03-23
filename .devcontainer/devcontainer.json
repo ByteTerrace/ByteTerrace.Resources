@@ -41,7 +41,6 @@
     }
   },
   "image": "mcr.microsoft.com/devcontainers/dotnet:10.0",
-  "initializeCommand": "pwsh -NoProfile -Command \"New-Item -ItemType Directory -Force -Path '${localWorkspaceFolder}/../azdo-repos' | Out-Null\"",
   "name": "ByteTerrace.Azure.Resources",
   "onCreateCommand": "external-git clone",
   "postStartCommand": "external-git config",

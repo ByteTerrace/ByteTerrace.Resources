@@ -44,6 +44,6 @@
   "name": "ByteTerrace.Azure.Resources",
   "onCreateCommand": "external-git clone",
   "postStartCommand": "external-git config",
-  "workspaceFolder": "/workspaces/Azure.Resources",
-  "workspaceMount": "source=${localWorkspaceFolder},target=/workspaces/Azure.Resources,type=bind,consistency=cached"
+  "workspaceFolder": "/workspace",
+  "workspaceMount": "source=${localWorkspaceFolder}/workspaces/Azure.Resources,target=/workspace,type=bind,consistency=cached"
 }

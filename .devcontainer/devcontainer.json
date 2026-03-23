@@ -35,7 +35,7 @@
       "branch": "main",
       "clientID": "dceac86e-172a-4779-b914-d983ca431c21",
       "cloneUrl": "https://dev.azure.com/byteterrace/Koholint/_git/Azure.Resources",
-      "folder": "/.azure-devops/Azure.Resources",
+      "folder": "/workspaces/Azure.Resources",
       "gitProvider": "azuredevops",
       "tenantID": "e09734be-ca09-41ec-b70d-98f5536fb774"
     }

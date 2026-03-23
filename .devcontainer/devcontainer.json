@@ -35,16 +35,15 @@
       "branch": "main",
       "clientID": "dceac86e-172a-4779-b914-d983ca431c21",
       "cloneUrl": "https://dev.azure.com/byteterrace/Koholint/_git/Azure.Resources",
-      "folder": "/workspaces/ByteTerrace.Azure.Resources",
+      "folder": "/workspaces/azdo-repos",
       "gitProvider": "azuredevops",
       "tenantID": "e09734be-ca09-41ec-b70d-98f5536fb774"
     }
   },
   "image": "mcr.microsoft.com/devcontainers/dotnet:10.0",
-  "initializeCommand": "mkdir -p ${localWorkspaceFolder}/../ByteTerrace.Azure.Resources",
+  "initializeCommand": "mkdir -p ${localWorkspaceFolder}/../azdo-repos",
   "name": "ByteTerrace.Azure.Resources",
   "onCreateCommand": "external-git clone",
   "postStartCommand": "external-git config",
-  "workspaceFolder": "/workspaces/ByteTerrace.Azure.Resources",
-  "workspaceMount": "source=${localWorkspaceFolder},target=/workspaces/ByteTerrace.Azure.Resources,type=bind,consistency=cached"
+  "workspaceFolder": "/workspaces/azdo-repos"
 }

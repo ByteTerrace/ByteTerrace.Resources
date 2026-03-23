@@ -45,5 +45,6 @@
   "name": "ByteTerrace.Azure.Resources",
   "onCreateCommand": "external-git clone",
   "postStartCommand": "external-git config",
-  "workspaceFolder": "/workspaces/azdo-repos"
+  "workspaceFolder": "/workspaces/azdo-repos",
+  "workspaceMount": "source=${localWorkspaceFolder}/../azdo-repos,target=/workspaces/azdo-repos,type=bind"
 }

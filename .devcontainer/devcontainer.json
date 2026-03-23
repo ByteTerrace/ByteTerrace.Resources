@@ -35,7 +35,7 @@
       "branch": "main",
       "clientID": "dceac86e-172a-4779-b914-d983ca431c21",
       "cloneUrl": "https://dev.azure.com/byteterrace/Koholint/_git/Azure.Resources",
-      "folder": "/workspaces/azdo-repos",
+      "folder": "/workspaces/.azure-devops",
       "gitProvider": "azuredevops",
       "tenantID": "e09734be-ca09-41ec-b70d-98f5536fb774"
     }
@@ -44,6 +44,6 @@
   "name": "ByteTerrace.Azure.Resources",
   "onCreateCommand": "external-git clone",
   "postStartCommand": "external-git config",
-  "workspaceFolder": "/workspaces/azdo-repos",
-  "workspaceMount": "source=${localWorkspaceFolder}/../azdo-repos,target=/workspaces/azdo-repos,type=bind"
+  "workspaceFolder": "/workspaces/.azure-devops",
+  "workspaceMount": "source=${localWorkspaceFolder}/../.azure-devops,target=/workspaces/.azure-devops,type=bind"
 }

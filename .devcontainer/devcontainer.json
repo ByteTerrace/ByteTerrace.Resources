@@ -45,5 +45,5 @@
   "onCreateCommand": "external-git clone",
   "postStartCommand": "external-git config",
   "workspaceFolder": "/workspaces/azdo-clone",
-  "workspaceMount": "source=${localWorkspaceFolder}/workspaces,target=/workspaces/azdo-clone,type=bind,consistency=cached"
+  "workspaceMount": "source=${localWorkspaceFolder},target=/workspaces/azdo-clone,type=bind,consistency=cached"
 }
